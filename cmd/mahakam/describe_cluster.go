@@ -27,5 +27,5 @@ func RunDescribeCluster(dco *DescribeClusterOptions) error {
 }
 
 func init() {
-	describeCmd.AddCommand(createClusterCmd)
+	describeCmd.AddCommand(describeClusterCmd)
 }
