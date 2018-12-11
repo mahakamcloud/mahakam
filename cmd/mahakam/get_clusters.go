@@ -27,5 +27,5 @@ func RunGetClusters(gclo *GetClustersOptions) error {
 }
 
 func init() {
-	createCmd.AddCommand(getClustersCmd)
+	getCmd.AddCommand(getClustersCmd)
 }

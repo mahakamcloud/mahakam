@@ -27,5 +27,5 @@ func RunGetCharts(gco *GetChartsOptions) error {
 }
 
 func init() {
-	createCmd.AddCommand(getChartsCmd)
+	getCmd.AddCommand(getChartsCmd)
 }
