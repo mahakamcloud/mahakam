@@ -27,5 +27,5 @@ func RunGetClusterPlans(gcpo *GetClusterPlansOptions) error {
 }
 
 func init() {
-	createCmd.AddCommand(getClusterPlansCmd)
+	getCmd.AddCommand(getClusterPlansCmd)
 }

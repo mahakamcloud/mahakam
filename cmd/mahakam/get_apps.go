@@ -27,5 +27,5 @@ func RunGetApps(gao *GetAppsOptions) error {
 }
 
 func init() {
-	createCmd.AddCommand(getAppsCmd)
+	getCmd.AddCommand(getAppsCmd)
 }

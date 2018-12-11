@@ -1,2 +1,2 @@
 # mahakam
-Cloud application platform with Kubernetes
+Cloud application platform on Kubernetes

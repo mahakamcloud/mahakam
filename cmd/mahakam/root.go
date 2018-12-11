@@ -10,7 +10,7 @@ import (
 var RootCmd = &cobra.Command{
 	Use:   "mahakam",
 	Short: "application cloud platform",
-	Long:  `Simple application cloud platform with Kubernetes`,
+	Long:  `Simple application cloud platform on Kubernetes`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},
