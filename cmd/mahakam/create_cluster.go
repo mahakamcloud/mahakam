@@ -6,25 +6,25 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type CreateOptions struct {
+type CreateClusterOptions struct {
 	NumNodes int
 }
 
-var co = &CreateOptions{}
+var cco = &CreateClusterOptions{}
 
 var createClusterCmd = &cobra.Command{
 	Use:   "cluster",
 	Short: "Create kubernetes cluster",
 	Long:  `Create a kubernetes cluster with one command`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := RunCreate(co); err != nil {
-			fmt.Printf("RunCreate error: %s", err.Error())
+		if err := RunCreateCluster(cco); err != nil {
+			fmt.Printf("RunCreateCluster error: %s", err.Error())
 		}
 	},
 }
 
-func RunCreate(co *CreateOptions) error {
-	fmt.Println("RunCreate not yet implemented")
+func RunCreateCluster(cco *CreateClusterOptions) error {
+	fmt.Println("RunCreateCluster not yet implemented")
 	return nil
 }
 
