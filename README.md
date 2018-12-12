@@ -1,2 +1,23 @@
-# mahakam
+# Mahakam [![Build Status](https://circleci.com/gh/mahakamcloud/mahakam.svg?style=shield)](https://circleci.com/gh/mahakamcloud/mahakam)
 Cloud application platform on Kubernetes
+
+## Common Development Task
+Running unit test
+```
+$ make test
+```
+
+Building mahakam cli as per your machine, find the build under `dist/bin`
+```
+$ make mahakam
+```
+
+Generate mahakam server api using swagger
+```
+$ make generate-server
+```
+
+Generate mahakam client api using swagger
+```
+$ make generate-client
+```
