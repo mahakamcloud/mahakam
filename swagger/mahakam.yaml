@@ -1,0 +1,80 @@
+swagger: "2.0"
+info:
+  description: API definitions for Mahakam Cloud Platform
+  title: Mahakam API
+  version: 1.0.0
+consumes:
+- application/com.gojek.mahakam.v1+json
+produces:
+- application/com.gojek.mahakam.v1+json
+schemes:
+- http
+basePath: /v1
+paths:
+  /clusters:
+    get:
+      tags:
+        - clusters
+      operationId: getClusters
+      responses:
+        200:
+          description: list available clusters
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/cluster"
+        default:
+          description: generic error response
+          schema:
+            $ref: "#/definitions/error"
+    post:
+      tags:
+        - clusters
+      operationId: createCluster
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: "#/definitions/cluster"
+      responses:
+        201:
+          description: Created
+          schema:
+            $ref: "#/definitions/cluster"
+        default:
+          description: error
+          schema:
+            $ref: "#/definitions/error"
+definitions:
+  cluster:
+    type: object
+    required:
+      - name
+    properties:
+      id:
+        type: integer
+        format: int64
+        readOnly: true
+      clusterPlan:
+        type: string
+        enum: ["small", "medium", "large"]
+      name:
+        type: string
+        minLength: 1
+      numNodes:
+        type: integer
+        minimum: 3
+        maximum: 10
+      status:
+        type: string
+        enum: ["pending", "running", "succeeded", "failed", "unknown"]
+  error:
+    type: object
+    required:
+      - message
+    properties:
+      code:
+        type: integer
+        format: int64
+      message:
+        type: string
