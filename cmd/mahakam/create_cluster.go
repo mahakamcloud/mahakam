@@ -26,13 +26,19 @@ var createClusterCmd = &cobra.Command{
 			exitWithHelp(cmd, "Please provide name for your cluster.")
 		}
 
-		if err := RunCreateCluster(cco); err != nil {
+		res, err := RunCreateCluster(cco)
+		if err != nil {
 			fmt.Printf("create cluster error: %s", err.Error())
 		}
+
+		fmt.Println("Creating kubernetes cluster...")
+		fmt.Printf("\nName:\t%s", swag.StringValue(res.Name))
+		fmt.Printf("\nWorker Nodes:\t%v", res.NumNodes)
+		fmt.Printf("\n\nUse 'mahakam describe cluster %s' to monitor the state of your cluster", swag.StringValue(res.Name))
 	},
 }
 
-func RunCreateCluster(cco *CreateClusterOptions) error {
+func RunCreateCluster(cco *CreateClusterOptions) (*models.Cluster, error) {
 	c := GetClusterClient()
 	req := &models.Cluster{
 		Name:     swag.String(cco.Name),
@@ -41,11 +47,10 @@ func RunCreateCluster(cco *CreateClusterOptions) error {
 
 	res, err := c.Clusters.CreateCluster(clusters.NewCreateClusterParams().WithBody(req))
 	if err != nil {
-		return fmt.Errorf("error creating cluster '%v': '%v'", cco, err)
+		return nil, fmt.Errorf("error creating cluster '%v': '%v'", cco, err)
 	}
 
-	fmt.Printf("successfully created cluster: '%v'", res)
-	return nil
+	return res.Payload, nil
 }
 
 func init() {
