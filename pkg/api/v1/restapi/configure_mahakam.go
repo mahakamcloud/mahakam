@@ -6,12 +6,16 @@ import (
 	"crypto/tls"
 	"net/http"
 
+	"github.com/go-openapi/swag"
+
 	errors "github.com/go-openapi/errors"
 	runtime "github.com/go-openapi/runtime"
 	middleware "github.com/go-openapi/runtime/middleware"
 
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/clusters"
+	"github.com/mahakamcloud/mahakam/pkg/provisioner"
 )
 
 //go:generate swagger generate server --target .. --name Mahakam --spec ../../../../swagger/mahakam.yaml --client-package mahakam
@@ -35,8 +39,12 @@ func configureAPI(api *operations.MahakamAPI) http.Handler {
 	api.JSONProducer = runtime.JSONProducer()
 
 	api.ClustersCreateClusterHandler = clusters.CreateClusterHandlerFunc(func(params clusters.CreateClusterParams) middleware.Responder {
-		return middleware.NotImplemented("operation clusters.CreateCluster has not yet been implemented")
+		if err := provisioner.CreateCluster(params.Body); err != nil {
+			return clusters.NewCreateClusterDefault(405).WithPayload(&models.Error{Code: 405, Message: swag.String(err.Error())})
+		}
+		return clusters.NewCreateClusterCreated().WithPayload(params.Body)
 	})
+
 	api.ClustersGetClustersHandler = clusters.GetClustersHandlerFunc(func(params clusters.GetClustersParams) middleware.Responder {
 		return middleware.NotImplemented("operation clusters.GetClusters has not yet been implemented")
 	})
