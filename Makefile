@@ -18,4 +18,4 @@ vet: ## Run go vet against code
 .PHONY: generate
 generate: ## Generate swagger server
 	cd $(BASE)/pkg/api/v1 && swagger generate server \
-		-A mahakam -f $(BASE)/swagger/mahakam.yaml -c mahakam --skip-validation
+		-A mahakam -f $(BASE)/swagger/mahakam.yaml --exclude-main --skip-validation
