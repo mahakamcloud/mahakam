@@ -12,10 +12,10 @@ API definitions for Mahakam Cloud Platform
     Version: 1.0.0
 
     Consumes:
-    - application/com.gojek.mahakam.v1+json
+    - application/json
 
     Produces:
-    - application/com.gojek.mahakam.v1+json
+    - application/json
 
 swagger:meta
 */

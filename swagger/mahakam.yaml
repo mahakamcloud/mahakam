@@ -4,9 +4,9 @@ info:
   title: Mahakam API
   version: 1.0.0
 consumes:
-- application/com.gojek.mahakam.v1+json
+- application/json
 produces:
-- application/com.gojek.mahakam.v1+json
+- application/json
 schemes:
 - http
 basePath: /v1

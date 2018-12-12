@@ -70,10 +70,10 @@ type MahakamAPI struct {
 	// It has a default implemention in the security package, however you can replace it for your particular usage.
 	BearerAuthenticator func(string, security.ScopedTokenAuthentication) runtime.Authenticator
 
-	// JSONConsumer registers a consumer for a "application/com.gojek.mahakam.v1+json" mime type
+	// JSONConsumer registers a consumer for a "application/json" mime type
 	JSONConsumer runtime.Consumer
 
-	// JSONProducer registers a producer for a "application/com.gojek.mahakam.v1+json" mime type
+	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
 	// ClustersCreateClusterHandler sets the operation handler for the create cluster operation
@@ -184,8 +184,8 @@ func (o *MahakamAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consum
 	for _, mt := range mediaTypes {
 		switch mt {
 
-		case "application/com.gojek.mahakam.v1+json":
-			result["application/com.gojek.mahakam.v1+json"] = o.JSONConsumer
+		case "application/json":
+			result["application/json"] = o.JSONConsumer
 
 		}
 
@@ -204,8 +204,8 @@ func (o *MahakamAPI) ProducersFor(mediaTypes []string) map[string]runtime.Produc
 	for _, mt := range mediaTypes {
 		switch mt {
 
-		case "application/com.gojek.mahakam.v1+json":
-			result["application/com.gojek.mahakam.v1+json"] = o.JSONProducer
+		case "application/json":
+			result["application/json"] = o.JSONProducer
 
 		}
 
