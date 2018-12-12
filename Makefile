@@ -15,7 +15,12 @@ fmt: ## Run go fmt against code
 vet: ## Run go vet against code
 	go vet ./pkg/... ./cmd/...
 
-.PHONY: generate
-generate: ## Generate swagger server
+.PHONY: generate-server
+generate-server: ## Generate swagger server
 	cd $(BASE)/pkg/api/v1 && swagger generate server \
 		-A mahakam -f $(BASE)/swagger/mahakam.yaml --exclude-main --skip-validation
+
+.PHONY: generate-client
+generate-client: ## Generate swagger client
+	cd $(BASE)/pkg/api/v1 && swagger generate client \
+		-A mahakam -f $(BASE)/swagger/mahakam.yaml -c client --skip-validation
