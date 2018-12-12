@@ -1,0 +1,13 @@
+version: 2
+jobs:
+  build:
+    working_directory: /go/src/github.com/mahakamcloud/mahakam
+    docker:
+      - image: circleci/golang:1.10
+    steps:
+      - checkout
+
+      - run: go get -v -t -d ./...
+          name: Run unit tests
+          command: ./hack/test.sh
+          no_output_timeout: 30m
