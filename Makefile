@@ -1,3 +1,11 @@
+GIT_VERSION = $(shell git describe --tags --dirty)
+VERSION ?= $(GIT_VERSION)
+
+GO ?= go
+GOVERSIONS ?= go1.9 go1.10 go1.11
+OS := $(shell uname)
+SHELL := /bin/bash
+
 BASE = $(GOPATH)/src/github.com/mahakamcloud/mahakam
 
 help:  ## Display this help
@@ -14,6 +22,11 @@ fmt: ## Run go fmt against code
 .PHONY: vet
 vet: ## Run go vet against code
 	go vet ./pkg/... ./cmd/...
+
+.PHONY: test
+test: ## run tests
+	@echo running tests...
+	$(GO) test -v $(shell go list -v ./... | grep -v /vendor/ | grep -v integration )
 
 .PHONY: generate-server
 generate-server: ## Generate swagger server
