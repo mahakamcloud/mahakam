@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: /go/src/github.com/mahakamcloud/mahakam
     docker:
-      - image: circleci/golang:1.10
+      - image: mahakamcloud/builder:20181213
     steps:
       - checkout
 
