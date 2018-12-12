@@ -3,6 +3,10 @@ package main
 import (
 	"fmt"
 
+	"github.com/go-openapi/swag"
+
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/clusters"
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/spf13/cobra"
 )
 
@@ -23,14 +27,24 @@ var createClusterCmd = &cobra.Command{
 		}
 
 		if err := RunCreateCluster(cco); err != nil {
-			fmt.Printf("RunCreateCluster error: %s", err.Error())
+			fmt.Printf("create cluster error: %s", err.Error())
 		}
 	},
 }
 
 func RunCreateCluster(cco *CreateClusterOptions) error {
-	fmt.Printf("+%v", cco)
+	c := GetClusterClient()
+	req := &models.Cluster{
+		Name:     swag.String(cco.Name),
+		NumNodes: int64(cco.NumNodes),
+	}
 
+	res, err := c.Clusters.CreateCluster(clusters.NewCreateClusterParams().WithBody(req))
+	if err != nil {
+		return fmt.Errorf("error creating cluster '%v': '%v'", cco, err)
+	}
+
+	fmt.Printf("successfully created cluster: '%v'", res)
 	return nil
 }
 
