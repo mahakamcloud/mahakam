@@ -28,6 +28,11 @@ test: ## run tests
 	@echo running tests...
 	$(GO) test -v $(shell go list -v ./... | grep -v /vendor/ | grep -v integration )
 
+.PHONY: server
+server: ## run dev server
+	@echo running dev server...
+	$(GO) run $(BASE)/cmd/mahakam-server/main.go --port 9000
+
 .PHONY: generate-server
 generate-server: ## Generate swagger server
 	cd $(BASE)/pkg/api/v1 && swagger generate server \
