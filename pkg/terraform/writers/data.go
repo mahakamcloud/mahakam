@@ -6,6 +6,6 @@ type DataWriter struct {
 	*AbstractWriter
 }
 
-func (self *DataWriter) writeFile() {
+func (dw *DataWriter) writeFile() {
 	fmt.Println("Writing Terraform data.tf template")
 }

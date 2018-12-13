@@ -13,6 +13,6 @@ type AbstractWriter struct {
 	Writer Writer
 }
 
-func (self *AbstractWriter) Start() {
-	self.Writer.writeFile()
+func (aw *AbstractWriter) Start() {
+	aw.Writer.writeFile()
 }

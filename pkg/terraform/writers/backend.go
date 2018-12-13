@@ -21,7 +21,7 @@ type BackendWriter struct {
 	*AbstractWriter
 }
 
-func (self *BackendWriter) writeFile() {
+func (bw *BackendWriter) writeFile() {
 	if _, err := os.Stat(basePath); os.IsNotExist(err) {
 		os.MkdirAll(basePath, os.ModePerm)
 	}
