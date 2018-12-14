@@ -1,10 +1,8 @@
 package resourcestore
 
 import (
-	"context"
 	"fmt"
 	"strings"
-	"time"
 )
 
 // Status represents current state of task or entity
@@ -22,21 +20,6 @@ type ResourceKind string
 // Labels are filterable metadata as key pairs
 type Labels map[string]string
 
-// Resource is base interface for all stored resources or objects
-type Resource interface{}
-
-// BaseResource is the base struct for all stored resources or objects
-type BaseResource struct {
-	ID           string    `json:"id"`
-	Name         string    `json:"name"`
-	Owner        string    `json:"owner"`
-	CreatedTime  time.Time `json:"createdTime,omitempty"`
-	ModifiedTime time.Time `json:"modifiedTimeomitempty"`
-	Revision     uint64    `json:"revision"`
-	Status       Status    `json:"status"`
-	Labels       Labels    `json:"labels"`
-}
-
 func buildKey(rk ResourceKind, owner string, id ...string) string {
 	sub := strings.Join(id, "/")
 	return fmt.Sprintf("%s/%s/%s", rk, owner, sub)
@@ -44,11 +27,11 @@ func buildKey(rk ResourceKind, owner string, id ...string) string {
 
 // ResourceStore is docker libkv wrapper
 type ResourceStore interface {
-	Add(ctx context.Context, resource Resource) (id string, err error)
-	Get(ctx context.Context, owner string, key string, resource Resource) error
-	List(ctx context.Context, owner string, resources interface{}) error
-	Update(ctx context.Context, resource Resource) (revision int64, err error)
-	Delete(ctx context.Context, owner string, id string, resource Resource) error
+	Add(resource Resource) (id string, err error)
+	Get(owner string, key string, resource Resource) error
+	List(owner string, resources interface{}) error
+	Update(resource Resource) (revision int64, err error)
+	Delete(owner string, id string, resource Resource) error
 }
 
 // StorageBackendConfig stores metadata for storage backend that we use
