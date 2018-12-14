@@ -3,8 +3,9 @@ package cmd_runner_test
 import (
 	"io/ioutil"
 	"os"
-	"github.com/mahakamcloud/mahakam/pkg/cmd_runner"
 	"testing"
+
+	"github.com/mahakamcloud/mahakam/pkg/cmd_runner"
 )
 
 func TestInvalidCommand(t *testing.T) {
