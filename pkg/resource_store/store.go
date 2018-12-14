@@ -64,7 +64,7 @@ type StorageBackendConfig struct {
 func New(config StorageBackendConfig) (ResourceStore, error) {
 	switch config.BackendType {
 	case "postgres":
-		p, err := newPostgres(config)
+		p, err := NewPostgresResourceStore(config)
 		if err != nil {
 			return nil, fmt.Errorf("Create resource store with postgres error: %s", err)
 		}
