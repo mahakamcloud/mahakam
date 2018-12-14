@@ -28,13 +28,13 @@ type Resource interface{}
 // BaseResource is the base struct for all stored resources or objects
 type BaseResource struct {
 	ID           string    `json:"id"`
-	Name         string    `json:"name`
-	Owner        string    `json:owner`
-	CreatedTime  time.Time `json:createdTime,omitempty`
-	ModifiedTime time.Time `json:"modifiedTimeomitempty`
+	Name         string    `json:"name"`
+	Owner        string    `json:"owner"`
+	CreatedTime  time.Time `json:"createdTime,omitempty"`
+	ModifiedTime time.Time `json:"modifiedTimeomitempty"`
 	Revision     uint64    `json:"revision"`
-	Status       Status    `json:"status`
-	Labels       Labels    `json:"labels`
+	Status       Status    `json:"status"`
+	Labels       Labels    `json:"labels"`
 }
 
 func buildKey(rk ResourceKind, owner string, id ...string) string {
