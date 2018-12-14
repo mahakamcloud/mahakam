@@ -34,6 +34,14 @@
   version = "v0.3.3"
 
 [[projects]]
+  digest = "1:d36ef3a334727f1c231c91e3d78cd5ac53dd2fcae79971eeb0d1b07376061a60"
+  name = "github.com/docker/libkv"
+  packages = ["store"]
+  pruneopts = "UT"
+  revision = "aabc039ad04deb721e234f99cd1b4aa28ac71a40"
+  version = "v0.2.1"
+
+[[projects]]
   branch = "master"
   digest = "1:7fb51688eadf38272411852d7a2b3538c7caff53309abee6c0964a83c00fe69e"
   name = "github.com/globalsign/mgo"
@@ -237,6 +245,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/docker/libkv/store",
     "github.com/go-openapi/errors",
     "github.com/go-openapi/loads",
     "github.com/go-openapi/runtime",
