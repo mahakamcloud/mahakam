@@ -13,7 +13,9 @@ import (
 func CreateCluster(cluster *models.Cluster) error {
 	fmt.Println("Creating cluster...")
 
-	backendWriter := &writers.AbstractWriter{&writers.BackendWriter{}}
+	backendWriter := &writers.AbstractWriter{
+		Writer: &writers.BackendWriter{},
+	}
 	backendWriter.Start()
 
 	return nil
