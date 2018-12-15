@@ -4,16 +4,21 @@ import (
 	"fmt"
 	"regexp"
 	"time"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 // Resource is base interface for all stored resources or objects
 type Resource interface {
 	GetResource() *BaseResource
+	BuildResource() *BaseResource
+	BuildKey() string
 	PreCheck() error
 }
 
 // BaseResource is the base struct for all stored resources or objects
 type BaseResource struct {
+	ID           string    `json:"id"`
 	Name         string    `json:"name"`
 	Kind         string    `json:"kind"`
 	Owner        string    `json:"owner"`
@@ -24,6 +29,16 @@ type BaseResource struct {
 }
 
 func (br *BaseResource) GetResource() *BaseResource {
+	return br
+}
+
+func (br *BaseResource) BuildResource() *BaseResource {
+	br.ID = uuid.NewV4().String()
+
+	now := time.Now()
+	br.CreatedTime = now
+	br.ModifiedTime = now
+
 	return br
 }
 
