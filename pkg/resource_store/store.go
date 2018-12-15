@@ -8,10 +8,16 @@ import (
 // Status represents current state of task or entity
 type Status string
 
+// StorageBackend represents type of storage for kv store backend
+type StorageBackend string
+
 const (
 	StatusPending  Status = "Pending"
 	StatusCreating Status = "Creating"
 	StatusReady    Status = "Ready"
+
+	BackendPostgres StorageBackend = "postgres"
+	BackendConsul   StorageBackend = "consul"
 )
 
 // ResourceKind represents stored resource kind
@@ -46,12 +52,18 @@ type StorageBackendConfig struct {
 // New creates resource store backed by choice of storage backend type
 func New(config StorageBackendConfig) (ResourceStore, error) {
 	switch config.BackendType {
-	case "postgres":
+	case string(BackendPostgres):
 		p, err := NewPostgresResourceStore(config)
 		if err != nil {
 			return nil, fmt.Errorf("Create resource store with postgres error: %s", err)
 		}
 		return p, nil
+	case string(BackendConsul):
+		c, err := newConsulKVStore(config)
+		if err != nil {
+			return nil, fmt.Errorf("Create resource store with consul error: %s", err)
+		}
+		return NewKVResourceStore(c), nil
 	default:
 		return nil, fmt.Errorf("Create resource store error: %s not supported", config.BackendType)
 	}
