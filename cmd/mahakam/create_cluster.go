@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/swag"
+	"github.com/golang/glog"
 
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/clusters"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
@@ -28,7 +29,7 @@ var createClusterCmd = &cobra.Command{
 
 		res, err := RunCreateCluster(cco)
 		if err != nil {
-			fmt.Printf("create cluster error: %s", err.Error())
+			glog.Exit(err)
 		}
 
 		fmt.Println("Creating kubernetes cluster...")
