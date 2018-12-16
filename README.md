@@ -1,4 +1,4 @@
-# Mahakam [![Build Status](https://circleci.com/gh/MahakamCloud/mahakam.svg?style=shield)](https://circleci.com/gh/MahakamCloud/mahakam)
+# Mahakam [![Build Status](https://circleci.com/gh/mahakamcloud/mahakam.svg?style=shield)](https://circleci.com/gh/mahakamcloud/mahakam)
 Cloud application platform on Kubernetes
 
 ## Common Development Task
