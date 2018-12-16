@@ -26,7 +26,7 @@ func (kvr *kvResourceStore) Add(r Resource) (id string, err error) {
 	// TODO(giri): check if key exists or duplicated
 	key := r.BuildKey()
 
-	value, err := json.Marshal(r.BuildResource())
+	value, err := json.Marshal(r)
 	if err != nil {
 		return "", fmt.Errorf("Add KV resource serialization error: %s", err)
 	}
@@ -43,35 +43,29 @@ func (kvr *kvResourceStore) Add(r Resource) (id string, err error) {
 	return r.GetResource().ID, nil
 }
 
-func (kvr *kvResourceStore) Get(owner string, name string, resource Resource) error {
-	err := kvr.find(owner, name, nil)
+func (kvr *kvResourceStore) Get(r Resource) error {
+	if r.GetResource().Owner == "" {
+		return fmt.Errorf("Owner parameter is required for getting resource")
+	}
+	if r.GetResource().Name == "" {
+		return fmt.Errorf("Name parameter is required for getting resource")
+	}
+	if r.GetResource().Kind == "" {
+		return fmt.Errorf("Kind parameter is required for getting resource")
+	}
+
+	res, err := kvr.store.Get(r.BuildKey())
 	if err != nil {
-		return fmt.Errorf("Error getting resource from kv store: %s", err)
+		return fmt.Errorf("Error getting response from kv store: %s", err)
 	}
 
-	return nil
-}
-
-func (kvr *kvResourceStore) find(owner string, name string, resource Resource) error {
-	if owner == "" {
-		return fmt.Errorf("Owner parameter is required for finding resource")
-	}
-	if name == "" {
-		return fmt.Errorf("Name parameter is required for finding resource")
-	}
-
-	res, err := kvr.store.Get(resource.BuildKey())
-	if err != nil {
-		return fmt.Errorf("Error getting resource from kv store: %s", err)
-	}
-
-	err = json.Unmarshal(res.Value, resource)
+	err = json.Unmarshal(res.Value, r)
 	if err != nil {
 		return fmt.Errorf("Error unmarshalling resource: %s", err)
 	}
 
 	// TODO(giri): filter based on given labels and scope
-	resource.GetResource().Revision = res.LastIndex
+	r.GetResource().Revision = res.LastIndex
 	return nil
 }
 
