@@ -8,7 +8,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-// Resource is base interface for all stored resources or objects
+// Resource is interface for all stored resources or objects
 type Resource interface {
 	GetResource() *BaseResource
 	BuildResource() Resource

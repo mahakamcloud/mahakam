@@ -26,8 +26,9 @@ func (kvr *kvResourceStore) Add(r Resource) (id string, err error) {
 
 	// TODO(giri): check if key exists or duplicated
 	key := r.BuildKey()
+	r.BuildResource()
 
-	value, err := json.Marshal(r.BuildResource())
+	value, err := json.Marshal(r)
 	if err != nil {
 		return "", fmt.Errorf("Add KV resource serialization error: %s", err)
 	}
