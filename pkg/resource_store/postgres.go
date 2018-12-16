@@ -77,7 +77,7 @@ func (p *postgresResourceStore) Add(resource Resource) (id string, err error) {
 	return pr.ID, nil
 }
 
-func (p *postgresResourceStore) Get(owner string, key string, resource Resource) error {
+func (p *postgresResourceStore) Get(resource Resource) error {
 	fmt.Println("postgresResourceStore Get method not implemented")
 	return nil
 }

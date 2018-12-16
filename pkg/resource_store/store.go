@@ -34,7 +34,7 @@ func buildKey(rk ResourceKind, owner string, id ...string) string {
 // ResourceStore is docker libkv wrapper
 type ResourceStore interface {
 	Add(resource Resource) (id string, err error)
-	Get(owner string, key string, resource Resource) error
+	Get(resource Resource) error
 	List(owner string, resources interface{}) error
 	Update(resource Resource) (revision int64, err error)
 	Delete(owner string, id string, resource Resource) error
