@@ -16,9 +16,9 @@ type DescribeCluster struct {
 // Handle is handler for describe-cluster operation
 func (h *DescribeCluster) Handle(params clusters.DescribeClustersParams) middleware.Responder {
 
-	cluster := rs.NewResourceCluster(swag.StringValue(params.Name))
+	c := rs.NewResourceCluster(swag.StringValue(params.Name))
 
-	err := h.Handlers.Store.Get(cluster)
+	err := h.Handlers.Store.Get(c)
 	if err != nil {
 		return clusters.NewDescribeClustersDefault(405).WithPayload(&models.Error{
 			Code:    405,
@@ -27,10 +27,10 @@ func (h *DescribeCluster) Handle(params clusters.DescribeClustersParams) middlew
 	}
 
 	return clusters.NewDescribeClustersOK().WithPayload(&models.Cluster{
-		Name:        swag.String(cluster.Name),
-		Owner:       swag.String(cluster.Owner),
-		ClusterPlan: string(cluster.Plan),
-		NumNodes:    int64(cluster.NumNodes),
-		Status:      string(cluster.Status),
+		Name:        swag.String(c.Name),
+		Owner:       c.Owner,
+		ClusterPlan: string(c.Plan),
+		NumNodes:    int64(c.NumNodes),
+		Status:      string(c.Status),
 	})
 }

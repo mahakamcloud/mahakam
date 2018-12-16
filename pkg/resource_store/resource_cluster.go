@@ -5,9 +5,10 @@ import "github.com/mahakamcloud/mahakam/pkg/config"
 type ClusterPlan string
 
 const (
-	ClusterPlanSmall  ClusterPlan = "small"
-	ClusterPlanMedium ClusterPlan = "medium"
-	ClusterPlanLarge  ClusterPlan = "large"
+	ClusterPlanSmall   ClusterPlan = "small"
+	ClusterPlanMedium  ClusterPlan = "medium"
+	ClusterPlanLarge   ClusterPlan = "large"
+	ClusterPlanDefault ClusterPlan = ClusterPlanSmall
 )
 
 // ResourceCluster represents stored resource with cluster kind
@@ -25,5 +26,6 @@ func NewResourceCluster(name string) *ResourceCluster {
 			Kind:  string(KindCluster),
 			Owner: config.ResourceOwnerGojek,
 		},
+		Plan: ClusterPlanDefault,
 	}
 }
