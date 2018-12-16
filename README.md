@@ -9,7 +9,7 @@ $ make test
 
 Building mahakam cli as per your machine, find the build under `dist/bin`
 ```
-$ make mahakam
+$ make mahakam-cli
 ```
 
 Generate mahakam server api using swagger
