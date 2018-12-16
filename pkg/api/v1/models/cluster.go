@@ -35,9 +35,8 @@ type Cluster struct {
 	NumNodes int64 `json:"numNodes,omitempty"`
 
 	// owner
-	// Required: true
 	// Min Length: 1
-	Owner *string `json:"owner"`
+	Owner string `json:"owner,omitempty"`
 
 	// status
 	Status string `json:"status,omitempty"`
@@ -97,11 +96,11 @@ func (m *Cluster) validateNumNodes(formats strfmt.Registry) error {
 
 func (m *Cluster) validateOwner(formats strfmt.Registry) error {
 
-	if err := validate.Required("owner", "body", m.Owner); err != nil {
-		return err
+	if swag.IsZero(m.Owner) { // not required
+		return nil
 	}
 
-	if err := validate.MinLength("owner", "body", string(*m.Owner), 1); err != nil {
+	if err := validate.MinLength("owner", "body", string(m.Owner), 1); err != nil {
 		return err
 	}
 

@@ -124,8 +124,7 @@ func init() {
     "cluster": {
       "type": "object",
       "required": [
-        "name",
-        "owner"
+        "name"
       ],
       "properties": {
         "clusterPlan": {
@@ -278,8 +277,7 @@ func init() {
     "cluster": {
       "type": "object",
       "required": [
-        "name",
-        "owner"
+        "name"
       ],
       "properties": {
         "clusterPlan": {

@@ -69,7 +69,6 @@ definitions:
     type: object
     required:
       - name
-      - owner
     properties:
       id:
         type: integer
@@ -80,6 +79,7 @@ definitions:
       name:
         type: string
         minLength: 1
+      # TODO(giri): make owner a required field once we have proper auth
       owner:
         type: string
         minLength: 1
