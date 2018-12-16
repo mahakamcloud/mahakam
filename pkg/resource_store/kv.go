@@ -18,6 +18,7 @@ func NewKVResourceStore(s store.Store) ResourceStore {
 	}
 }
 
+// Add adds new resource to kv store
 func (kvr *kvResourceStore) Add(r Resource) (id string, err error) {
 	if err := r.PreCheck(); err != nil {
 		return "", fmt.Errorf("KV resource precheck failed: %s", err)
@@ -43,6 +44,8 @@ func (kvr *kvResourceStore) Add(r Resource) (id string, err error) {
 	return r.GetResource().ID, nil
 }
 
+// Get retrieves single resource with values from kv store,
+// must include owner, name, and kind in the passed resource struct
 func (kvr *kvResourceStore) Get(r Resource) error {
 	if r.GetResource().Owner == "" {
 		return fmt.Errorf("Owner parameter is required for getting resource")
