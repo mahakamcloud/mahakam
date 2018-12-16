@@ -26,28 +26,6 @@
   version = "v9"
 
 [[projects]]
-  digest = "1:d976f75bc1bc6cdbef99ae503e713f753d98d9effb9e278701956ee34cee1b33"
-  name = "github.com/coreos/etcd"
-  packages = [
-    "client",
-    "pkg/pathutil",
-    "pkg/srv",
-    "pkg/types",
-    "version",
-  ]
-  pruneopts = "UT"
-  revision = "27fc7e2296f506182f58ce846e48f36b34fe6842"
-  version = "v3.3.10"
-
-[[projects]]
-  digest = "1:0ef770954bca104ee99b3b6b7f9b240605ac03517d9f98cbc1893daa03f3c038"
-  name = "github.com/coreos/go-semver"
-  packages = ["semver"]
-  pruneopts = "UT"
-  revision = "8ab6407b697782a06568d4b7f1db25550ec2e4c6"
-  version = "v0.2.0"
-
-[[projects]]
   digest = "1:6f82cacd0af5921e99bf3f46748705239b36489464f4529a1589bc895764fb18"
   name = "github.com/docker/go-units"
   packages = ["."]
@@ -56,13 +34,12 @@
   version = "v0.3.3"
 
 [[projects]]
-  digest = "1:4663930a8d40756dc1f88905109f07261fe13611c4681d2cf73104b55c0c30ca"
+  digest = "1:64de5382d1ae453125114e8a0e0fead7b1d4667f330a1a8421c4dc7f26cb6e72"
   name = "github.com/docker/libkv"
   packages = [
     ".",
     "store",
     "store/consul",
-    "store/etcd",
   ]
   pruneopts = "UT"
   revision = "aabc039ad04deb721e234f99cd1b4aa28ac71a40"
@@ -171,6 +148,14 @@
   pruneopts = "UT"
   revision = "d2eab7d93009e9215fc85b2faa2c2f2a98c2af48"
   version = "v0.17.2"
+
+[[projects]]
+  branch = "master"
+  digest = "1:1ba1d79f2810270045c328ae5d674321db34e3aae468eb4233883b473c5c0467"
+  name = "github.com/golang/glog"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
 
 [[projects]]
   digest = "1:bfc483a051d3c7185ebeaa41b5bb67a4f76e742217bcaeab5661cc4b1320f392"
@@ -312,14 +297,6 @@
   version = "v1.0.3"
 
 [[projects]]
-  digest = "1:03aa6e485e528acb119fb32901cf99582c380225fc7d5a02758e08b180cb56c3"
-  name = "github.com/ugorji/go"
-  packages = ["codec"]
-  pruneopts = "UT"
-  revision = "b4c50a2b199d93b13dc15e78929cfb23bfdf21ab"
-  version = "v1.1.1"
-
-[[projects]]
   branch = "master"
   digest = "1:38f553aff0273ad6f367cb0a0f8b6eecbaef8dc6cb8b50e57b6a81c1d5b1e332"
   name = "golang.org/x/crypto"
@@ -389,7 +366,6 @@
     "github.com/docker/libkv",
     "github.com/docker/libkv/store",
     "github.com/docker/libkv/store/consul",
-    "github.com/docker/libkv/store/etcd",
     "github.com/go-openapi/errors",
     "github.com/go-openapi/loads",
     "github.com/go-openapi/runtime",
@@ -401,6 +377,7 @@
     "github.com/go-openapi/strfmt",
     "github.com/go-openapi/swag",
     "github.com/go-openapi/validate",
+    "github.com/golang/glog",
     "github.com/jessevdk/go-flags",
     "github.com/jmoiron/sqlx",
     "github.com/jmoiron/sqlx/types",
