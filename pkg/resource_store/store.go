@@ -11,6 +11,9 @@ type Status string
 // StorageBackend represents type of storage for kv store backend
 type StorageBackend string
 
+// ResourceKind represents stored resource kind
+type ResourceKind string
+
 const (
 	StatusPending  Status = "Pending"
 	StatusCreating Status = "Creating"
@@ -18,10 +21,10 @@ const (
 
 	BackendPostgres StorageBackend = "postgres"
 	BackendConsul   StorageBackend = "consul"
-)
 
-// ResourceKind represents stored resource kind
-type ResourceKind string
+	KindCluster ResourceKind = "cluster"
+	KindTask    ResourceKind = "task"
+)
 
 // Labels are filterable metadata as key pairs
 type Labels map[string]string

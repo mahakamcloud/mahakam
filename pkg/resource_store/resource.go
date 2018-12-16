@@ -11,7 +11,7 @@ import (
 // Resource is base interface for all stored resources or objects
 type Resource interface {
 	GetResource() *BaseResource
-	BuildResource() *BaseResource
+	BuildResource() Resource
 	BuildKey() string
 	PreCheck() error
 }
@@ -32,7 +32,7 @@ func (br *BaseResource) GetResource() *BaseResource {
 	return br
 }
 
-func (br *BaseResource) BuildResource() *BaseResource {
+func (br *BaseResource) BuildResource() Resource {
 	br.ID = uuid.NewV4().String()
 
 	now := time.Now()
