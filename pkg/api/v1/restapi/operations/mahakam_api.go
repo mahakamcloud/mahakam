@@ -42,6 +42,9 @@ func NewMahakamAPI(spec *loads.Document) *MahakamAPI {
 		ClustersCreateClusterHandler: clusters.CreateClusterHandlerFunc(func(params clusters.CreateClusterParams) middleware.Responder {
 			return middleware.NotImplemented("operation ClustersCreateCluster has not yet been implemented")
 		}),
+		ClustersDescribeClustersHandler: clusters.DescribeClustersHandlerFunc(func(params clusters.DescribeClustersParams) middleware.Responder {
+			return middleware.NotImplemented("operation ClustersDescribeClusters has not yet been implemented")
+		}),
 		ClustersGetClustersHandler: clusters.GetClustersHandlerFunc(func(params clusters.GetClustersParams) middleware.Responder {
 			return middleware.NotImplemented("operation ClustersGetClusters has not yet been implemented")
 		}),
@@ -78,6 +81,8 @@ type MahakamAPI struct {
 
 	// ClustersCreateClusterHandler sets the operation handler for the create cluster operation
 	ClustersCreateClusterHandler clusters.CreateClusterHandler
+	// ClustersDescribeClustersHandler sets the operation handler for the describe clusters operation
+	ClustersDescribeClustersHandler clusters.DescribeClustersHandler
 	// ClustersGetClustersHandler sets the operation handler for the get clusters operation
 	ClustersGetClustersHandler clusters.GetClustersHandler
 
@@ -145,6 +150,10 @@ func (o *MahakamAPI) Validate() error {
 
 	if o.ClustersCreateClusterHandler == nil {
 		unregistered = append(unregistered, "clusters.CreateClusterHandler")
+	}
+
+	if o.ClustersDescribeClustersHandler == nil {
+		unregistered = append(unregistered, "clusters.DescribeClustersHandler")
 	}
 
 	if o.ClustersGetClustersHandler == nil {
@@ -253,6 +262,11 @@ func (o *MahakamAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/clusters"] = clusters.NewCreateCluster(o.context, o.ClustersCreateClusterHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/clusters/describe"] = clusters.NewDescribeClusters(o.context, o.ClustersDescribeClustersHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

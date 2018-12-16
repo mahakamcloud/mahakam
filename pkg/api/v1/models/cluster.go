@@ -6,8 +6,6 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
-
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -20,7 +18,6 @@ import (
 type Cluster struct {
 
 	// cluster plan
-	// Enum: [small medium large]
 	ClusterPlan string `json:"clusterPlan,omitempty"`
 
 	// id
@@ -37,18 +34,18 @@ type Cluster struct {
 	// Minimum: 3
 	NumNodes int64 `json:"numNodes,omitempty"`
 
+	// owner
+	// Required: true
+	// Min Length: 1
+	Owner *string `json:"owner"`
+
 	// status
-	// Enum: [pending running succeeded failed unknown]
 	Status string `json:"status,omitempty"`
 }
 
 // Validate validates this cluster
 func (m *Cluster) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := m.validateClusterPlan(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := m.validateName(formats); err != nil {
 		res = append(res, err)
@@ -58,59 +55,13 @@ func (m *Cluster) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateStatus(formats); err != nil {
+	if err := m.validateOwner(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-var clusterTypeClusterPlanPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["small","medium","large"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		clusterTypeClusterPlanPropEnum = append(clusterTypeClusterPlanPropEnum, v)
-	}
-}
-
-const (
-
-	// ClusterClusterPlanSmall captures enum value "small"
-	ClusterClusterPlanSmall string = "small"
-
-	// ClusterClusterPlanMedium captures enum value "medium"
-	ClusterClusterPlanMedium string = "medium"
-
-	// ClusterClusterPlanLarge captures enum value "large"
-	ClusterClusterPlanLarge string = "large"
-)
-
-// prop value enum
-func (m *Cluster) validateClusterPlanEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, clusterTypeClusterPlanPropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *Cluster) validateClusterPlan(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ClusterPlan) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := m.validateClusterPlanEnum("clusterPlan", "body", m.ClusterPlan); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -144,52 +95,13 @@ func (m *Cluster) validateNumNodes(formats strfmt.Registry) error {
 	return nil
 }
 
-var clusterTypeStatusPropEnum []interface{}
+func (m *Cluster) validateOwner(formats strfmt.Registry) error {
 
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["pending","running","succeeded","failed","unknown"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		clusterTypeStatusPropEnum = append(clusterTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// ClusterStatusPending captures enum value "pending"
-	ClusterStatusPending string = "pending"
-
-	// ClusterStatusRunning captures enum value "running"
-	ClusterStatusRunning string = "running"
-
-	// ClusterStatusSucceeded captures enum value "succeeded"
-	ClusterStatusSucceeded string = "succeeded"
-
-	// ClusterStatusFailed captures enum value "failed"
-	ClusterStatusFailed string = "failed"
-
-	// ClusterStatusUnknown captures enum value "unknown"
-	ClusterStatusUnknown string = "unknown"
-)
-
-// prop value enum
-func (m *Cluster) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, clusterTypeStatusPropEnum); err != nil {
+	if err := validate.Required("owner", "body", m.Owner); err != nil {
 		return err
 	}
-	return nil
-}
 
-func (m *Cluster) validateStatus(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Status) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := m.validateStatusEnum("status", "body", m.Status); err != nil {
+	if err := validate.MinLength("owner", "body", string(*m.Owner), 1); err != nil {
 		return err
 	}
 

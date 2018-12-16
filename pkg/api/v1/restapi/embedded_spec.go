@@ -88,22 +88,48 @@ func init() {
           }
         }
       }
+    },
+    "/clusters/describe": {
+      "get": {
+        "tags": [
+          "clusters"
+        ],
+        "operationId": "describeClusters",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Cluster name",
+            "name": "name",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "describe single cluster",
+            "schema": {
+              "$ref": "#/definitions/cluster"
+            }
+          },
+          "default": {
+            "description": "generic error response",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
     "cluster": {
       "type": "object",
       "required": [
-        "name"
+        "name",
+        "owner"
       ],
       "properties": {
         "clusterPlan": {
-          "type": "string",
-          "enum": [
-            "small",
-            "medium",
-            "large"
-          ]
+          "type": "string"
         },
         "id": {
           "type": "integer",
@@ -119,15 +145,12 @@ func init() {
           "maximum": 10,
           "minimum": 3
         },
-        "status": {
+        "owner": {
           "type": "string",
-          "enum": [
-            "pending",
-            "running",
-            "succeeded",
-            "failed",
-            "unknown"
-          ]
+          "minLength": 1
+        },
+        "status": {
+          "type": "string"
         }
       }
     },
@@ -219,22 +242,48 @@ func init() {
           }
         }
       }
+    },
+    "/clusters/describe": {
+      "get": {
+        "tags": [
+          "clusters"
+        ],
+        "operationId": "describeClusters",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Cluster name",
+            "name": "name",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "describe single cluster",
+            "schema": {
+              "$ref": "#/definitions/cluster"
+            }
+          },
+          "default": {
+            "description": "generic error response",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
     "cluster": {
       "type": "object",
       "required": [
-        "name"
+        "name",
+        "owner"
       ],
       "properties": {
         "clusterPlan": {
-          "type": "string",
-          "enum": [
-            "small",
-            "medium",
-            "large"
-          ]
+          "type": "string"
         },
         "id": {
           "type": "integer",
@@ -250,15 +299,12 @@ func init() {
           "maximum": 10,
           "minimum": 3
         },
-        "status": {
+        "owner": {
           "type": "string",
-          "enum": [
-            "pending",
-            "running",
-            "succeeded",
-            "failed",
-            "unknown"
-          ]
+          "minLength": 1
+        },
+        "status": {
+          "type": "string"
         }
       }
     },

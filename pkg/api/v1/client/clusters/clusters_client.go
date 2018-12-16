@@ -53,6 +53,34 @@ func (a *Client) CreateCluster(params *CreateClusterParams) (*CreateClusterCreat
 }
 
 /*
+DescribeClusters describe clusters API
+*/
+func (a *Client) DescribeClusters(params *DescribeClustersParams) (*DescribeClustersOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewDescribeClustersParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "describeClusters",
+		Method:             "GET",
+		PathPattern:        "/clusters/describe",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &DescribeClustersReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*DescribeClustersOK), nil
+
+}
+
+/*
 GetClusters get clusters API
 */
 func (a *Client) GetClusters(params *GetClustersParams) (*GetClustersOK, error) {

@@ -45,11 +45,31 @@ paths:
           description: error
           schema:
             $ref: "#/definitions/error"
+  /clusters/describe:
+    get:
+      tags:
+        - clusters
+      operationId: describeClusters
+      parameters:
+        - in: query
+          type: string
+          name: name
+          description: Cluster name
+      responses:
+        200:
+          description: describe single cluster
+          schema:
+            $ref: "#/definitions/cluster"
+        default:
+          description: generic error response
+          schema:
+            $ref: "#/definitions/error"
 definitions:
   cluster:
     type: object
     required:
       - name
+      - owner
     properties:
       id:
         type: integer
@@ -57,8 +77,10 @@ definitions:
         readOnly: true
       clusterPlan:
         type: string
-        enum: ["small", "medium", "large"]
       name:
+        type: string
+        minLength: 1
+      owner:
         type: string
         minLength: 1
       numNodes:
@@ -67,7 +89,6 @@ definitions:
         maximum: 10
       status:
         type: string
-        enum: ["pending", "running", "succeeded", "failed", "unknown"]
   error:
     type: object
     required:

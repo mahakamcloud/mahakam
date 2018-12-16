@@ -15,7 +15,9 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/clusters"
+	"github.com/mahakamcloud/mahakam/pkg/handlers"
 	"github.com/mahakamcloud/mahakam/pkg/provisioner"
+	store "github.com/mahakamcloud/mahakam/pkg/resource_store"
 )
 
 //go:generate swagger generate server --target .. --name Mahakam --spec ../../../../swagger/mahakam.yaml --client-package mahakam
@@ -25,14 +27,16 @@ func configureFlags(api *operations.MahakamAPI) {
 }
 
 func configureAPI(api *operations.MahakamAPI) http.Handler {
+	// TODO(giri): move to proper config package
+	storeConfig := store.StorageBackendConfig{
+		BackendType: "consul",
+		Address:     "localhost:8500",
+		Bucket:      "mahakam",
+	}
+	h := handlers.New(storeConfig)
+
 	// configure the api here
 	api.ServeError = errors.ServeError
-
-	// Set your custom logger if needed. Default one is log.Printf
-	// Expected interface func(string, ...interface{})
-	//
-	// Example:
-	// api.Logger = log.Printf
 
 	api.JSONConsumer = runtime.JSONConsumer()
 
@@ -48,6 +52,8 @@ func configureAPI(api *operations.MahakamAPI) http.Handler {
 	api.ClustersGetClustersHandler = clusters.GetClustersHandlerFunc(func(params clusters.GetClustersParams) middleware.Responder {
 		return middleware.NotImplemented("operation clusters.GetClusters has not yet been implemented")
 	})
+
+	api.ClustersDescribeClustersHandler = &handlers.DescribeCluster{Handlers: *h}
 
 	api.ServerShutdown = func() {}
 
