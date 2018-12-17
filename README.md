@@ -7,6 +7,11 @@ Running unit test
 $ make test
 ```
 
+Run consul server:
+```
+$ docker run -d --name=dev-consul -e CONSUL_BIND_INTERFACE=eth0 -p 8500:8500 -p 8600:8600 consul
+```
+
 Building mahakam cli as per your machine, find the build under `dist/bin`
 ```
 $ make mahakam-cli
