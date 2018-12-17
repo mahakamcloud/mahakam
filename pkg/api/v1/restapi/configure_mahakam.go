@@ -12,8 +12,8 @@ import (
 
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/clusters"
+	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/mahakamcloud/mahakam/pkg/handlers"
-	store "github.com/mahakamcloud/mahakam/pkg/resource_store"
 )
 
 //go:generate swagger generate server --target .. --name Mahakam --spec ../../../../swagger/mahakam.yaml --client-package mahakam
@@ -24,7 +24,7 @@ func configureFlags(api *operations.MahakamAPI) {
 
 func configureAPI(api *operations.MahakamAPI) http.Handler {
 	// TODO(giri): move to proper config package
-	storeConfig := store.StorageBackendConfig{
+	storeConfig := config.StorageBackendConfig{
 		BackendType: "consul",
 		Address:     "localhost:8500",
 		Bucket:      "mahakam",
