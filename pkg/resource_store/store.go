@@ -3,6 +3,8 @@ package resourcestore
 import (
 	"fmt"
 	"strings"
+
+	"github.com/mahakamcloud/mahakam/pkg/config"
 )
 
 // Status represents current state of task or entity
@@ -43,31 +45,22 @@ type ResourceStore interface {
 	Delete(owner string, id string, resource Resource) error
 }
 
-// StorageBackendConfig stores metadata for storage backend that we use
-type StorageBackendConfig struct {
-	BackendType string
-	Address     string
-	Username    string
-	Password    string
-	Bucket      string
-}
-
 // New creates resource store backed by choice of storage backend type
-func New(config StorageBackendConfig) (ResourceStore, error) {
-	switch config.BackendType {
+func New(c config.StorageBackendConfig) (ResourceStore, error) {
+	switch c.BackendType {
 	case string(BackendPostgres):
-		p, err := NewPostgresResourceStore(config)
+		p, err := NewPostgresResourceStore(c)
 		if err != nil {
 			return nil, fmt.Errorf("Create resource store with postgres error: %s", err)
 		}
 		return p, nil
 	case string(BackendConsul):
-		c, err := newConsulKVStore(config)
+		kv, err := newConsulKVStore(c)
 		if err != nil {
 			return nil, fmt.Errorf("Create resource store with consul error: %s", err)
 		}
-		return NewKVResourceStore(c), nil
+		return NewKVResourceStore(kv), nil
 	default:
-		return nil, fmt.Errorf("Create resource store error: %s not supported", config.BackendType)
+		return nil, fmt.Errorf("Create resource store error: %s not supported", c.BackendType)
 	}
 }

@@ -6,20 +6,21 @@ import (
 	"github.com/docker/libkv"
 	"github.com/docker/libkv/store"
 	"github.com/docker/libkv/store/consul"
+	"github.com/mahakamcloud/mahakam/pkg/config"
 )
 
-func newConsulKVStore(config StorageBackendConfig) (store.Store, error) {
+func newConsulKVStore(c config.StorageBackendConfig) (store.Store, error) {
 	consul.Register()
 
 	return libkv.NewStore(
-		store.Backend(config.BackendType),
-		[]string{config.Address},
+		store.Backend(c.BackendType),
+		[]string{c.Address},
 		&store.Config{
-			Bucket:            config.Bucket,
+			Bucket:            c.Bucket,
 			ConnectionTimeout: 1 * time.Second,
 			PersistConnection: true,
-			Username:          config.Username,
-			Password:          config.Password,
+			Username:          c.Username,
+			Password:          c.Password,
 		},
 	)
 }

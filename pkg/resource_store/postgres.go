@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/mahakamcloud/mahakam/pkg/config"
 	// sqlx requires postgres driver registration with this lib
 	_ "github.com/lib/pq"
 	log "github.com/sirupsen/logrus"
@@ -38,9 +39,9 @@ type postgresResourceStore struct {
 }
 
 // NewPostgresResourceStore creates new resource store with postgres backend
-func NewPostgresResourceStore(config StorageBackendConfig) (ResourceStore, error) {
-	conn := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", config.Username,
-		config.Password, config.Address, config.Bucket)
+func NewPostgresResourceStore(c config.StorageBackendConfig) (ResourceStore, error) {
+	conn := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", c.Username,
+		c.Password, c.Address, c.Bucket)
 	log.Debugf("Creating postgres client with connection string: %s", conn)
 
 	db, err := sqlx.Connect("postgres", conn)
