@@ -31,7 +31,7 @@ var describeClusterCmd = &cobra.Command{
 		}
 
 		fmt.Printf("\nName:\t%s", swag.StringValue(res.Name))
-		fmt.Printf("\nOwner:\t%s", swag.StringValue(res.Owner))
+		fmt.Printf("\nOwner:\t%s", res.Owner)
 		fmt.Printf("\nCluster Plan:\t%s", res.ClusterPlan)
 		fmt.Printf("\nWorker Nodes:\t%v", res.NumNodes)
 		fmt.Printf("\nStatus:\t%v", res.Status)
