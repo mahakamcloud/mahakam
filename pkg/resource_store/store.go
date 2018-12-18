@@ -24,8 +24,9 @@ const (
 	BackendPostgres StorageBackend = "postgres"
 	BackendConsul   StorageBackend = "consul"
 
-	KindCluster ResourceKind = "cluster"
-	KindTask    ResourceKind = "task"
+	KindCluster          ResourceKind = "cluster"
+	KindTerraformBackend ResourceKind = "terraform backend"
+	KindTask             ResourceKind = "task"
 )
 
 // Labels are filterable metadata as key pairs
