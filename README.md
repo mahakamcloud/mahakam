@@ -7,9 +7,14 @@ Running unit test
 $ make test
 ```
 
-Run consul server:
+Run dev store with consul backend:
 ```
-$ docker run -d --name=dev-consul -e CONSUL_BIND_INTERFACE=eth0 -p 8500:8500 -p 8600:8600 consul
+$ make dev-store
+```
+
+Run dev server:
+```
+$ make dev-server
 ```
 
 Building mahakam cli as per your machine, find the build under `dist/bin`

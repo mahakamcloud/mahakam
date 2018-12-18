@@ -28,10 +28,15 @@ test: ## run tests
 	@echo running tests...
 	$(GO) test -v $(shell go list -v ./... | grep -v /vendor/ | grep -v integration )
 
-.PHONY: server
-server: ## run dev server
+.PHONY: dev-server
+dev-server: ## run dev server
 	@echo running dev server...
-	$(GO) run $(BASE)/cmd/mahakam_server/main.go --port 9000
+	$(GO) run $(BASE)/cmd/mahakam_server/main.go --port 9000 --config ./pkg/config/example/config.sample.yaml
+
+.PHONY: dev-store
+dev-store: ## run dev store with consul backend
+	@echo running dev store...
+	docker run -d --name=dev-consul -e CONSUL_BIND_INTERFACE=eth0 -p 8500:8500 -p 8600:8600 consul
 
 .PHONY: generate-server
 generate-server: ## Generate swagger server
