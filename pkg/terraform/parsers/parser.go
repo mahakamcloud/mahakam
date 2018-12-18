@@ -1,13 +1,30 @@
 package parsers
 
+import (
+	"bytes"
+	"text/template"
+)
+
+type TerraformTemplate struct {
+	Name        string
+	Source      string
+	Destination string
+	Data        map[string]string
+}
+
+type TerraformParser struct {
+	parsers []TerraformTemplate
+}
+
 type Parser interface {
-	parseTemplate() string
+	ParseTemplate() string
 }
 
-type AbstractParser struct {
-	Parser Parser
-}
+func (self *TerraformTemplate) ParseTemplate() string {
+	t := template.New(self.Name)
+	t.Parse(self.Source)
 
-func (self *AbstractParser) Parse() string {
-	return self.Parser.parseTemplate()
+	var buf bytes.Buffer
+	t.Execute(&buf, &self.Data)
+	return buf.String()
 }
