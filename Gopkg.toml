@@ -88,3 +88,23 @@
 [[constraint]]
   branch = "master"
   name = "github.com/golang/glog"
+
+[[constraint]]
+  name = "gopkg.in/yaml.v2"
+  version = "2.2.2"
+
+[[constraint]]
+  name = "github.com/onsi/gomega"
+  version = "1.4.3"
+
+[[override]]
+  name = "gopkg.in/fsnotify.v1"
+  source = "gopkg.in/fsnotify/fsnotify.v1"
+
+[[override]]
+  branch = "master"
+  name = "github.com/hpcloud/tail"
+
+[[constraint]]
+  name = "github.com/onsi/ginkgo"
+  version = "1.7.0"
