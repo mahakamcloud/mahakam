@@ -6,9 +6,12 @@ import (
 	"crypto/tls"
 	"net/http"
 
+	"github.com/go-openapi/swag"
+
 	errors "github.com/go-openapi/errors"
 	runtime "github.com/go-openapi/runtime"
 	middleware "github.com/go-openapi/runtime/middleware"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/clusters"
@@ -16,20 +19,28 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/handlers"
 )
 
+var opts struct {
+	ConfigFilePath string `short:"c" long:"config" description:"Mahakam server config file"`
+}
+
 //go:generate swagger generate server --target .. --name Mahakam --spec ../../../../swagger/mahakam.yaml --client-package mahakam
 
 func configureFlags(api *operations.MahakamAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
+	api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{
+		swag.CommandLineOptionsGroup{
+			Options: &opts,
+		},
+	}
 }
 
 func configureAPI(api *operations.MahakamAPI) http.Handler {
-	// TODO(giri): move to proper config package
-	storeConfig := config.StorageBackendConfig{
-		BackendType: "consul",
-		Address:     "localhost:8500",
-		Bucket:      "mahakam",
+
+	mahakamConfig, err := config.LoadConfig(opts.ConfigFilePath)
+	if err != nil {
+		log.Fatalf("Error loading configuration file for mahakam server: %s\n", err)
 	}
-	h := handlers.New(storeConfig)
+	h := handlers.New(mahakamConfig.KVStoreConfig)
 
 	// configure the api here
 	api.ServeError = errors.ServeError
