@@ -1,0 +1,6 @@
+storage_backend:
+  backend_type: "consul"
+  address: "127.0.0.1:8500"
+  username: ""
+  password: ""
+  bucket: "mahakam"
