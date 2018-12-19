@@ -21,8 +21,7 @@ const (
 	StatusCreating Status = "Creating"
 	StatusReady    Status = "Ready"
 
-	BackendPostgres StorageBackend = "postgres"
-	BackendConsul   StorageBackend = "consul"
+	BackendConsul StorageBackend = "consul"
 
 	KindCluster          ResourceKind = "cluster"
 	KindTerraformBackend ResourceKind = "terraform backend"
@@ -49,12 +48,6 @@ type ResourceStore interface {
 // New creates resource store backed by choice of storage backend type
 func New(c config.StorageBackendConfig) (ResourceStore, error) {
 	switch c.BackendType {
-	case string(BackendPostgres):
-		p, err := NewPostgresResourceStore(c)
-		if err != nil {
-			return nil, fmt.Errorf("Create resource store with postgres error: %s", err)
-		}
-		return p, nil
 	case string(BackendConsul):
 		kv, err := newConsulKVStore(c)
 		if err != nil {
