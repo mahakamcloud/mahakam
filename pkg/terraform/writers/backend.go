@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	r "github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
 	"github.com/mahakamcloud/mahakam/pkg/terraform/parsers"
 	"github.com/mahakamcloud/mahakam/pkg/terraform/templates"
 )
@@ -21,10 +22,15 @@ func (bw *BackendWriter) writeFile() {
 	destinationPath := filepath.Join(basePath, "mahakam-test-cluster")
 	os.MkdirAll(destinationPath, os.ModePerm)
 
+	terraformResource := r.NewResourceTerraform("backend.tf")
+	terraformResource.Bucket = "tf-mahakam"
+	terraformResource.Key = "gofinance-k8s/control-plane/terraform.tfstate"
+	terraformResource.Region = "ap-southeast-1"
+
 	var data = map[string]string{
-		"Bucket": "tf-mahakam",
-		"Key":    "gofinance-k8s/control-plane/terraform.tfstate",
-		"Region": "ap-southeast-1",
+		"Bucket": terraformResource.Bucket,
+		"Key":    terraformResource.Key,
+		"Region": terraformResource.Region,
 	}
 
 	backendParser := parsers.TerraformTemplate{
