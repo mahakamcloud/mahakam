@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/docker/libkv/store"
+	"github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
 )
 
 type kvResourceStore struct {
@@ -19,7 +20,7 @@ func NewKVResourceStore(s store.Store) ResourceStore {
 }
 
 // Add adds new resource to kv store
-func (kvr *kvResourceStore) Add(r Resource) (id string, err error) {
+func (kvr *kvResourceStore) Add(r resource.Resource) (id string, err error) {
 	if err := r.PreCheck(); err != nil {
 		return "", fmt.Errorf("KV resource precheck failed: %s", err)
 	}
@@ -47,7 +48,7 @@ func (kvr *kvResourceStore) Add(r Resource) (id string, err error) {
 
 // Get retrieves single resource with values from kv store,
 // must include owner, name, and kind in the passed resource struct
-func (kvr *kvResourceStore) Get(r Resource) error {
+func (kvr *kvResourceStore) Get(r resource.Resource) error {
 	if r.GetResource().Owner == "" {
 		return fmt.Errorf("Owner parameter is required for getting resource")
 	}
@@ -78,12 +79,12 @@ func (kvr *kvResourceStore) List(owner string, resources interface{}) error {
 	return nil
 }
 
-func (kvr *kvResourceStore) Update(resource Resource) (revision int64, err error) {
+func (kvr *kvResourceStore) Update(resource resource.Resource) (revision int64, err error) {
 	fmt.Println("libkvResourceStore Update method not implemented")
 	return 0, nil
 }
 
-func (kvr *kvResourceStore) Delete(owner string, id string, resource Resource) error {
+func (kvr *kvResourceStore) Delete(owner string, id string, resource resource.Resource) error {
 	fmt.Println("libkvResourceStore Delete method not implemented")
 	return nil
 }

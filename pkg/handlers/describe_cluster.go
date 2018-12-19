@@ -5,7 +5,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/clusters"
-	rs "github.com/mahakamcloud/mahakam/pkg/resource_store"
+	r "github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
 )
 
 // DescribeCluster is handler for describe-cluster operation
@@ -16,7 +16,7 @@ type DescribeCluster struct {
 // Handle is handler for describe-cluster operation
 func (h *DescribeCluster) Handle(params clusters.DescribeClustersParams) middleware.Responder {
 
-	c := rs.NewResourceCluster(swag.StringValue(params.Name))
+	c := r.NewResourceCluster(swag.StringValue(params.Name))
 
 	err := h.Handlers.Store.Get(c)
 	if err != nil {

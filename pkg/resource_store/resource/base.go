@@ -1,4 +1,4 @@
-package resourcestore
+package resource
 
 import (
 	"fmt"
@@ -6,6 +6,22 @@ import (
 	"time"
 
 	uuid "github.com/satori/go.uuid"
+)
+
+// Status represents current state of task or entity
+type Status string
+
+// ResourceKind represents stored resource kind
+type ResourceKind string
+
+const (
+	StatusPending  Status = "Pending"
+	StatusCreating Status = "Creating"
+	StatusReady    Status = "Ready"
+
+	KindCluster          ResourceKind = "cluster"
+	KindTerraformBackend ResourceKind = "terraform backend"
+	KindTask             ResourceKind = "task"
 )
 
 // Resource is interface for all stored resources or objects

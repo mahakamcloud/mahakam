@@ -1,4 +1,4 @@
-package resourcestore
+package resource
 
 // ResourceTerraformBackend represents stored resource with terraform backend kind
 type ResourceVM struct {

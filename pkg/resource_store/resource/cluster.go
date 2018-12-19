@@ -1,4 +1,4 @@
-package resourcestore
+package resource
 
 import "github.com/mahakamcloud/mahakam/pkg/config"
 

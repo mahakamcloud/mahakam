@@ -8,7 +8,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/clusters"
 	"github.com/mahakamcloud/mahakam/pkg/provisioner"
-	rs "github.com/mahakamcloud/mahakam/pkg/resource_store"
+	r "github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
 )
 
 // CreateCluster is handlers for create-cluster operation
@@ -19,9 +19,9 @@ type CreateCluster struct {
 // Handle is handler for create-cluster operation
 func (h *CreateCluster) Handle(params clusters.CreateClusterParams) middleware.Responder {
 	b := params.Body
-	c := rs.NewResourceCluster(swag.StringValue(b.Name))
+	c := r.NewResourceCluster(swag.StringValue(b.Name))
 	c.NumNodes = int(b.NumNodes)
-	c.Status = rs.StatusPending
+	c.Status = r.StatusPending
 
 	_, err := h.Handlers.Store.Add(c)
 	if err != nil {
