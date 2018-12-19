@@ -8,13 +8,18 @@ type ResourceNode struct {
 	Name                  string
 	IPAddress             string
 	MacAddress            string
+	NetMask               string
 	Host                  string
 	ImageSourcePath       string
 	DNSDhcpServerUsername string
 	UserData              string
+	DNSAddress            string
+	GatewayAddress        string
+	GateNssAPIKEY         string
 	CPU                   int
 	Memory                int
 	DiskSize              int
+	Password              string
 }
 
 // NewResourceNode creates new resource node
