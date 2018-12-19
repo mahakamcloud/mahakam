@@ -5,8 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/mahakamcloud/mahakam/pkg/terraform/parsers"
 )
 
 type BackendWriter struct {
@@ -20,8 +18,11 @@ func (bw *BackendWriter) writeFile() {
 	destinationPath := filepath.Join(basePath, "mahakam-test-cluster")
 	os.MkdirAll(destinationPath, os.ModePerm)
 
-	backendParser := &parsers.AbstractParser{&parsers.BackendParser{}}
-	bakcendTf := backendParser.Parse()
+	// TODO(iqbal/himani): comment below snippet to enable running server
+	// since undefined: parsers.AbstractParser
+	// backendParser := &parsers.AbstractParser{&parsers.BackendParser{}}
+	// bakcendTf := backendParser.Parse()
+	bakcendTf := ""
 
 	fo, _ := os.Create("/tmp/mahakam/terraform/backend.tf")
 	defer fo.Close()
