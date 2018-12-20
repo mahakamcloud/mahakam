@@ -83,8 +83,10 @@ func (sbc *StorageBackendConfig) Validate() error {
 
 // NetworkConfig stores metadata for network that mahakam will configure
 type NetworkConfig struct {
-	// Base CIDR that Mahakam will use to provision small network from it
+	// CIDR is datacenter network CIDR that Mahakam will use to provision cluster network from it
 	CIDR string `yaml:"cidr"`
+	// ClusterNetmask is subnet length that cluster network will be provisioned as
+	ClusterNetmask int `yaml:"cluster_netmask"`
 }
 
 // Validate validates storage backend configuration
@@ -93,8 +95,16 @@ func (nc *NetworkConfig) Validate() error {
 		return fmt.Errorf("Must provide non-empty network CIDR")
 	}
 
+	if nc.ClusterNetmask == 0 {
+		return fmt.Errorf("Must provide non-empty cluster netmask")
+	}
+
 	if _, _, err := net.ParseCIDR(nc.CIDR); err != nil {
 		return fmt.Errorf("Must provide valid CIDR format")
+	}
+
+	if nc.ClusterNetmask > 32 || nc.ClusterNetmask < 1 {
+		return fmt.Errorf("Must provide valid cluster netmask between 0 and 32")
 	}
 
 	return nil
