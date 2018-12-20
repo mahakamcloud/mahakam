@@ -100,9 +100,32 @@ func (nm *NetworkManager) AllocateIP(cn *ClusterNetwork) (string, error) {
 	return allocatedIP, nil
 }
 
-// TODO(giri): Implement release IP
-func (nm *NetworkManager) ReleaseIP(cn *ClusterNetwork) (string, error) {
-	return "", nil
+// ReleaseIP releases given IP to available IP pools
+func (nm *NetworkManager) ReleaseIP(cn *ClusterNetwork, releasedIP string) error {
+	n := r.NewResourceNetwork(cn.ClusterNetworkCIDR)
+	err := nm.store.GetFromPath(config.KeyPathNetworkSubnet+n.Name, n)
+	if err != nil {
+		return fmt.Errorf("Error getting network subnet resource from kvstore: %s", err)
+	}
+
+	ipPools := n.AllocatedIPPools
+	for i, ip := range ipPools {
+		if ip == releasedIP {
+			ipPools = append(ipPools[:i], ipPools[i+1:]...)
+
+			fmt.Println(ipPools)
+
+			n.AllocatedIPPools = ipPools
+			n.AvailableIPPools = append(n.AvailableIPPools, releasedIP)
+
+			_, err = nm.store.UpdateFromPath(config.KeyPathNetworkSubnet+n.Name, n)
+			if err != nil {
+				return fmt.Errorf("Error updating network subnet resource into kvstore: %s", err)
+			}
+			return nil
+		}
+	}
+	return fmt.Errorf("Error releasing IP: %s not found in network %v", releasedIP, cn)
 }
 
 func (nm *NetworkManager) getReservedSubnets() ([]net.IPNet, error) {
