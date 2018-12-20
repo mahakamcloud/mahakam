@@ -5,6 +5,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	r "github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
+	"github.com/mahakamcloud/mahakam/pkg/terraform/parsers"
+	"github.com/mahakamcloud/mahakam/pkg/terraform/templates"
 )
 
 type BackendWriter struct {
@@ -18,11 +22,20 @@ func (bw *BackendWriter) writeFile() {
 	destinationPath := filepath.Join(basePath, "mahakam-test-cluster")
 	os.MkdirAll(destinationPath, os.ModePerm)
 
-	// TODO(iqbal/himani): comment below snippet to enable running server
-	// since undefined: parsers.AbstractParser
-	// backendParser := &parsers.AbstractParser{&parsers.BackendParser{}}
-	// bakcendTf := backendParser.Parse()
-	bakcendTf := ""
+	var data = map[string]string{
+		"Bucket": "tf-mahakam",
+		"Key":    "gofinance-k8s/control-plane/terraform.tfstate",
+		"Region": "ap-southeast-1",
+	}
+	terraformResource := r.NewResourceTerraform("backend.tf", data)
+
+	backendParser := parsers.TerraformParser{
+		"backend",
+		templates.Backend,
+		terraformResource.GetName(),
+		terraformResource.GetAttributes(),
+	}
+	bakcendTf := backendParser.ParseTemplate()
 
 	fo, _ := os.Create("/tmp/mahakam/terraform/backend.tf")
 	defer fo.Close()
