@@ -88,3 +88,85 @@ func (kvr *kvResourceStore) Delete(owner string, id string, resource resource.Re
 	fmt.Println("libkvResourceStore Delete method not implemented")
 	return nil
 }
+
+// AddFromPath adds new resource to kv store with specific key path
+func (kvr *kvResourceStore) AddFromPath(path string, r resource.Resource) (id string, err error) {
+	if path == "" {
+		return "", fmt.Errorf("Must provide non-empty path for storing resource: %s", err)
+	}
+	if err := r.PreCheck(); err != nil {
+		return "", fmt.Errorf("KV resource precheck failed: %s", err)
+	}
+	r.BuildResource()
+
+	value, err := json.Marshal(r)
+	if err != nil {
+		return "", fmt.Errorf("Add KV resource serialization error: %s", err)
+	}
+
+	opts := &store.WriteOptions{
+		IsDir: false,
+	}
+	_, res, err := kvr.store.AtomicPut(path, value, nil, opts)
+	if err != nil {
+		return "", fmt.Errorf("Add KV resource atomic put error: %s", err)
+	}
+
+	r.GetResource().Revision = res.LastIndex
+	return r.GetResource().ID, nil
+}
+
+// Get retrieves single resource from specified key path
+func (kvr *kvResourceStore) GetFromPath(path string, r resource.Resource) error {
+	if path == "" {
+		return fmt.Errorf("Must provide non-empty path for getting resource")
+	}
+
+	res, err := kvr.store.Get(path)
+	if err != nil {
+		return fmt.Errorf("Error getting response from kv store: %s", err)
+	}
+
+	err = json.Unmarshal(res.Value, r)
+	if err != nil {
+		return fmt.Errorf("Error unmarshalling resource: %s", err)
+	}
+
+	r.GetResource().Revision = res.LastIndex
+	return nil
+}
+
+func (kvr *kvResourceStore) UpdateFromPath(path string, r resource.Resource) (revision int64, err error) {
+	if path == "" {
+		return -1, fmt.Errorf("Must provide non-empty path for updating resource: %s", err)
+	}
+	if err := r.PreCheck(); err != nil {
+		return -1, fmt.Errorf("KV resource precheck failed: %s", err)
+	}
+	r.UpdateResource()
+
+	value, err := json.Marshal(r)
+	if err != nil {
+		return -1, fmt.Errorf("Add KV resource serialization error: %s", err)
+	}
+
+	prev := &store.KVPair{
+		Key:       path,
+		LastIndex: r.GetResource().Revision,
+	}
+	opts := &store.WriteOptions{
+		IsDir: false,
+	}
+	_, res, err := kvr.store.AtomicPut(path, value, prev, opts)
+	if err != nil {
+		return -1, fmt.Errorf("Add KV resource atomic put error: %s", err)
+	}
+
+	r.GetResource().Revision = res.LastIndex
+	return int64(res.LastIndex), nil
+}
+
+func (kvr *kvResourceStore) DeleteFromPath(path string) error {
+	fmt.Println("libkvResourceStore DeleteFromPath method not implemented")
+	return nil
+}

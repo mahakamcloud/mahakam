@@ -30,6 +30,11 @@ type ResourceStore interface {
 	List(owner string, resources interface{}) error
 	Update(resource resource.Resource) (revision int64, err error)
 	Delete(owner string, id string, resource resource.Resource) error
+
+	AddFromPath(path string, resource resource.Resource) (id string, err error)
+	GetFromPath(path string, resource resource.Resource) error
+	UpdateFromPath(path string, resource resource.Resource) (revision int64, err error)
+	DeleteFromPath(path string) error
 }
 
 // New creates resource store backed by choice of storage backend type

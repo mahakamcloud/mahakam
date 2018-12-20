@@ -3,6 +3,7 @@ package resource
 import (
 	"fmt"
 	"regexp"
+	"strings"
 	"time"
 
 	uuid "github.com/satori/go.uuid"
@@ -22,13 +23,16 @@ const (
 	KindCluster          ResourceKind = "cluster"
 	KindTerraformBackend ResourceKind = "terraform backend"
 	KindTask             ResourceKind = "task"
+	KindNetwork          ResourceKind = "network"
 )
 
 // Resource is interface for all stored resources or objects
 type Resource interface {
 	GetResource() *BaseResource
 	BuildResource() Resource
-	BuildKey() string
+	UpdateResource() Resource
+	BuildKey(optKeys ...string) string
+	BuildChildKey(parentKey, key string) string
 	PreCheck() error
 }
 
@@ -58,18 +62,30 @@ func (br *BaseResource) BuildResource() Resource {
 	return br
 }
 
+func (br *BaseResource) UpdateResource() Resource {
+	now := time.Now()
+	br.ModifiedTime = now
+
+	return br
+}
+
 func (br *BaseResource) PreCheck() error {
 	if br.Owner == "" {
 		return fmt.Errorf("BaseResource owner attribute cannot be empty")
 	}
 
-	var validName = regexp.MustCompile(`^[\w\d\-]+$`)
+	var validName = regexp.MustCompile(`[\w.-]`)
 	if !validName.MatchString(br.Name) {
 		return fmt.Errorf("BaseResource name %s is invalid", br.Name)
 	}
 	return nil
 }
 
-func (br *BaseResource) BuildKey() string {
-	return fmt.Sprintf("%s/%s/%s", br.Kind, br.Owner, br.Name)
+func (br *BaseResource) BuildKey(optKeys ...string) string {
+	keys := strings.Join(optKeys, "/")
+	return fmt.Sprintf("%s/%s/%s/%s", br.Kind, br.Owner, br.Name, keys)
+}
+
+func (br *BaseResource) BuildChildKey(parentKey string, key string) string {
+	return fmt.Sprintf("%s/%s/", parentKey, key)
 }
