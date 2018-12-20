@@ -36,11 +36,12 @@ func configureFlags(api *operations.MahakamAPI) {
 
 func configureAPI(api *operations.MahakamAPI) http.Handler {
 
+	// TODO(giri): Init of the mahakam application, must find better place
 	mahakamConfig, err := config.LoadConfig(opts.ConfigFilePath)
 	if err != nil {
 		log.Fatalf("Error loading configuration file for mahakam server: %s\n", err)
 	}
-	h := handlers.New(mahakamConfig.KVStoreConfig)
+	h := handlers.New(mahakamConfig.KVStoreConfig, mahakamConfig.NetworkConfig)
 
 	// configure the api here
 	api.ServeError = errors.ServeError
