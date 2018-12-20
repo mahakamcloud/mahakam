@@ -8,4 +8,5 @@ hostname = "{{.Name}}"
 image_source_path = "{{.ImageSourcePath}}"
 mac_address = "{{.MacAddress}}"
 netmask = "{{.NetMask}}"
-dns_address = "{{.DNSAddress}}"`
+dns_address = "{{.DNSAddress}}"
+`
