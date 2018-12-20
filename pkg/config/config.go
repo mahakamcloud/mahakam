@@ -18,7 +18,7 @@ const (
 
 	// Custom path for storing resource in kvstore
 	KeyPathMahakam       = "mahakamcloud/"
-	KeyPathNetworkSubnet = KeyPathMahakam + "network/subnet/"
+	KeyPathNetworkSubnet = KeyPathMahakam + "network/subnets/"
 )
 
 // Config represents mahakam configuration
