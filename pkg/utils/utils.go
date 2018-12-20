@@ -3,8 +3,10 @@ package utils
 import (
 	"fmt"
 	"io/ioutil"
+	"net"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // ReadFile reads content bytes of file
@@ -28,4 +30,10 @@ func ReadFile(filePath string) ([]byte, error) {
 	}
 
 	return bytes, nil
+}
+
+// CidrToKeyString converts CIDR format to key string
+// i.e. from 1.2.3.4/16 to 1.2.3.4-16
+func CidrToKeyString(cidr net.IPNet) string {
+	return strings.Replace(cidr.String(), "/", "-", -1)
 }

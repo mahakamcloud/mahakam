@@ -2,9 +2,9 @@ package resource
 
 import (
 	"net"
-	"strings"
 
 	"github.com/mahakamcloud/mahakam/pkg/config"
+	"github.com/mahakamcloud/mahakam/pkg/utils"
 )
 
 // ResourceNetwork represents stored resource with network kind
@@ -20,15 +20,11 @@ type ResourceNetwork struct {
 func NewResourceNetwork(cidr net.IPNet) *ResourceNetwork {
 	return &ResourceNetwork{
 		BaseResource: BaseResource{
-			Name:  cidrToKeyString(cidr),
+			Name:  utils.CidrToKeyString(cidr),
 			Kind:  string(KindNetwork),
 			Owner: config.ResourceOwnerMahakam,
 		},
 		Subnet:    cidr.String(),
 		SubnetLen: cidr.Mask.String(),
 	}
-}
-
-func cidrToKeyString(cidr net.IPNet) string {
-	return strings.Replace(cidr.String(), "/", "-", -1)
 }

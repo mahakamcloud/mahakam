@@ -136,6 +136,27 @@ func (kvr *kvResourceStore) GetFromPath(path string, r resource.Resource) error 
 	return nil
 }
 
+// ListFromPath is quick hack to retrieve list keys from given path
+func (kvr *kvResourceStore) ListFromPath(path string, resources interface{}) error {
+	fmt.Println("libkvResourceStore ListFromPath method not implemented")
+	return nil
+}
+
+// ListKeysFromPath is quick hack to retrieve list keys from given path
+func (kvr *kvResourceStore) ListKeysFromPath(path string) ([]string, error) {
+	var keys []string
+
+	kvpairs, err := kvr.store.List(path)
+	if err != nil && err != store.ErrKeyNotFound {
+		return []string{}, fmt.Errorf("Error getting list of kvpairs from path: %s", err)
+	}
+
+	for _, kvpair := range kvpairs {
+		keys = append(keys, kvpair.Key)
+	}
+	return keys, nil
+}
+
 func (kvr *kvResourceStore) UpdateFromPath(path string, r resource.Resource) (revision int64, err error) {
 	if path == "" {
 		return -1, fmt.Errorf("Must provide non-empty path for updating resource: %s", err)
@@ -169,4 +190,12 @@ func (kvr *kvResourceStore) UpdateFromPath(path string, r resource.Resource) (re
 func (kvr *kvResourceStore) DeleteFromPath(path string) error {
 	fmt.Println("libkvResourceStore DeleteFromPath method not implemented")
 	return nil
+}
+
+func (kvr *kvResourceStore) KeyExists(path string) bool {
+	exists, err := kvr.store.Exists(path)
+	if err != nil && err != store.ErrKeyNotFound {
+		return true
+	}
+	return exists
 }
