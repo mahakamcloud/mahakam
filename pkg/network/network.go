@@ -50,7 +50,6 @@ func parseConfig(nm *NetworkManager) error {
 }
 
 func (nm *NetworkManager) AllocateClusterNetwork() (*ClusterNetwork, error) {
-
 	reservedSubnets, err := nm.getReservedSubnets()
 	if err != nil {
 		return nil, fmt.Errorf("Error getting reserved subnets: %s", err)
@@ -112,9 +111,6 @@ func (nm *NetworkManager) ReleaseIP(cn *ClusterNetwork, releasedIP string) error
 	for i, ip := range ipPools {
 		if ip == releasedIP {
 			ipPools = append(ipPools[:i], ipPools[i+1:]...)
-
-			fmt.Println(ipPools)
-
 			n.AllocatedIPPools = ipPools
 			n.AvailableIPPools = append(n.AvailableIPPools, releasedIP)
 
