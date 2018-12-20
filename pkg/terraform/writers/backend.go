@@ -22,22 +22,18 @@ func (bw *BackendWriter) writeFile() {
 	destinationPath := filepath.Join(basePath, "mahakam-test-cluster")
 	os.MkdirAll(destinationPath, os.ModePerm)
 
-	terraformResource := r.NewResourceTerraform("backend.tf")
-	terraformResource.Bucket = "tf-mahakam"
-	terraformResource.Key = "gofinance-k8s/control-plane/terraform.tfstate"
-	terraformResource.Region = "ap-southeast-1"
-
 	var data = map[string]string{
-		"Bucket": terraformResource.Bucket,
-		"Key":    terraformResource.Key,
-		"Region": terraformResource.Region,
+		"Bucket": "tf-mahakam",
+		"Key":    "gofinance-k8s/control-plane/terraform.tfstate",
+		"Region": "ap-southeast-1",
 	}
+	terraformResource := r.NewResourceTerraform("backend.tf", data)
 
-	backendParser := parsers.TerraformTemplate{
+	backendParser := parsers.TerraformParser{
 		"backend",
 		templates.Backend,
-		"backend.tf",
-		data,
+		terraformResource.GetName(),
+		terraformResource.GetAttributes(),
 	}
 	bakcendTf := backendParser.ParseTemplate()
 

@@ -5,22 +5,18 @@ import (
 	"text/template"
 )
 
-type TerraformTemplate struct {
+type TerraformParser struct {
 	Name        string
 	Source      string
 	Destination string
 	Data        map[string]string
 }
 
-type TerraformParser struct {
-	parsers []TerraformTemplate
-}
-
 type Parser interface {
 	ParseTemplate() string
 }
 
-func (self *TerraformTemplate) ParseTemplate() string {
+func (self *TerraformParser) ParseTemplate() string {
 	t := template.New(self.Name)
 	t.Parse(self.Source)
 
