@@ -79,6 +79,32 @@ func (nm *NetworkManager) ReleaseClusterNetwork() error {
 	return nil
 }
 
+// AllocateIP allocates new IP from cluster network
+func (nm *NetworkManager) AllocateIP(cn *ClusterNetwork) (string, error) {
+	n := r.NewResourceNetwork(cn.ClusterNetworkCIDR)
+	err := nm.store.GetFromPath(config.KeyPathNetworkSubnet+n.Name, n)
+	if err != nil {
+		return "", fmt.Errorf("Error getting network subnet resource from kvstore: %s", err)
+	}
+
+	ipPools := n.AvailableIPPools
+	allocatedIP, ipPools := ipPools[len(ipPools)-1], ipPools[:len(ipPools)-1]
+	n.AvailableIPPools = ipPools
+	n.AllocatedIPPools = append(n.AllocatedIPPools, allocatedIP)
+
+	_, err = nm.store.UpdateFromPath(config.KeyPathNetworkSubnet+n.Name, n)
+	if err != nil {
+		return "", fmt.Errorf("Error updating network subnet resource into kvstore: %s", err)
+	}
+
+	return allocatedIP, nil
+}
+
+// TODO(giri): Implement release IP
+func (nm *NetworkManager) ReleaseIP(cn *ClusterNetwork) (string, error) {
+	return "", nil
+}
+
 func (nm *NetworkManager) getReservedSubnets() ([]net.IPNet, error) {
 	reservedSubnets := []net.IPNet{}
 
