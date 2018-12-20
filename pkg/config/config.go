@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"net"
 
 	"github.com/mahakamcloud/mahakam/pkg/utils"
 	yaml "gopkg.in/yaml.v2"
@@ -12,12 +13,18 @@ import (
 const (
 	// ResourceOwner hardcodes all tenant resources to be owned by gojek
 	// since we don't have auth mechanism yet
-	ResourceOwnerGojek = "gojek"
+	ResourceOwnerGojek   = "gojek"
+	ResourceOwnerMahakam = "mahakam"
+
+	// Custom path for storing resource in kvstore
+	KeyPathMahakam       = "mahakamcloud/"
+	KeyPathNetworkSubnet = KeyPathMahakam + "network/subnet/"
 )
 
 // Config represents mahakam configuration
 type Config struct {
 	KVStoreConfig StorageBackendConfig `yaml:"storage_backend"`
+	NetworkConfig NetworkConfig        `yaml:"network"`
 }
 
 // LoadConfig loads a configuration file
@@ -48,6 +55,11 @@ func (c *Config) Validate() error {
 	if err := c.KVStoreConfig.Validate(); err != nil {
 		return fmt.Errorf("Error validating KV store configuration: %s", err)
 	}
+
+	if err := c.NetworkConfig.Validate(); err != nil {
+		return fmt.Errorf("Error validating network configuration: %s", err)
+	}
+
 	return nil
 }
 
@@ -64,6 +76,25 @@ type StorageBackendConfig struct {
 func (sbc *StorageBackendConfig) Validate() error {
 	if sbc.Address == "" {
 		return fmt.Errorf("Must provide non-empty storage backend address")
+	}
+
+	return nil
+}
+
+// NetworkConfig stores metadata for network that mahakam will configure
+type NetworkConfig struct {
+	// Base CIDR that Mahakam will use to provision small network from it
+	CIDR string `yaml:"cidr"`
+}
+
+// Validate validates storage backend configuration
+func (nc *NetworkConfig) Validate() error {
+	if nc.CIDR == "" {
+		return fmt.Errorf("Must provide non-empty network CIDR")
+	}
+
+	if _, _, err := net.ParseCIDR(nc.CIDR); err != nil {
+		return fmt.Errorf("Must provide valid CIDR format")
 	}
 
 	return nil
