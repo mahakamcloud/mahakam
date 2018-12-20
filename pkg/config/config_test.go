@@ -21,6 +21,10 @@ var (
 			Password:    "fake-storage-backend-password",
 			Bucket:      "fake-storage-backend-bucket",
 		},
+		NetworkConfig: NetworkConfig{
+			CIDR:           "fake-network-cidr",
+			ClusterNetmask: 24,
+		},
 	}
 )
 
