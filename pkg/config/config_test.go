@@ -22,7 +22,7 @@ var (
 			Bucket:      "fake-storage-backend-bucket",
 		},
 		NetworkConfig: NetworkConfig{
-			CIDR:           "fake-network-cidr",
+			CIDR:           "1.2.3.4/16",
 			ClusterNetmask: 24,
 		},
 	}
