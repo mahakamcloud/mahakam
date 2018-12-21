@@ -32,7 +32,6 @@ type App struct {
 
 	// name
 	// Required: true
-	// Min Length: 1
 	Name *string `json:"name"`
 
 	// owner
@@ -59,10 +58,6 @@ func (m *App) Validate(formats strfmt.Registry) error {
 func (m *App) validateName(formats strfmt.Registry) error {
 
 	if err := validate.Required("name", "body", m.Name); err != nil {
-		return err
-	}
-
-	if err := validate.MinLength("name", "body", string(*m.Name), 1); err != nil {
 		return err
 	}
 

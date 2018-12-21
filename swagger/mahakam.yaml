@@ -89,6 +89,27 @@ definitions:
         maximum: 10
       status:
         type: string
+  app:
+    type: object
+    required:
+      - name
+    properties:
+      id:
+        type: integer
+        format: int64
+        readOnly: true
+      name:
+        type: string
+      owner:
+        type: string
+      clusterName:
+        type: string
+      chartURL:
+        type: string
+      chartValues:
+        type: string
+      status:
+        type: string
   error:
     type: object
     required:

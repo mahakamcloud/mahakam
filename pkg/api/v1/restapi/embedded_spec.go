@@ -121,6 +121,37 @@ func init() {
     }
   },
   "definitions": {
+    "app": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "chartURL": {
+          "type": "string"
+        },
+        "chartValues": {
+          "type": "string"
+        },
+        "clusterName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "name": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
     "cluster": {
       "type": "object",
       "required": [
@@ -274,6 +305,37 @@ func init() {
     }
   },
   "definitions": {
+    "app": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "chartURL": {
+          "type": "string"
+        },
+        "chartValues": {
+          "type": "string"
+        },
+        "clusterName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "name": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
     "cluster": {
       "type": "object",
       "required": [
