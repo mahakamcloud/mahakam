@@ -1,32 +1,30 @@
 package tfmodule
 
-import "fmt"
-
-// TerraformModule which defines the files of a module
-type TerraformModule struct {
-	Name     string          `json:"name"`
-	BasePath string          `json:"basepath"`
-	Files    []TerraformFile `json:"files"`
+// TerraformProvisioner which defines the files of a module
+type TerraformProvisioner struct {
+	Name    string          `json:"name"`
+	DestDir string          `json:"destdir"`
+	Files   []TerraformFile `json:"files"`
 }
 
-// define or update a TerraformModule
-func (tfModule TerraformModule) updateModule(filetype string, source string, destination string) {
+// define or update a TerraformProvisioner
+func (tfProvisioner TerraformProvisioner) UpdateModule(filetype string, source string, destfile string) {
 	tfFile := TerraformFile{
 		filetype,
 		source,
-		destination,
+		tfProvisioner.DestDir + tfProvisioner.Name,
+		destfile,
 	}
-	fmt.Print(tfFile)
-	// if success store module in Module
+	tfProvisioner.Files = append(tfProvisioner.Files, tfFile)
 }
 
-func (tfModule TerraformModule) generateModule(data map[string]string) {
-	for _, tfFile := range tfModule.Files {
-		parsedFile := tfFile.parseTerraformFile(data)
-		tfFile.writeTerraformFile(parsedFile)
+func (tfProvisioner TerraformProvisioner) GenerateProvisionerFiles(data map[string]string) {
+	for _, tfFile := range tfProvisioner.Files {
+		parsedFile := tfFile.ParseTerraformFile(data)
+		tfFile.WriteTerraformFile(parsedFile)
 	}
 }
 
-func (tfModule TerraformModule) executeModule() {
+func (tfProvisioner TerraformProvisioner) executeModule() {
 	// run cmd for this module
 }
