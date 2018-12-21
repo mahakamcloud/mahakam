@@ -116,3 +116,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/giantswarm/microstorage"
+
+[[constraint]]
+  name = "k8s.io/helm"
+  version = "2.12.1"
