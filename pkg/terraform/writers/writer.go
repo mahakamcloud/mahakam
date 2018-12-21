@@ -1,18 +1,25 @@
 package writers
 
-const (
-	basePath      = "/tmp/mahakam/terraform"
-	templatesPath = "templates"
+import (
+	"io"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
-type Writer interface {
-	writeFile()
+type TerraformWriter struct {
+	Data          string
+	DestDirectory string
+	DestFile      string
 }
 
-type AbstractWriter struct {
-	Writer Writer
-}
+// WriteFile func to write the data to destination address
+func (tfWriter TerraformWriter) WriteFile() {
+	if _, err := os.Stat(tfWriter.DestDirectory); os.IsNotExist(err) {
+		os.MkdirAll(tfWriter.DestDirectory, os.ModePerm)
+	}
 
-func (aw *AbstractWriter) Start() {
-	aw.Writer.writeFile()
+	fo, _ := os.Create(filepath.Join(tfWriter.DestDirectory, tfWriter.DestFile))
+	defer fo.Close()
+	io.Copy(fo, strings.NewReader(tfWriter.Data))
 }

@@ -1,42 +1,42 @@
 package templates
 
 var Vars = `variable "dns_dhcp_server_username" {
-  type = "string"
+    type = "string"
 }
 
 variable "hostname" {
-  type = "string"
+    type = "string"
 }
 
 variable "password" {
-  type    = "string"
-  default = "passw0rd"
+    type    = "string"
+    default = "passw0rd"
 }
 
 variable "ip_address" {
-  type = "string"
+    type = "string"
 }
 
 variable "netmask" {
-  type = "string"
+    type = "string"
 }
 
 variable "host" {
-  type = "string"
+    type = "string"
 }
 
 variable "gate_nss_api_key" {
-  type = "string"
+    type = "string"
 }
 
 variable "image_source_path" {
-  type = "string"
+    type = "string"
 }
 
 variable "mac_address" {
-  type = "string"
+    type = "string"
 }
 
 variable "dns_address" {
-  type = "string"
+    type = "string"
 }`
