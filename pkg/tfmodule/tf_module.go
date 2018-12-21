@@ -7,12 +7,12 @@ type TerraformProvisioner struct {
 	Files   []TerraformFile `json:"files"`
 }
 
-// define or update a TerraformProvisioner
-func (tfProvisioner TerraformProvisioner) UpdateModule(filetype string, source string, destfile string) {
+// define or update a UpdateProvisionerFile
+func (tfProvisioner *TerraformProvisioner) UpdateProvisionerFile(filetype string, source string, destfile string) {
 	tfFile := TerraformFile{
 		filetype,
 		source,
-		tfProvisioner.DestDir + tfProvisioner.Name,
+		tfProvisioner.DestDir + tfProvisioner.Name + "/",
 		destfile,
 	}
 	tfProvisioner.Files = append(tfProvisioner.Files, tfFile)
