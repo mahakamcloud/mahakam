@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -12,9 +13,10 @@ import (
 type TerraformFile struct {
 	// TODO: the Source and Destination path would be absolute
 	// TODO: validation for struct values
-	FileType    string `json:"filetype"`
-	Source      string `json:"source"`
-	Destination string `json:"destination"`
+	FileType string `json:"filetype"`
+	Source   string `json:"source"`
+	DestDir  string `json:"destdir"`
+	DestFile string `json:"destfile"`
 }
 
 func (tfFile TerraformFile) ParseTerraformFile(data map[string]string) string {
@@ -30,7 +32,11 @@ func (tfFile TerraformFile) ParseTerraformFile(data map[string]string) string {
 func (tfFile TerraformFile) WriteTerraformFile(data string) {
 	// TODO: check if destination path exists -> create if not
 
-	fo, _ := os.Create(tfFile.Destination)
+	if _, err := os.Stat(tfFile.DestDir); os.IsNotExist(err) {
+		os.MkdirAll(tfFile.DestDir, os.ModePerm)
+	}
+
+	fo, _ := os.Create(filepath.Join(tfFile.DestDir, tfFile.DestFile))
 	defer fo.Close()
 	io.Copy(fo, strings.NewReader(data))
 }
