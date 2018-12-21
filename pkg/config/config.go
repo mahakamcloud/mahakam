@@ -19,6 +19,9 @@ const (
 	// Custom path for storing resource in kvstore
 	KeyPathMahakam       = "mahakamcloud/"
 	KeyPathNetworkSubnet = KeyPathMahakam + "network/subnets/"
+
+	// Helm default configuration
+	HelmDefaultNamespace = "default"
 )
 
 // Config represents mahakam configuration
