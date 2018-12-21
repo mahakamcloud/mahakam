@@ -1,5 +1,9 @@
 package tfmodule
 
+import (
+	"github.com/mahakamcloud/mahakam/pkg/cmd_runner"
+)
+
 // TerraformProvisioner which defines the files of a module
 type TerraformProvisioner struct {
 	Name    string          `json:"name"`
@@ -25,6 +29,8 @@ func (tfProvisioner TerraformProvisioner) GenerateProvisionerFiles(data map[stri
 	}
 }
 
-func (tfProvisioner TerraformProvisioner) executeModule() {
-	// run cmd for this module
+func (tfProvisioner *TerraformProvisioner) ExecuteProvisioner() (string, error) {
+	runner := cmd_runner.New()
+	output, err := runner.CombinedOutput("echo", "a")
+	return output, err
 }

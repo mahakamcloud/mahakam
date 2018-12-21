@@ -78,5 +78,12 @@ var _ = Describe("TerraformFile", func() {
 			})
 		})
 
+		Describe("Run the terraform provisioner", func() {
+			Context("simple command", func() {
+				It("simple", func() {
+					(&tfProvisioner).ExecuteProvisioner()
+				})
+			})
+		})
 	})
 })
