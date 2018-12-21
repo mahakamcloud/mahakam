@@ -25,7 +25,7 @@ type HelmController struct {
 	// ChartPath is path to dir where chart archive is located
 	ChartPath string
 	// ValueFile is filepath that contains custom values to override default chart values
-	ValueFile string
+	ValueFiles valueFiles
 	// Namespace is default namespace to deploy resources into
 	Namespace string
 	// ReleaseName is prefix to helm release name
@@ -39,8 +39,8 @@ type HelmController struct {
 }
 
 // New will return a configured helm controller
-func New(tillerEndpoint, chartPath, valueFile, namespace, releaseName string,
-	wait bool, waitTimeout int64, logger *log.Logger) *HelmController {
+func New(tillerEndpoint, chartPath string, valueFiles valueFiles,
+	namespace, releaseName string, wait bool, waitTimeout int64, logger *log.Logger) *HelmController {
 
 	if logger == nil {
 		logger = log.New()
@@ -57,7 +57,7 @@ func New(tillerEndpoint, chartPath, valueFile, namespace, releaseName string,
 	return &HelmController{
 		Helm:        helm.NewClient(helm.Host(tillerEndpoint)),
 		ChartPath:   chartPath,
-		ValueFile:   valueFile,
+		ValueFiles:  valueFiles,
 		Namespace:   namespace,
 		ReleaseName: releaseName,
 		Wait:        wait,
@@ -67,16 +67,17 @@ func New(tillerEndpoint, chartPath, valueFile, namespace, releaseName string,
 }
 
 // CreateApp will kick off helm install of given chart and values
-func (hc *HelmController) CreateApp(app *models.App) {
+func (hc *HelmController) CreateApp(app *models.App) error {
 	hc.logger.Infof("create app %s", swag.StringValue(app.Name))
 	if err := hc.installOrUpdate(app); err != nil {
 		hc.logger.Errorf("failed to create app %s: %s", swag.StringValue(app.Name), err)
-		return
+		return err
 	}
+	return nil
 }
 
 func (hc *HelmController) installOrUpdate(app *models.App) error {
-	rawVals, err := hc.vals(hc.ValueFile)
+	rawVals, err := hc.vals(hc.ValueFiles)
 	if err != nil {
 		return err
 	}
@@ -86,6 +87,7 @@ func (hc *HelmController) installOrUpdate(app *models.App) error {
 		return err
 	}
 	hc.ChartPath = chartPath
+	fmt.Println(hc.ChartPath)
 
 	releaseName := hc.releaseName(app)
 	if hc.releaseExists(releaseName) {
@@ -110,30 +112,33 @@ func (hc *HelmController) installOrUpdate(app *models.App) error {
 	return err
 }
 
-func (hc *HelmController) vals(valueFile string) ([]byte, error) {
-	var valueMap map[string]interface{}
-	var bytes []byte
-	var err error
+func (hc *HelmController) vals(valueFiles valueFiles) ([]byte, error) {
+	currentMap := map[string]interface{}{}
 
-	if strings.TrimSpace(valueFile) == "-" {
-		bytes, err = ioutil.ReadAll(os.Stdin)
-	} else {
-		bytes, err = readFile(valueFile)
+	for _, filePath := range valueFiles {
+		var bytes []byte
+		var err error
+
+		if strings.TrimSpace(filePath) == "-" {
+			bytes, err = ioutil.ReadAll(os.Stdin)
+		} else {
+			bytes, err = readFile(filePath)
+		}
+
+		if err != nil {
+			return []byte{}, err
+		}
+
+		if err := yaml.Unmarshal(bytes, &currentMap); err != nil {
+			return []byte{}, fmt.Errorf("failed to parse %s: %s", filePath, err)
+		}
 	}
 
-	if err != nil {
-		return []byte{}, err
-	}
-
-	if err := yaml.Unmarshal(bytes, &valueMap); err != nil {
-		return []byte{}, fmt.Errorf("failed to parse %s: %s", valueFile, err)
-	}
-
-	return yaml.Marshal(valueMap)
+	return yaml.Marshal(currentMap)
 }
 
 func (hc *HelmController) releaseName(app *models.App) string {
-	return fmt.Sprintf("%s-%s", app.Owner, swag.StringValue(app.Name))
+	return fmt.Sprintf("%s-%s", swag.StringValue(app.Owner), swag.StringValue(app.Name))
 }
 
 func (hc *HelmController) releaseExists(releaseName string) bool {
