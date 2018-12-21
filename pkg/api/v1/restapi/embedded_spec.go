@@ -124,7 +124,8 @@ func init() {
     "app": {
       "type": "object",
       "required": [
-        "name"
+        "name",
+        "owner"
       ],
       "properties": {
         "chartURL": {
@@ -308,7 +309,8 @@ func init() {
     "app": {
       "type": "object",
       "required": [
-        "name"
+        "name",
+        "owner"
       ],
       "properties": {
         "chartURL": {
