@@ -112,4 +112,6 @@ var _ = Describe("TerraformParser", func() {
 			})
 		})
 	})
+
+	// TODO: Parsing incomplete template
 })
