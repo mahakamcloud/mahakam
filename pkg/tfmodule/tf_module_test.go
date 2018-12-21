@@ -14,10 +14,10 @@ import (
 
 var _ = Describe("TerraformFile", func() {
 	var (
-		tfFile          TerraformFile
-		tfProvisioner   TerraformProvisioner
-		backendData     map[string]string
-		destinationFile string
+		tfFile                 TerraformFile
+		tfProvisioner          TerraformProvisioner
+		backendData            map[string]string
+		backednDestinationFile string
 	)
 
 	BeforeEach(func() {
@@ -40,7 +40,7 @@ var _ = Describe("TerraformFile", func() {
 			"Key":    "gofinance-k8s/control-plane/terraform.tfstate",
 			"Region": "ap-southeast-1",
 		}
-		destinationFile = filepath.Join(tfFile.DestDir, tfFile.DestFile)
+		backednDestinationFile = filepath.Join(tfFile.DestDir, tfFile.DestFile)
 	})
 
 	parsedBackendData := `terraform {
@@ -51,18 +51,32 @@ var _ = Describe("TerraformFile", func() {
     }
 }`
 
+	tfDataFile := TerraformFile{
+		FileType: "data",
+		Source:   templates.UserData,
+		DestDir:  "/tmp/mahakam/terraform/mahakam-cluster-01/",
+		DestFile: "data.tf",
+	}
+
 	Describe("Generating the Provisioner file", func() {
 		Context("With backend.tf data", func() {
 			It("Backend.tf file should be created at Destination with ParsedBackendData", func() {
 				tfProvisioner.GenerateProvisionerFiles(backendData)
-				_, err := os.Stat(destinationFile)
+				_, err := os.Stat(backednDestinationFile)
 				Expect(os.IsNotExist(err)).To(Equal(false))
 
-				readData, err := ioutil.ReadFile(destinationFile)
+				readData, err := ioutil.ReadFile(backednDestinationFile)
 				Expect(os.IsNotExist(err)).To(Equal(false))
 				Expect(string(readData)).To(Equal(parsedBackendData))
 
 			})
 		})
+		Context("Update the terraform provisioner", func() {
+			It("With data.tf file", func() {
+				(&tfProvisioner).UpdateProvisionerFile("data", templates.UserData, "data.tf")
+				Expect(tfProvisioner.Files).To(Equal([]TerraformFile{tfFile, tfDataFile}))
+			})
+		})
+
 	})
 })
