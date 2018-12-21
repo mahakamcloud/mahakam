@@ -12,6 +12,7 @@ var _ = Describe("TerraformParser", func() {
 	var (
 		tfBackendParser TerraformParser
 		tfDataParser    TerraformParser
+		tfMainParser    TerraformParser
 	)
 
 	BeforeEach(func() {
@@ -27,6 +28,11 @@ var _ = Describe("TerraformParser", func() {
 			"Region": "ap-southeast-1",
 		}
 
+		var mainData = map[string]string{
+			"Name":              "mahakam-spike-01",
+			"LibvirtModulePath": "git::https://source.golabs.io/terraform/libvirt-vm-private.git?ref=v3.3.2",
+		}
+
 		tfBackendParser = TerraformParser{
 			"backend",
 			templates.Backend,
@@ -39,6 +45,13 @@ var _ = Describe("TerraformParser", func() {
 			templates.UserData,
 			"/tmp/mahakam/terraform/data.tf",
 			userData,
+		}
+
+		tfMainParser = TerraformParser{
+			"main",
+			templates.MainFile,
+			"/tmp/mahakam/terraform/main.tf",
+			mainData,
 		}
 	})
 
@@ -65,6 +78,18 @@ var _ = Describe("TerraformParser", func() {
     }
 }`
 
+	parsedMainData := `module "mahakam-spike-01" {
+    source = "git::https://source.golabs.io/terraform/libvirt-vm-private.git?ref=v3.3.2"
+
+    instance_name = "${var.hostname}"
+    libvirt_host  = "${var.host}"
+    source_path   = "${var.image_source_path}"
+    mac_address   = "${var.mac_address}"
+    ip_address    = "${var.ip_address}"
+
+    user_data = "${data.template_file.user_data.rendered}"
+}`
+
 	Describe("Parsing Templates", func() {
 		Context("With backend.tf data", func() {
 			It("should be able to parse templates.Backend and return the correct string", func() {
@@ -77,6 +102,13 @@ var _ = Describe("TerraformParser", func() {
 			It("should be able to parse templates.Data and return the correct string", func() {
 				result := tfDataParser.ParseTemplate()
 				Expect(result).To(Equal(parsedUserData))
+			})
+		})
+
+		Context("With main.tf data", func() {
+			It("should be able to parse templates.Data and return the correct string", func() {
+				result := tfMainParser.ParseTemplate()
+				Expect(result).To(Equal(parsedMainData))
 			})
 		})
 	})
