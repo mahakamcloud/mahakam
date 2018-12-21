@@ -35,7 +35,7 @@ var _ = Describe("TerraformWriter", func() {
 			terraformResource.GetAttributes(),
 		}
 		backendTf := backendParser.ParseTemplate()
-		//		fmt.Println(backendTf)
+
 		tfWriter = TerraformWriter{
 			backendTf,
 			"/tmp/mahakam/terraform/",
