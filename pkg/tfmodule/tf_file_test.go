@@ -73,6 +73,14 @@ var _ = Describe("TerraformFile", func() {
 				Expect(string(readData)).To(Equal(parsedBackendData))
 
 			})
+
+			It("overwrite file data if file is generated again", func() {
+				tfFile.WriteTerraformFile(parsedBackendData)
+				readData, err := ioutil.ReadFile(destinationFile)
+				Expect(os.IsNotExist(err)).To(Equal(false))
+				Expect(string(readData)).To(Equal(parsedBackendData))
+
+			})
 		})
 	})
 })
