@@ -570,9 +570,17 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:48e235389d8de8623da98cb952a0ec7ac1b6f6663fd2df304156bfe02df009a4"
+  digest = "1:0c7298a415eb012f7e952a69c536db97f36d2ea7a1c7e65e38230fa9dec90e83"
   name = "golang.org/x/crypto"
   packages = [
+    "cast5",
+    "openpgp",
+    "openpgp/armor",
+    "openpgp/clearsign",
+    "openpgp/elgamal",
+    "openpgp/errors",
+    "openpgp/packet",
+    "openpgp/s2k",
     "pbkdf2",
     "scrypt",
     "ssh/terminal",
@@ -737,10 +745,11 @@
   version = "v10.0.0"
 
 [[projects]]
-  digest = "1:14ffd4fe8770669893ea54b1e4c95f00ed9d3db143297c0bd0f1971c876737ca"
+  digest = "1:500d4631560fcf05ebd079bd557bf1241e54502e7918ae953a7f57390756c973"
   name = "k8s.io/helm"
   packages = [
     "pkg/chartutil",
+    "pkg/downloader",
     "pkg/engine",
     "pkg/getter",
     "pkg/helm",
@@ -753,8 +762,11 @@
     "pkg/proto/hapi/release",
     "pkg/proto/hapi/services",
     "pkg/proto/hapi/version",
+    "pkg/provenance",
     "pkg/releaseutil",
     "pkg/renderutil",
+    "pkg/repo",
+    "pkg/resolver",
     "pkg/storage/errors",
     "pkg/sympath",
     "pkg/tlsutil",
@@ -796,9 +808,11 @@
     "golang.org/x/net/context",
     "golang.org/x/net/netutil",
     "gopkg.in/yaml.v2",
+    "k8s.io/helm/pkg/downloader",
     "k8s.io/helm/pkg/getter",
     "k8s.io/helm/pkg/helm",
     "k8s.io/helm/pkg/helm/environment",
+    "k8s.io/helm/pkg/helm/helmpath",
     "k8s.io/helm/pkg/proto/hapi/release",
   ]
   solver-name = "gps-cdcl"
