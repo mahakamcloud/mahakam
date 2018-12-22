@@ -8,8 +8,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/mahakamcloud/mahakam/pkg/terraform/templates"
 	. "github.com/mahakamcloud/mahakam/pkg/tfmodule"
+	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates"
 )
 
 var _ = Describe("TerraformFile", func() {
