@@ -24,17 +24,17 @@ func CreateCluster(cluster *models.Cluster) error {
 	terraformResource := rs.NewResourceTerraform("backend.tf", data)
 
 	backendParser := parsers.TerraformParser{
-		"backend",
-		templates.Backend,
-		terraformResource.GetName(),
-		terraformResource.GetAttributes(),
+		Name:        "backend",
+		Source:      templates.Backend,
+		Destination: terraformResource.GetName(),
+		Data:        terraformResource.GetAttributes(),
 	}
 	backendTf := backendParser.ParseTemplate()
 
 	tfWriter := tw.TerraformWriter{
-		backendTf,
-		"/tmp/mahakam/terraform/",
-		"backend.tf",
+		Data:          backendTf,
+		DestDirectory: "/tmp/mahakam/terraform/",
+		DestFile:      "backend.tf",
 	}
 	tfWriter.WriteFile()
 
