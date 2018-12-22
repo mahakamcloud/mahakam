@@ -19,6 +19,7 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/apps"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/clusters"
 )
 
@@ -39,11 +40,17 @@ func NewMahakamAPI(spec *loads.Document) *MahakamAPI {
 		BearerAuthenticator: security.BearerAuth,
 		JSONConsumer:        runtime.JSONConsumer(),
 		JSONProducer:        runtime.JSONProducer(),
+		AppsCreateAppHandler: apps.CreateAppHandlerFunc(func(params apps.CreateAppParams) middleware.Responder {
+			return middleware.NotImplemented("operation AppsCreateApp has not yet been implemented")
+		}),
 		ClustersCreateClusterHandler: clusters.CreateClusterHandlerFunc(func(params clusters.CreateClusterParams) middleware.Responder {
 			return middleware.NotImplemented("operation ClustersCreateCluster has not yet been implemented")
 		}),
 		ClustersDescribeClustersHandler: clusters.DescribeClustersHandlerFunc(func(params clusters.DescribeClustersParams) middleware.Responder {
 			return middleware.NotImplemented("operation ClustersDescribeClusters has not yet been implemented")
+		}),
+		AppsGetAppsHandler: apps.GetAppsHandlerFunc(func(params apps.GetAppsParams) middleware.Responder {
+			return middleware.NotImplemented("operation AppsGetApps has not yet been implemented")
 		}),
 		ClustersGetClustersHandler: clusters.GetClustersHandlerFunc(func(params clusters.GetClustersParams) middleware.Responder {
 			return middleware.NotImplemented("operation ClustersGetClusters has not yet been implemented")
@@ -79,10 +86,14 @@ type MahakamAPI struct {
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
+	// AppsCreateAppHandler sets the operation handler for the create app operation
+	AppsCreateAppHandler apps.CreateAppHandler
 	// ClustersCreateClusterHandler sets the operation handler for the create cluster operation
 	ClustersCreateClusterHandler clusters.CreateClusterHandler
 	// ClustersDescribeClustersHandler sets the operation handler for the describe clusters operation
 	ClustersDescribeClustersHandler clusters.DescribeClustersHandler
+	// AppsGetAppsHandler sets the operation handler for the get apps operation
+	AppsGetAppsHandler apps.GetAppsHandler
 	// ClustersGetClustersHandler sets the operation handler for the get clusters operation
 	ClustersGetClustersHandler clusters.GetClustersHandler
 
@@ -148,12 +159,20 @@ func (o *MahakamAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.AppsCreateAppHandler == nil {
+		unregistered = append(unregistered, "apps.CreateAppHandler")
+	}
+
 	if o.ClustersCreateClusterHandler == nil {
 		unregistered = append(unregistered, "clusters.CreateClusterHandler")
 	}
 
 	if o.ClustersDescribeClustersHandler == nil {
 		unregistered = append(unregistered, "clusters.DescribeClustersHandler")
+	}
+
+	if o.AppsGetAppsHandler == nil {
+		unregistered = append(unregistered, "apps.GetAppsHandler")
 	}
 
 	if o.ClustersGetClustersHandler == nil {
@@ -261,12 +280,22 @@ func (o *MahakamAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/apps"] = apps.NewCreateApp(o.context, o.AppsCreateAppHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/clusters"] = clusters.NewCreateCluster(o.context, o.ClustersCreateClusterHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/clusters/describe"] = clusters.NewDescribeClusters(o.context, o.ClustersDescribeClustersHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/apps"] = apps.NewGetApps(o.context, o.AppsGetAppsHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

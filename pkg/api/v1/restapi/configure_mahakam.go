@@ -14,6 +14,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations"
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/apps"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/clusters"
 	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/mahakamcloud/mahakam/pkg/handlers"
@@ -57,6 +58,12 @@ func configureAPI(api *operations.MahakamAPI) http.Handler {
 	})
 
 	api.ClustersDescribeClustersHandler = &handlers.DescribeCluster{Handlers: *h}
+
+	api.AppsCreateAppHandler = &handlers.CreateApp{Handlers: *h}
+
+	api.AppsGetAppsHandler = apps.GetAppsHandlerFunc(func(params apps.GetAppsParams) middleware.Responder {
+		return middleware.NotImplemented("operation apps.GetApps has not yet been implemented")
+	})
 
 	api.ServerShutdown = func() {}
 

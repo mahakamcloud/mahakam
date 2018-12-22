@@ -35,6 +35,60 @@ func init() {
   },
   "basePath": "/v1",
   "paths": {
+    "/apps": {
+      "get": {
+        "tags": [
+          "apps"
+        ],
+        "operationId": "getApps",
+        "responses": {
+          "200": {
+            "description": "list created applications",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/app"
+              }
+            }
+          },
+          "default": {
+            "description": "generic error response",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "apps"
+        ],
+        "operationId": "createApp",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/app"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/app"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/clusters": {
       "get": {
         "tags": [
@@ -220,6 +274,60 @@ func init() {
   },
   "basePath": "/v1",
   "paths": {
+    "/apps": {
+      "get": {
+        "tags": [
+          "apps"
+        ],
+        "operationId": "getApps",
+        "responses": {
+          "200": {
+            "description": "list created applications",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/app"
+              }
+            }
+          },
+          "default": {
+            "description": "generic error response",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "apps"
+        ],
+        "operationId": "createApp",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/app"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/app"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/clusters": {
       "get": {
         "tags": [

@@ -11,6 +11,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/apps"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/clusters"
 )
 
@@ -56,6 +57,8 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *Mahakam {
 
 	cli := new(Mahakam)
 	cli.Transport = transport
+
+	cli.Apps = apps.New(transport, formats)
 
 	cli.Clusters = clusters.New(transport, formats)
 
@@ -103,6 +106,8 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // Mahakam is a client for mahakam
 type Mahakam struct {
+	Apps *apps.Client
+
 	Clusters *clusters.Client
 
 	Transport runtime.ClientTransport
@@ -111,6 +116,8 @@ type Mahakam struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *Mahakam) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
+
+	c.Apps.SetTransport(transport)
 
 	c.Clusters.SetTransport(transport)
 
