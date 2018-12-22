@@ -29,17 +29,17 @@ var _ = Describe("TerraformWriter", func() {
 		terraformResource := NewResourceTerraform("backend.tf", data)
 
 		backendParser := parsers.TerraformParser{
-			"backend",
-			templates.Backend,
-			terraformResource.GetName(),
-			terraformResource.GetAttributes(),
+			Name:        "backend",
+			Source:      templates.Backend,
+			Destination: terraformResource.GetName(),
+			Data:        terraformResource.GetAttributes(),
 		}
 		backendTf := backendParser.ParseTemplate()
 
 		tfWriter = TerraformWriter{
-			backendTf,
-			"/tmp/mahakam/terraform/",
-			"backend.tf",
+			Data:          backendTf,
+			DestDirectory: "/tmp/mahakam/terraform/",
+			DestFile:      "backend.tf",
 		}
 
 		tfFile = filepath.Join(tfWriter.DestDirectory, tfWriter.DestFile)

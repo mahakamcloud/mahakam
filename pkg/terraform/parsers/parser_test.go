@@ -34,24 +34,24 @@ var _ = Describe("TerraformParser", func() {
 		}
 
 		tfBackendParser = TerraformParser{
-			"backend",
-			templates.Backend,
-			"/tmp/mahakam/terraform/backend.tf",
-			backendTfData,
+			Name:        "backend",
+			Source:      templates.Backend,
+			Destination: "/tmp/mahakam/terraform/backend.tf",
+			Data:        backendTfData,
 		}
 
 		tfDataParser = TerraformParser{
-			"data",
-			templates.UserData,
-			"/tmp/mahakam/terraform/data.tf",
-			userData,
+			Name:        "data",
+			Source:      templates.UserData,
+			Destination: "/tmp/mahakam/terraform/data.tf",
+			Data:        userData,
 		}
 
 		tfMainParser = TerraformParser{
-			"main",
-			templates.MainFile,
-			"/tmp/mahakam/terraform/main.tf",
-			mainData,
+			Name:        "main",
+			Source:      templates.MainFile,
+			Destination: "/tmp/mahakam/terraform/main.tf",
+			Data:        mainData,
 		}
 	})
 
