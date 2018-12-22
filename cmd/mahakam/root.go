@@ -34,7 +34,7 @@ func exitWithHelp(cmd *cobra.Command, err string) {
 	os.Exit(1)
 }
 
-func GetClusterClient() *client.Mahakam {
+func GetMahakamClient() *client.Mahakam {
 	t := httptransport.New(os.Getenv("MAHAKAM_API_SERVER_HOST"), basePath, nil)
 	c := client.New(t, strfmt.Default)
 	return c
