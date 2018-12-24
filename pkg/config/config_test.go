@@ -25,6 +25,9 @@ var (
 			CIDR:           "1.2.3.4/16",
 			ClusterNetmask: 24,
 		},
+		GateConfig: GateConfig{
+			GateNSSApiKey: "fake-gate-nss-api-key",
+		},
 	}
 )
 
