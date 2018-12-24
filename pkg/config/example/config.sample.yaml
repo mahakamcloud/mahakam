@@ -7,3 +7,5 @@ storage_backend:
 network:
   cidr: "10.30.0.0/16"
   cluster_netmask: 24
+gate:
+  gate_nss_api_key: "dummygatekey"

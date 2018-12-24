@@ -35,6 +35,7 @@ const (
 type Config struct {
 	KVStoreConfig StorageBackendConfig `yaml:"storage_backend"`
 	NetworkConfig NetworkConfig        `yaml:"network"`
+	GateConfig    GateConfig           `yaml:"gate"`
 }
 
 // LoadConfig loads a configuration file
@@ -68,6 +69,10 @@ func (c *Config) Validate() error {
 
 	if err := c.NetworkConfig.Validate(); err != nil {
 		return fmt.Errorf("Error validating network configuration: %s", err)
+	}
+
+	if err := c.GateConfig.Validate(); err != nil {
+		return fmt.Errorf("Error validating gate configuration: %s", err)
 	}
 
 	return nil
@@ -117,5 +122,16 @@ func (nc *NetworkConfig) Validate() error {
 		return fmt.Errorf("Must provide valid cluster netmask between 0 and 32")
 	}
 
+	return nil
+}
+
+type GateConfig struct {
+	GateNSSApiKey string "yaml:gate_nss_api_key"
+}
+
+func (gc *GateConfig) Validate() error {
+	if gc.GateNSSApiKey == "" {
+		return fmt.Errorf("Must provide non-empty Gate NSS API key")
+	}
 	return nil
 }
