@@ -127,7 +127,6 @@ definitions:
     type: object
     required:
       - name
-      - owner
     properties:
       id:
         type: integer

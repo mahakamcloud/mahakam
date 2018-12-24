@@ -35,8 +35,7 @@ type App struct {
 	Name *string `json:"name"`
 
 	// owner
-	// Required: true
-	Owner *string `json:"owner"`
+	Owner string `json:"owner,omitempty"`
 
 	// status
 	Status string `json:"status,omitempty"`
@@ -50,10 +49,6 @@ func (m *App) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateOwner(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -63,15 +58,6 @@ func (m *App) Validate(formats strfmt.Registry) error {
 func (m *App) validateName(formats strfmt.Registry) error {
 
 	if err := validate.Required("name", "body", m.Name); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *App) validateOwner(formats strfmt.Registry) error {
-
-	if err := validate.Required("owner", "body", m.Owner); err != nil {
 		return err
 	}
 
