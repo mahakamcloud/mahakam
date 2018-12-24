@@ -62,6 +62,9 @@ func (h *CreateApp) Handle(params apps.CreateAppParams) middleware.Responder {
 		Name:  b.Name,
 		Owner: b.Owner,
 	}
+
+	// TODO(giri): run create app in separate routine and update app status
+	// to ready when it's done
 	err = hc.CreateApp(req)
 	if err != nil {
 		log.Errorf("error deploying app with helm chart '%v': %v\n", req, err)
