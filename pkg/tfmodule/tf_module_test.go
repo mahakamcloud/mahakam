@@ -54,7 +54,7 @@ var _ = Describe("TerraformFile", func() {
 	tfDataFile := TerraformFile{
 		FileType: "data",
 		Source:   templates.UserData,
-		DestDir:  "/tmp/mahakam/terraform/mahakam-cluster-01/",
+		DestDir:  "/tmp/mahakam/terraform/mahakam-cluster-01",
 		DestFile: "data.tf",
 	}
 

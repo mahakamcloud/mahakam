@@ -31,12 +31,16 @@ func (tfFile TerraformFile) ParseTerraformFile(data map[string]string) string {
 
 func (tfFile TerraformFile) WriteTerraformFile(data string) {
 	// TODO: check if destination path exists -> create if not
-
-	if _, err := os.Stat(tfFile.DestDir); os.IsNotExist(err) {
-		os.MkdirAll(tfFile.DestDir, os.ModePerm)
+	destdir := tfFile.DestDir
+	if tfFile.FileType == "cloud-init" {
+		destdir = filepath.Join(tfFile.DestDir, "templates")
 	}
 
-	fo, _ := os.Create(filepath.Join(tfFile.DestDir, tfFile.DestFile))
+	if _, err := os.Stat(destdir); os.IsNotExist(err) {
+		os.MkdirAll(destdir, os.ModePerm)
+	}
+
+	fo, _ := os.Create(filepath.Join(destdir, tfFile.DestFile))
 	defer fo.Close()
 	io.Copy(fo, strings.NewReader(data))
 }

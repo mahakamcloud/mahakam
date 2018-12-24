@@ -16,6 +16,7 @@ var _ = Describe("TerraformFile", func() {
 	var (
 		tfFile          TerraformFile
 		backendData     map[string]string
+		emptyData       map[string]string
 		destinationFile string
 	)
 
@@ -32,6 +33,7 @@ var _ = Describe("TerraformFile", func() {
 			"Key":    "gofinance-k8s/control-plane/terraform.tfstate",
 			"Region": "ap-southeast-1",
 		}
+		emptyData = map[string]string{}
 		destinationFile = filepath.Join(tfFile.DestDir, tfFile.DestFile)
 	})
 
@@ -48,6 +50,11 @@ var _ = Describe("TerraformFile", func() {
 			It("should be able to parse templates.Backend and return string", func() {
 				result := tfFile.ParseTerraformFile(backendData)
 				Expect(result).To(Equal(parsedBackendData))
+			})
+
+			It("Error should be logged if template Key not found in data", func() {
+				tfFile.ParseTerraformFile(emptyData)
+				// Expect(result).To(Equal(parsedBackendData))
 			})
 		})
 	})
