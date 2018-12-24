@@ -30,6 +30,16 @@ type ResourceStore interface {
 	List(owner string, resources interface{}) error
 	Update(resource resource.Resource) (revision int64, err error)
 	Delete(owner string, id string, resource resource.Resource) error
+
+	// Quick helper hack for interacting with kvstore by given path
+	AddFromPath(path string, resource resource.Resource) (id string, err error)
+	GetFromPath(path string, resource resource.Resource) error
+	ListFromPath(path string, resources interface{}) error
+	ListKeysFromPath(path string) (keys []string, err error)
+	UpdateFromPath(path string, resource resource.Resource) (revision int64, err error)
+	DeleteFromPath(path string) error
+
+	KeyExists(path string) bool
 }
 
 // New creates resource store backed by choice of storage backend type

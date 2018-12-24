@@ -12,10 +12,6 @@ type TerraformParser struct {
 	Data        map[string]string
 }
 
-type Parser interface {
-	ParseTemplate() string
-}
-
 func (self *TerraformParser) ParseTemplate() string {
 	t := template.New(self.Name)
 	t.Parse(self.Source)

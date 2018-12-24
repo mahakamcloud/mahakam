@@ -4,3 +4,6 @@ storage_backend:
   username: ""
   password: ""
   bucket: "mahakam"
+network:
+  cidr: "10.30.0.0/16"
+  cluster_netmask: 24

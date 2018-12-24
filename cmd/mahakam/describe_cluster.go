@@ -39,7 +39,7 @@ var describeClusterCmd = &cobra.Command{
 }
 
 func RunDescribeCluster(dco *DescribeClusterOptions) (*models.Cluster, error) {
-	c := GetClusterClient()
+	c := GetMahakamClient()
 
 	req := clusters.NewDescribeClustersParams()
 	req.Name = swag.String(dco.Name)

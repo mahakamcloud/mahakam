@@ -40,7 +40,7 @@ var createClusterCmd = &cobra.Command{
 }
 
 func RunCreateCluster(cco *CreateClusterOptions) (*models.Cluster, error) {
-	c := GetClusterClient()
+	c := GetMahakamClient()
 	req := &models.Cluster{
 		Name:     swag.String(cco.Name),
 		NumNodes: int64(cco.NumNodes),

@@ -108,3 +108,15 @@
 [[constraint]]
   name = "github.com/onsi/ginkgo"
   version = "1.7.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/giantswarm/ipam"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/giantswarm/microstorage"
+
+[[constraint]]
+  name = "k8s.io/helm"
+  version = "2.12.1"
