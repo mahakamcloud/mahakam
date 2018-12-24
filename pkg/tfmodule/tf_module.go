@@ -1,7 +1,8 @@
 package tfmodule
 
 import (
-	"github.com/mahakamcloud/mahakam/pkg/cmd_runner"
+	"fmt"
+	"path/filepath"
 )
 
 // TerraformProvisioner which defines the files of a module
@@ -13,10 +14,15 @@ type TerraformProvisioner struct {
 
 // define or update a UpdateProvisionerFile
 func (tfProvisioner *TerraformProvisioner) UpdateProvisionerFile(filetype string, source string, destfile string) {
+	destdir := filepath.Join(tfProvisioner.DestDir, tfProvisioner.Name)
+	if filetype == "cloud-init" {
+		destdir = filepath.Join(tfProvisioner.DestDir, tfProvisioner.Name, "templates")
+	}
+
 	tfFile := TerraformFile{
 		filetype,
 		source,
-		tfProvisioner.DestDir + tfProvisioner.Name + "/",
+		destdir,
 		destfile,
 	}
 	tfProvisioner.Files = append(tfProvisioner.Files, tfFile)
@@ -29,8 +35,23 @@ func (tfProvisioner TerraformProvisioner) GenerateProvisionerFiles(data map[stri
 	}
 }
 
-func (tfProvisioner *TerraformProvisioner) ExecuteProvisioner() (string, error) {
-	runner := cmd_runner.New()
-	output, err := runner.CombinedOutput("echo", "a")
-	return output, err
+func (tfProvisioner *TerraformProvisioner) ExecuteProvisioner() {
+	t := New()
+
+	tfModuleDestDir := filepath.Join(tfProvisioner.DestDir, tfProvisioner.Name)
+	tfVarsFile := filepath.Join(tfProvisioner.DestDir, tfProvisioner.Name, "terraform.tfvars")
+	planOptions := "-var-file=" + tfVarsFile
+	applyOptions := "-var-file=" + tfVarsFile + " -auto-approve"
+
+	initOutput, initErr := t.Init(tfModuleDestDir)
+	fmt.Println(initOutput)
+	fmt.Println(initErr)
+
+	planOutput, planErr := t.Plan(planOptions, tfModuleDestDir)
+	fmt.Println(planOutput)
+	fmt.Println(planErr)
+
+	applyOutput, applyErr := t.Apply(applyOptions, tfModuleDestDir)
+	fmt.Println(applyOutput)
+	fmt.Println(applyErr)
 }
