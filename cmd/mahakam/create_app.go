@@ -8,11 +8,13 @@ import (
 	"github.com/golang/glog"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/apps"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
+	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/spf13/cobra"
 )
 
 type CreateAppOptions struct {
 	Name        string
+	Owner       string
 	ClusterName string
 	ChartURL    string
 	ChartValues string
@@ -37,6 +39,11 @@ var createAppCmd = &cobra.Command{
 			exitWithHelp(cmd, "Please provide which helm chart to deploy your application.")
 		}
 
+		if cao.Owner == "" {
+			// Hack since we don't have login mechanism yet
+			cao.Owner = config.ResourceOwnerGojek
+		}
+
 		res, err := RunCreateApp(cao)
 		if err != nil {
 			glog.Exit(err)
@@ -44,7 +51,7 @@ var createAppCmd = &cobra.Command{
 
 		fmt.Println("Creating your application...")
 		fmt.Printf("\nName:\t%s", swag.StringValue(res.Name))
-		fmt.Printf("\nCluster:\t%v", swag.String(res.ClusterName))
+		fmt.Printf("\nCluster:\t%s", res.ClusterName)
 		fmt.Printf("\n\nUse 'mahakam describe app %s' to monitor the state of your application", swag.StringValue(res.Name))
 	},
 }
@@ -53,6 +60,7 @@ func RunCreateApp(cao *CreateAppOptions) (*models.App, error) {
 	c := GetMahakamClient()
 	req := &models.App{
 		Name:        swag.String(cao.Name),
+		Owner:       cao.Owner,
 		ClusterName: cao.ClusterName,
 		ChartURL:    cao.ChartURL,
 		ChartValues: cao.ChartValues,
@@ -60,7 +68,7 @@ func RunCreateApp(cao *CreateAppOptions) (*models.App, error) {
 
 	res, err := c.Apps.CreateApp(apps.NewCreateAppParams().WithBody(req))
 	if err != nil {
-		return nil, fmt.Errorf("error creating app '%v': '%v'", cao, err)
+		return nil, fmt.Errorf("error creating app '%v': '%v'", cao, err.Error())
 	}
 
 	return res.Payload, nil
@@ -69,6 +77,7 @@ func RunCreateApp(cao *CreateAppOptions) (*models.App, error) {
 func init() {
 	// Required flags
 	createAppCmd.Flags().StringVarP(&cao.Name, "app-name", "a", "", "Name for your application")
+	createAppCmd.Flags().StringVarP(&cao.Owner, "owner", "o", "", "Name for your owner or app group")
 	createAppCmd.Flags().StringVarP(&cao.ClusterName, "cluster-name", "c", "", "Name of your kubernetes cluster")
 	createAppCmd.Flags().StringVarP(&cao.ChartURL, "chart", "u", "", "Helm chart url to run your application")
 

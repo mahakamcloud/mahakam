@@ -21,7 +21,14 @@ const (
 	KeyPathNetworkSubnet = KeyPathMahakam + "network/subnets/"
 
 	// Helm default configuration
-	HelmDefaultNamespace = "default"
+	HelmDefaultNamespace             = "default"
+	HelmDefaultTillerNamespace       = "kube-system"
+	HelmDefaultKubecontext           = "kubernetes-admin@kubernetes"
+	HelmControllerWait               = false
+	HelmControllerDefaultWaitTimeout = 300
+
+	// Default mahakam config path to store multiple kubeconfig files
+	MahakamMultiKubeconfigPath = "/opt/mahakamcloud/clusters"
 )
 
 // Config represents mahakam configuration
