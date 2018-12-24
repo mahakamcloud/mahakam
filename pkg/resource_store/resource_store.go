@@ -20,7 +20,7 @@ type Labels map[string]string
 
 func buildKey(rk resource.ResourceKind, owner string, id ...string) string {
 	sub := strings.Join(id, "/")
-	return fmt.Sprintf("%s/%s/%s", rk, owner, sub)
+	return fmt.Sprintf("%s/%s/%s/", rk, owner, sub)
 }
 
 // ResourceStore is docker libkv wrapper

@@ -14,8 +14,9 @@ const (
 // ResourceCluster represents stored resource with cluster kind
 type ResourceCluster struct {
 	BaseResource
-	Plan     ClusterPlan
-	NumNodes int
+	Plan           ClusterPlan
+	NumNodes       int
+	KubeconfigPath string
 }
 
 // NewResourceCluster creates new resource cluster

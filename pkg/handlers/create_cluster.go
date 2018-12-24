@@ -7,6 +7,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/clusters"
+	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/mahakamcloud/mahakam/pkg/provisioner"
 	r "github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
 )
@@ -23,9 +24,12 @@ func (h *CreateCluster) Handle(params clusters.CreateClusterParams) middleware.R
 	c.NumNodes = int(b.NumNodes)
 	c.Status = r.StatusPending
 
+	// TODO(giri): create cluster workflow should pull
+	// /etc/kubernetes/admin.conf into this kubeconfig path
+	c.KubeconfigPath = h.generateKubeconfigPath(c.Owner, c.Name)
+
 	_, err := h.Handlers.Store.Add(c)
 	if err != nil {
-		fmt.Printf("Error storing: %s", err)
 		return clusters.NewCreateClusterDefault(405).WithPayload(&models.Error{
 			Code:    405,
 			Message: swag.String(err.Error()),
@@ -36,11 +40,14 @@ func (h *CreateCluster) Handle(params clusters.CreateClusterParams) middleware.R
 	// must update resource status to creating and success accordingly
 	err = provisioner.CreateCluster(b)
 	if err != nil {
-		fmt.Printf("Error creating: %s", err)
 		return clusters.NewCreateClusterDefault(405).WithPayload(&models.Error{
 			Code:    405,
 			Message: swag.String(err.Error()),
 		})
 	}
 	return clusters.NewCreateClusterCreated().WithPayload(b)
+}
+
+func (h *CreateCluster) generateKubeconfigPath(owner, clusterName string) string {
+	return fmt.Sprintf(config.MahakamMultiKubeconfigPath + "/" + owner + "-" + clusterName + "-kubeconfig")
 }
