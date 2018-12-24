@@ -87,7 +87,6 @@ func (hc *HelmController) installOrUpdate(app *models.App) error {
 		return err
 	}
 	hc.ChartPath = chartPath
-	fmt.Println(hc.ChartPath)
 
 	releaseName := hc.releaseName(app)
 	if hc.releaseExists(releaseName) {
@@ -138,7 +137,7 @@ func (hc *HelmController) vals(valueFiles valueFiles) ([]byte, error) {
 }
 
 func (hc *HelmController) releaseName(app *models.App) string {
-	return fmt.Sprintf("%s-%s", swag.StringValue(app.Owner), swag.StringValue(app.Name))
+	return fmt.Sprintf("%s-%s", app.Owner, swag.StringValue(app.Name))
 }
 
 func (hc *HelmController) releaseExists(releaseName string) bool {
