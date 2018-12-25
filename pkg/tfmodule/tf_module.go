@@ -58,7 +58,8 @@ func (tfProvisioner *TerraformProvisioner) ExecuteProvisioner() error {
 		return fmt.Errorf("error initializing terraform: %s", err)
 	}
 
-	err = t.ApplyWithTFVars(tfVarsFile)
+	res, err = t.ApplyWithTFVars(tfVarsFile)
+	fmt.Println(res)
 	if err != nil {
 		return fmt.Errorf("error applying terraform files: %s", err)
 	}

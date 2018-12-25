@@ -37,9 +37,9 @@ func (t *Terraform) Apply(options string, tfDir string) (string, error) {
 	return t.runner.CombinedOutput("terraform", args...)
 }
 
-func (t *Terraform) ApplyWithTFVars(tfvarspath string) error {
+func (t *Terraform) ApplyWithTFVars(tfvarspath string) (string, error) {
 	args := []string{"apply", "-var-file", tfvarspath, "-auto-approve"}
-	return t.runner.WaitForCompletion("terraform", args...)
+	return t.runner.CombinedOutput("terraform", args...)
 }
 
 func (t *Terraform) Destroy(tfDir string) (string, error) {
