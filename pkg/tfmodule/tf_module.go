@@ -2,8 +2,14 @@ package tfmodule
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 )
+
+type Data struct {
+	Output []byte
+	Error  error
+}
 
 // TerraformProvisioner which defines the files of a module
 type TerraformProvisioner struct {
@@ -35,23 +41,26 @@ func (tfProvisioner TerraformProvisioner) GenerateProvisionerFiles(data map[stri
 	}
 }
 
-func (tfProvisioner *TerraformProvisioner) ExecuteProvisioner() {
+func (tfProvisioner *TerraformProvisioner) ExecuteProvisioner() error {
 	t := New()
 
-	tfModuleDestDir := filepath.Join(tfProvisioner.DestDir, tfProvisioner.Name)
-	tfVarsFile := filepath.Join(tfProvisioner.DestDir, tfProvisioner.Name, "terraform.tfvars")
-	planOptions := "-var-file=" + tfVarsFile
-	applyOptions := "-var-file=" + tfVarsFile + " -auto-approve"
+	tfModuleDestDir := tfProvisioner.DestDir
+	tfVarsFile := filepath.Join(tfProvisioner.DestDir, "terraform.tfvars")
 
-	initOutput, initErr := t.Init(tfModuleDestDir)
-	fmt.Println(initOutput)
-	fmt.Println(initErr)
+	err := os.Chdir(tfModuleDestDir)
+	if err != nil {
+		return fmt.Errorf("terraform directory doesn't exist '%s': %s", tfModuleDestDir, err)
+	}
 
-	planOutput, planErr := t.Plan(planOptions, tfModuleDestDir)
-	fmt.Println(planOutput)
-	fmt.Println(planErr)
+	res, err := t.Init(tfModuleDestDir)
+	fmt.Println(res)
+	if err != nil {
+		return fmt.Errorf("error initializing terraform: %s", err)
+	}
 
-	applyOutput, applyErr := t.Apply(applyOptions, tfModuleDestDir)
-	fmt.Println(applyOutput)
-	fmt.Println(applyErr)
+	err = t.ApplyWithTFVars(tfVarsFile)
+	if err != nil {
+		return fmt.Errorf("error applying terraform files: %s", err)
+	}
+	return nil
 }
