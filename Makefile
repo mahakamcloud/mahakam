@@ -26,7 +26,7 @@ vet: ## Run go vet against code
 .PHONY: test
 test: ## run tests
 	@echo running tests...
-	$(GO) test -v $(shell go list -v ./... | grep -v /vendor/ | grep -v integration )
+	$(GO) test -v $(shell go list -v ./... | grep -v /vendor/ | grep -v integration | grep -v /playground )
 
 .PHONY: dev-server
 dev-server: ## run dev server
@@ -38,6 +38,12 @@ dev-store: ## run dev store with consul backend
 	@echo running dev store...
 	docker run -d --name=dev-consul -e CONSUL_BIND_INTERFACE=eth0 -p 8500:8500 -p 8600:8600 consul
 
+.PHONY: dev-docker
+dev-docker: ## run dev docker that has terraform libvirt plugin and golang
+	@echo running dev docker container...
+	docker run -it --rm -v $HOME/.ssh:/root/.ssh -v $(PWD):/root/go/src/github.com/mahakamcloud/mahakam -v $HOME/.aws:/root/.aws -w /root/go/src/github.com/mahak
+amcloud/mahakam devrunner:latest /bin/bash
+
 .PHONY: generate-server
 generate-server: ## Generate swagger server
 	cd $(BASE)/pkg/api/v1 && swagger generate server \
@@ -47,3 +53,11 @@ generate-server: ## Generate swagger server
 generate-client: ## Generate swagger client
 	cd $(BASE)/pkg/api/v1 && swagger generate client \
 		-A mahakam -f $(BASE)/swagger/mahakam.yaml -c client --skip-validation
+
+.PHONY: build-ci-runner
+build-ci-runner:
+	docker build -f Dockerfile.ci -t builder:latest .
+
+.PHONY: build-dev-runner
+build-dev-runner:
+	docker build -f Dockerfile.dev -t devrunner:latest .
