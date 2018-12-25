@@ -1,6 +1,8 @@
 package resource
 
-import "github.com/mahakamcloud/mahakam/pkg/config"
+import (
+	"github.com/mahakamcloud/mahakam/pkg/config"
+)
 
 type ClusterPlan string
 
@@ -16,6 +18,7 @@ type ResourceCluster struct {
 	BaseResource
 	Plan           ClusterPlan
 	NumNodes       int
+	NetworkName    string
 	KubeconfigPath string
 }
 
