@@ -2,27 +2,39 @@ package provisioner
 
 import (
 	"fmt"
-	"io/ioutil"
-	"log"
 
-	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
+	"github.com/mahakamcloud/mahakam/pkg/node"
+	log "github.com/sirupsen/logrus"
 )
 
-// CreateCluster creates cluster
-func CreateCluster(cluster *models.Cluster) error {
-	fmt.Println("Creating cluster...")
+// Role of Kubernetes node
+type Role string
 
-	return nil
+const (
+	RoleControlPlane Role = "control-plane"
+	RoleWorker       Role = "worker"
+)
+
+type CreateNode struct {
+	Config node.NodeCreateConfig
+	p      Provisioner
+	log    log.FieldLogger
 }
 
-func copyTerraformFiles(src, dst string) error {
-	files, err := ioutil.ReadDir(src)
-	if err != nil {
-		log.Fatal(err)
-	}
+func NewCreateNode(config node.NodeCreateConfig, p Provisioner, log log.FieldLogger) *CreateNode {
+	createNodeLog := log.WithField("task", fmt.Sprintf("create node in %s", config.Host))
 
-	for _, f := range files {
-		fmt.Println(f.Name())
+	return &CreateNode{
+		Config: config,
+		p:      p,
+		log:    createNodeLog,
+	}
+}
+
+func (n *CreateNode) Run() error {
+	err := n.p.CreateNode(n.Config)
+	if err != nil {
+		log.Errorf("error creating node '%v': %s", n.Config, err)
 	}
 	return nil
 }

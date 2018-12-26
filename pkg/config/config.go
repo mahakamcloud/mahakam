@@ -29,6 +29,9 @@ const (
 
 	// Default mahakam config path to store multiple kubeconfig files
 	MahakamMultiKubeconfigPath = "/opt/mahakamcloud/clusters"
+
+	// Default terraform config
+	TerraformDefaultDirectory = "/opt/mahakamcloud/terraform/"
 )
 
 // Config represents mahakam configuration
@@ -126,7 +129,7 @@ func (nc *NetworkConfig) Validate() error {
 }
 
 type GateConfig struct {
-	GateNSSApiKey string "yaml:gate_nss_api_key"
+	GateNSSApiKey string `yaml:"gate_nss_api_key"`
 }
 
 func (gc *GateConfig) Validate() error {
