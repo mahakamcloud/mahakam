@@ -52,12 +52,14 @@ func (tfProvisioner *TerraformProvisioner) ExecuteProvisioner() error {
 		return fmt.Errorf("terraform directory doesn't exist '%s': %s", tfModuleDestDir, err)
 	}
 
+	// TODO(giri/himani): pass proper thread safe logger instead of fmt.Println
 	res, err := t.Init(tfModuleDestDir)
 	fmt.Println(res)
 	if err != nil {
 		return fmt.Errorf("error initializing terraform: %s", err)
 	}
 
+	// TODO(giri/himani): pass proper thread safe logger instead of fmt.Println
 	res, err = t.ApplyWithTFVars(tfVarsFile)
 	fmt.Println(res)
 	if err != nil {

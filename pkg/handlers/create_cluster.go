@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"net"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
@@ -161,7 +162,7 @@ func (c *createClusterWF) Run() error {
 
 	for i := range tasks {
 		go func(t provisioner.Task) {
-			c.log.Infoln("Running task provisioner")
+			c.log.Infof("Running task %v", t)
 			if err := t.Run(); err != nil {
 				c.log.Errorf("error running task %v: %s", t, err)
 			}
@@ -180,7 +181,7 @@ func (c *createClusterWF) getCreateTask() ([]provisioner.Task, error) {
 func (c *createClusterWF) setupControlPlaneSteps(tasks []provisioner.Task) []provisioner.Task {
 	cpConfig := node.NodeCreateConfig{
 		// TODO(giri): must be getting from list of hosts
-		Host: []byte("10.30.0.1"),
+		Host: net.ParseIP("10.30.0.1"),
 		Node: node.Node{
 			Name: c.controlPlane.Name,
 			NetworkConfig: node.NetworkConfig{
@@ -200,6 +201,23 @@ func (c *createClusterWF) setupControlPlaneSteps(tasks []provisioner.Task) []pro
 }
 
 func (c *createClusterWF) setupWorkerSteps(tasks []provisioner.Task) []provisioner.Task {
+	for _, worker := range c.workers {
+		wConfig := node.NodeCreateConfig{
+			Host: net.ParseIP("10.30.0.1"),
+			Node: node.Node{
+				Name: worker.Name,
+				NetworkConfig: node.NetworkConfig{
+					MacAddress: worker.MacAddress,
+					IP:         worker.IP,
+					Gateway:    worker.Gateway,
+					Nameserver: worker.Nameserver,
+				},
+			},
+		}
+		createWorkerNode := provisioner.NewCreateNode(wConfig, c.handlers.Provisioner, c.log)
+		tasks = append(tasks, createWorkerNode)
+	}
+
 	return tasks
 }
 
