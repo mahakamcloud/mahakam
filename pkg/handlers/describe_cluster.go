@@ -22,7 +22,7 @@ func (h *DescribeCluster) Handle(params clusters.DescribeClustersParams) middlew
 	if err != nil {
 		return clusters.NewDescribeClustersDefault(405).WithPayload(&models.Error{
 			Code:    405,
-			Message: swag.String(err.Error()),
+			Message: err.Error(),
 		})
 	}
 

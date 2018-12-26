@@ -18,6 +18,15 @@ import (
 // CreateCluster is handlers for create-cluster operation
 type CreateCluster struct {
 	Handlers
+	log log.FieldLogger
+}
+
+func NewCreateClusterHandler(handlers Handlers) *CreateCluster {
+	log := log.WithField("create", "cluster")
+	return &CreateCluster{
+		Handlers: handlers,
+		log:      log,
+	}
 }
 
 // Handle is handler for create-cluster operation
@@ -29,7 +38,7 @@ func (h *CreateCluster) Handle(params clusters.CreateClusterParams) middleware.R
 		log.Errorf("error creating network workflow %s", err)
 		return clusters.NewCreateClusterDefault(405).WithPayload(&models.Error{
 			Code:    405,
-			Message: swag.String(fmt.Sprintf("error creating network workflow %s", err)),
+			Message: fmt.Sprintf("error creating network workflow %s", err),
 		})
 	}
 	nwf.Run()
@@ -48,31 +57,28 @@ func (h *CreateCluster) Handle(params clusters.CreateClusterParams) middleware.R
 		log.Errorf("error adding network resource into kv store '%v': %s", c, err)
 		return clusters.NewCreateClusterDefault(405).WithPayload(&models.Error{
 			Code:    405,
-			Message: swag.String(err.Error()),
+			Message: err.Error(),
 		})
 	}
 
-	wf, err := newCreateClusterWF(params.Body, nwf.clusterNetwork, h.Handlers)
+	// TODO(giri): must update resource status to creating and succcess accordingly
+	wf, err := newCreateClusterWF(params.Body, nwf.clusterNetwork, h)
 	if err != nil {
 		log.Errorf("error creating cluster workflow %s", err)
 		return clusters.NewCreateClusterDefault(405).WithPayload(&models.Error{
 			Code:    405,
-			Message: swag.String(fmt.Sprintf("error creating cluster workflow %s", err)),
+			Message: fmt.Sprintf("error creating cluster workflow %s", err),
 		})
 	}
 	wf.Run()
 
-	// TODO(giri/iqbal): run this provisioner from another routine,
-	// must update resource status to creating and success accordingly
-	err = provisioner.CreateCluster(params.Body)
-	if err != nil {
-		log.Errorf("error provisioning cluster creation %s", err)
-		return clusters.NewCreateClusterDefault(405).WithPayload(&models.Error{
-			Code:    405,
-			Message: swag.String(err.Error()),
-		})
+	res := &models.Cluster{
+		Name:        swag.String(c.Name),
+		ClusterPlan: string(c.Plan),
+		NumNodes:    int64(c.NumNodes),
+		Status:      string(c.Status),
 	}
-	return clusters.NewCreateClusterCreated().WithPayload(params.Body)
+	return clusters.NewCreateClusterCreated().WithPayload(res)
 }
 
 func (h *CreateCluster) generateKubeconfigPath(owner, clusterName string) string {
@@ -101,6 +107,7 @@ func (cn *createNetworkWF) Run() error {
 
 type createClusterWF struct {
 	handlers       Handlers
+	log            log.FieldLogger
 	clusterNetwork *network.ClusterNetwork
 	controlPlane   node.Node
 	workers        []node.Node
@@ -108,7 +115,7 @@ type createClusterWF struct {
 	controlPlaneNetworkConfig *node.NetworkConfig
 }
 
-func newCreateClusterWF(cluster *models.Cluster, clusterNetwork *network.ClusterNetwork, handlers Handlers) (*createClusterWF, error) {
+func newCreateClusterWF(cluster *models.Cluster, clusterNetwork *network.ClusterNetwork, cHandler *CreateCluster) (*createClusterWF, error) {
 	clusterName := swag.StringValue(cluster.Name)
 
 	controlPlaneNetworkConfig, err := getNetworkConfig(clusterNetwork)
@@ -138,7 +145,8 @@ func newCreateClusterWF(cluster *models.Cluster, clusterNetwork *network.Cluster
 	}
 
 	return &createClusterWF{
-		handlers:       handlers,
+		handlers:       cHandler.Handlers,
+		log:            cHandler.log,
 		clusterNetwork: clusterNetwork,
 		controlPlane:   controlPlane,
 		workers:        workers,
@@ -151,13 +159,14 @@ func (c *createClusterWF) Run() error {
 		return err
 	}
 
-	go func() {
-		for _, task := range tasks {
-			if err := task.Run(); err != nil {
-				log.Errorf("error running task %v: %s", task, err)
+	for i := range tasks {
+		go func(t provisioner.Task) {
+			c.log.Infoln("Running task provisioner")
+			if err := t.Run(); err != nil {
+				c.log.Errorf("error running task %v: %s", t, err)
 			}
-		}
-	}()
+		}(tasks[i])
+	}
 	return nil
 }
 
@@ -169,6 +178,24 @@ func (c *createClusterWF) getCreateTask() ([]provisioner.Task, error) {
 }
 
 func (c *createClusterWF) setupControlPlaneSteps(tasks []provisioner.Task) []provisioner.Task {
+	cpConfig := node.NodeCreateConfig{
+		// TODO(giri): must be getting from list of hosts
+		Host: []byte("10.30.0.1"),
+		Node: node.Node{
+			Name: c.controlPlane.Name,
+			NetworkConfig: node.NetworkConfig{
+				MacAddress: c.controlPlane.MacAddress,
+				IP:         c.controlPlane.IP,
+				Gateway:    c.controlPlane.Gateway,
+				Nameserver: c.controlPlane.Nameserver,
+			},
+		},
+	}
+
+	createControlPlaneNode := provisioner.NewCreateNode(cpConfig, c.handlers.Provisioner, c.log)
+
+	tasks = append(tasks, createControlPlaneNode)
+
 	return tasks
 }
 

@@ -34,7 +34,9 @@ var createClusterCmd = &cobra.Command{
 
 		fmt.Println("Creating kubernetes cluster...")
 		fmt.Printf("\nName:\t%s", swag.StringValue(res.Name))
+		fmt.Printf("\nCluster Plan:\t%s", res.ClusterPlan)
 		fmt.Printf("\nWorker Nodes:\t%v", res.NumNodes)
+		fmt.Printf("\nStatus:\t%v", res.Status)
 		fmt.Printf("\n\nUse 'mahakam describe cluster %s' to monitor the state of your cluster", swag.StringValue(res.Name))
 	},
 }

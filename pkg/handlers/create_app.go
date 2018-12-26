@@ -35,7 +35,7 @@ func (h *CreateApp) Handle(params apps.CreateAppParams) middleware.Responder {
 		log.Errorf("error retrieving cluster info from kvstore '%v': %s\n", cluster, err)
 		return apps.NewCreateAppDefault(405).WithPayload(&models.Error{
 			Code:    405,
-			Message: swag.String("cannot retrieve cluster info from kvstore"),
+			Message: "cannot retrieve cluster info from kvstore",
 		})
 	}
 
@@ -44,7 +44,7 @@ func (h *CreateApp) Handle(params apps.CreateAppParams) middleware.Responder {
 		log.Errorf("error creating tunnel to helm tiller: %v\n", err)
 		return apps.NewCreateAppDefault(405).WithPayload(&models.Error{
 			Code:    405,
-			Message: swag.String("cannot create tunnel to helm tiller"),
+			Message: "cannot create tunnel to helm tiller",
 		})
 	}
 
@@ -70,7 +70,7 @@ func (h *CreateApp) Handle(params apps.CreateAppParams) middleware.Responder {
 		log.Errorf("error deploying app with helm chart '%v': %v\n", req, err)
 		return apps.NewCreateAppDefault(405).WithPayload(&models.Error{
 			Code:    405,
-			Message: swag.String("cannot deploy application"),
+			Message: "cannot deploy application",
 		})
 	}
 
