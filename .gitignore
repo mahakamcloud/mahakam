@@ -1,3 +1,4 @@
 dist/
 playground
 .vscode
+config.dev*

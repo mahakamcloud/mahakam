@@ -9,3 +9,6 @@ network:
   cluster_netmask: 24
 gate:
   gate_nss_api_key: "dummygatekey"
+terraform:
+  libvirt_module_path: "git::https://github.com/mahakamcloud/terraform-libvirt-vm-single?ref=v0.1.1"
+  image_source_path: "https://cloud-images.ubuntu.com/xenial/20181223/xenial-server-cloudimg-amd64-disk1.img"

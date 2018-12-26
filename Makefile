@@ -31,7 +31,7 @@ test: ## run tests
 .PHONY: dev-server
 dev-server: ## run dev server
 	@echo running dev server...
-	$(GO) run $(BASE)/cmd/mahakam_server/main.go --port 9000 --config ./pkg/config/example/config.sample.yaml
+	$(GO) run $(BASE)/cmd/mahakam_server/main.go --host 0.0.0.0 --port 9000 --config ./config.dev.yaml
 
 .PHONY: dev-store
 dev-store: ## run dev store with consul backend
@@ -41,8 +41,7 @@ dev-store: ## run dev store with consul backend
 .PHONY: dev-docker
 dev-docker: ## run dev docker that has terraform libvirt plugin and golang
 	@echo running dev docker container...
-	docker run -it --rm -v $HOME/.ssh:/root/.ssh -v $(PWD):/root/go/src/github.com/mahakamcloud/mahakam -v $HOME/.aws:/root/.aws -w /root/go/src/github.com/mahak
-amcloud/mahakam devrunner:latest /bin/bash
+	docker run -it --rm -p 9000:9000 -v $(HOME)/.ssh:/root/.ssh -v $(PWD):/root/go/src/github.com/mahakamcloud/mahakam -v $(HOME)/.aws:/root/.aws -w /root/go/src/github.com/mahakamcloud/mahakam devrunner:latest /bin/bash
 
 .PHONY: generate-server
 generate-server: ## Generate swagger server

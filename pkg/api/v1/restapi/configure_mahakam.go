@@ -43,7 +43,11 @@ func configureAPI(api *operations.MahakamAPI) http.Handler {
 	if err != nil {
 		log.Fatalf("Error loading configuration file for mahakam server: %s\n", err)
 	}
-	h := handlers.New(mahakamConfig.KVStoreConfig, mahakamConfig.NetworkConfig, provisioner.NewTerraformProvisioner())
+	h := handlers.New(
+		mahakamConfig.KVStoreConfig,
+		mahakamConfig.NetworkConfig,
+		provisioner.NewTerraformProvisioner(mahakamConfig.TerraformConfig),
+	)
 
 	// configure the api here
 	api.ServeError = errors.ServeError

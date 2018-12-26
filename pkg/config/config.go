@@ -32,13 +32,16 @@ const (
 
 	// Default terraform config
 	TerraformDefaultDirectory = "/opt/mahakamcloud/terraform/"
+	TerraformDefaultBucket    = "tf-mahakam"
+	TerraformDefaultRegion    = "ap-southeast-1"
 )
 
 // Config represents mahakam configuration
 type Config struct {
-	KVStoreConfig StorageBackendConfig `yaml:"storage_backend"`
-	NetworkConfig NetworkConfig        `yaml:"network"`
-	GateConfig    GateConfig           `yaml:"gate"`
+	KVStoreConfig   StorageBackendConfig `yaml:"storage_backend"`
+	NetworkConfig   NetworkConfig        `yaml:"network"`
+	GateConfig      GateConfig           `yaml:"gate"`
+	TerraformConfig TerraformConfig      `yaml:"terraform"`
 }
 
 // LoadConfig loads a configuration file
@@ -135,6 +138,21 @@ type GateConfig struct {
 func (gc *GateConfig) Validate() error {
 	if gc.GateNSSApiKey == "" {
 		return fmt.Errorf("Must provide non-empty Gate NSS API key")
+	}
+	return nil
+}
+
+type TerraformConfig struct {
+	LibvirtModulePath string `yaml:"libvirt_module_path"`
+	ImageSourcePath   string `yaml:"image_source_path"`
+}
+
+func (tc *TerraformConfig) Validate() error {
+	if tc.LibvirtModulePath == "" {
+		return fmt.Errorf("Must provide non-empty libvirt module path")
+	}
+	if tc.ImageSourcePath == "" {
+		return fmt.Errorf("Must provide non-empty image source path")
 	}
 	return nil
 }
