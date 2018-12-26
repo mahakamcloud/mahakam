@@ -7,6 +7,9 @@ storage_backend:
 network:
   cidr: "10.30.0.0/16"
   cluster_netmask: 24
+kubernetes:
+  pod_network_cidr: "10.244.0.0/16"
+  kubeadm_token: "dummykubeadmtoken"
 gate:
   gate_nss_api_key: "dummygatekey"
 terraform:

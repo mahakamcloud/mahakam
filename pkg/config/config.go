@@ -37,14 +37,17 @@ const (
 
 	// Various keys for storing metadata in map
 	KeyControlPlaneIP = "key-control-plane-ip"
+	KeyPodNetworkCidr = "key-pod-network-cidr"
+	KeyKubeadmToken   = "key-kubeadm-token"
 )
 
 // Config represents mahakam configuration
 type Config struct {
-	KVStoreConfig   StorageBackendConfig `yaml:"storage_backend"`
-	NetworkConfig   NetworkConfig        `yaml:"network"`
-	GateConfig      GateConfig           `yaml:"gate"`
-	TerraformConfig TerraformConfig      `yaml:"terraform"`
+	KVStoreConfig    StorageBackendConfig `yaml:"storage_backend"`
+	NetworkConfig    NetworkConfig        `yaml:"network"`
+	KubernetesConfig KubernetesConfig     `yaml:"kubernetes"`
+	GateConfig       GateConfig           `yaml:"gate"`
+	TerraformConfig  TerraformConfig      `yaml:"terraform"`
 }
 
 // LoadConfig loads a configuration file
@@ -129,6 +132,27 @@ func (nc *NetworkConfig) Validate() error {
 
 	if nc.ClusterNetmask > 32 || nc.ClusterNetmask < 1 {
 		return fmt.Errorf("Must provide valid cluster netmask between 0 and 32")
+	}
+
+	return nil
+}
+
+// KubernetesConfig stores metadata for kubernetes cluster that mahakam will configure
+type KubernetesConfig struct {
+	// PodNetworkCidr is pod network that CNI will provision inside Kubernetes cluster
+	PodNetworkCidr string `yaml:"pod_network_cidr"`
+	// KubeadmToken is token secret used for workers to join Kubernetes cluster
+	KubeadmToken string `yaml:"kubeadm_token"`
+}
+
+// Validate validates storage backend configuration
+func (kc *KubernetesConfig) Validate() error {
+	if kc.PodNetworkCidr == "" {
+		return fmt.Errorf("Must provide non-empty pod network CIDR")
+	}
+
+	if kc.KubeadmToken == "" {
+		return fmt.Errorf("Must provide non-empty kubeadm token")
 	}
 
 	return nil

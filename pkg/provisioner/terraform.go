@@ -74,8 +74,8 @@ func (tp *terraformProvisioner) getTerraformData(nconfig node.NodeCreateConfig) 
 		TerraformDNSAddress:        nconfig.Nameserver.String(),
 		TerraformDNSDomainName:     nconfig.Name + ".gocloud.io",
 		TerraformControlPlaneIP:    nconfig.ExtraConfig[config.KeyControlPlaneIP],
-		TerraformPodNetworkCidr:    "192.168.0.0/16",
-		TerraformKubeadmToken:      "foo",
+		TerraformPodNetworkCidr:    nconfig.ExtraConfig[config.KeyPodNetworkCidr],
+		TerraformKubeadmToken:      nconfig.ExtraConfig[config.KeyKubeadmToken],
 	}
 	return data
 }

@@ -56,7 +56,7 @@ func configureAPI(api *operations.MahakamAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	api.ClustersCreateClusterHandler = handlers.NewCreateClusterHandler(*h)
+	api.ClustersCreateClusterHandler = handlers.NewCreateClusterHandler(*h, mahakamConfig.KubernetesConfig)
 
 	api.ClustersGetClustersHandler = clusters.GetClustersHandlerFunc(func(params clusters.GetClustersParams) middleware.Responder {
 		return middleware.NotImplemented("operation clusters.GetClusters has not yet been implemented")

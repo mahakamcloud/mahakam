@@ -25,6 +25,10 @@ var (
 			CIDR:           "1.2.3.4/16",
 			ClusterNetmask: 24,
 		},
+		KubernetesConfig: KubernetesConfig{
+			PodNetworkCidr: "1.2.3.4/16",
+			KubeadmToken:   "fake-kubeadm-token",
+		},
 		GateConfig: GateConfig{
 			GateNSSApiKey: "fake-gate-nss-api-key",
 		},
