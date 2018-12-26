@@ -1,16 +1,24 @@
-package templates
+package worker
 
-var Vars = `variable "dns_dhcp_server_username" {
+var Vars = `variable "hostname" {
     type = "string"
 }
 
-variable "hostname" {
+variable "host" {
+    type = "string"
+}
+
+variable "image_source_path" {
     type = "string"
 }
 
 variable "password" {
     type    = "string"
     default = "passw0rd"
+}
+
+variable "mac_address" {
+    type = "string"
 }
 
 variable "ip_address" {
@@ -21,22 +29,23 @@ variable "netmask" {
     type = "string"
 }
 
-variable "host" {
-    type = "string"
-}
-
-variable "gate_nss_api_key" {
-    type = "string"
-}
-
-variable "image_source_path" {
-    type = "string"
-}
-
-variable "mac_address" {
+variable "gateway" {
     type = "string"
 }
 
 variable "dns_address" {
     type = "string"
-}`
+}
+
+variable "dns_domain_name" {
+    type = "string"
+}
+
+variable "controlplane_ip" {
+    type = "string"
+}
+
+variable "kubeadm_token" {
+    type = "string"
+}
+`

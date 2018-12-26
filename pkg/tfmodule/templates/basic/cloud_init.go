@@ -1,4 +1,4 @@
-package templates
+package basic
 
 var CloudInit = `password: ${password}
 chpasswd: { expire: False }

@@ -1,4 +1,4 @@
-package templates
+package basic
 
 var TFVars = `ip_address = "{{.IPAddress}}"
 dns_dhcp_server_username="{{.DNSDhcpServerUsername}}"
