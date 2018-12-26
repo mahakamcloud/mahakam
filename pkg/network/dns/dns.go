@@ -1,11 +1,12 @@
 package dns
 
 import (
-	"log"
 	"net"
 	"strings"
 
 	"text/template"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type DNSConfig struct {
@@ -29,30 +30,30 @@ func (d DNSConfig) GenerateZoneFileHostRecord() string {
 	dnsTemplVal := template.New("dns")
 	tmpl, err := dnsTemplVal.Parse(zoneFileRecordTemplate)
 	if err != nil {
-		log.Fatal("Parse: ", err)
+		log.Errorf("Template parse error: ", err)
 	}
 
 	var data strings.Builder
 	err = tmpl.Execute(&data, d)
 	if err != nil {
-		log.Fatal("Execute: ", err)
+		log.Errorf("Template execute error: ", err)
 	}
 
 	return data.String()
 }
 
-// GenerateReverseZoneFileHostRecord returns a record to be appended in zone file
+// GenerateReverseZoneFileHostRecord returns a record to be appended in reverse zone file
 func (d DNSConfig) GenerateReverseZoneFileHostRecord() string {
 	dnsTemplVal := template.New("dns").Funcs(funcs)
 	tmpl, err := dnsTemplVal.Parse(reverseZoneFileRecordTemplate)
 	if err != nil {
-		log.Fatal("Parse: ", err)
+		log.Errorf("Parse: ", err)
 	}
 
 	var data strings.Builder
 	err = tmpl.Execute(&data, d)
 	if err != nil {
-		log.Fatal("Execute: ", err)
+		log.Errorf("Execute: ", err)
 	}
 
 	return data.String()
