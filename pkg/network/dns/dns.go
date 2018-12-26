@@ -5,7 +5,7 @@ import (
 	"net"
 	"strings"
 
-	"github.com/alecthomas/template"
+	"text/template"
 )
 
 type DNSConfig struct {
