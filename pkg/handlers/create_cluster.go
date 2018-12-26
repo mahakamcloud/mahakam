@@ -113,7 +113,7 @@ type createClusterWF struct {
 	controlPlane   node.Node
 	workers        []node.Node
 
-	controlPlaneNetworkConfig *node.NetworkConfig
+	controlPlaneIP net.IP
 }
 
 func newCreateClusterWF(cluster *models.Cluster, clusterNetwork *network.ClusterNetwork, cHandler *CreateCluster) (*createClusterWF, error) {
@@ -151,6 +151,7 @@ func newCreateClusterWF(cluster *models.Cluster, clusterNetwork *network.Cluster
 		clusterNetwork: clusterNetwork,
 		controlPlane:   controlPlane,
 		workers:        workers,
+		controlPlaneIP: controlPlane.NetworkConfig.IP,
 	}, nil
 }
 
@@ -182,11 +183,13 @@ func (c *createClusterWF) setupControlPlaneSteps(tasks []provisioner.Task) []pro
 	cpConfig := node.NodeCreateConfig{
 		// TODO(giri): must be getting from list of hosts
 		Host: net.ParseIP("10.30.0.1"),
+		Role: node.RoleControlPlane,
 		Node: node.Node{
 			Name: c.controlPlane.Name,
 			NetworkConfig: node.NetworkConfig{
 				MacAddress: c.controlPlane.MacAddress,
 				IP:         c.controlPlane.IP,
+				Mask:       c.controlPlane.Mask,
 				Gateway:    c.controlPlane.Gateway,
 				Nameserver: c.controlPlane.Nameserver,
 			},
@@ -204,14 +207,19 @@ func (c *createClusterWF) setupWorkerSteps(tasks []provisioner.Task) []provision
 	for _, worker := range c.workers {
 		wConfig := node.NodeCreateConfig{
 			Host: net.ParseIP("10.30.0.1"),
+			Role: node.RoleWorker,
 			Node: node.Node{
 				Name: worker.Name,
 				NetworkConfig: node.NetworkConfig{
 					MacAddress: worker.MacAddress,
 					IP:         worker.IP,
+					Mask:       worker.Mask,
 					Gateway:    worker.Gateway,
 					Nameserver: worker.Nameserver,
 				},
+			},
+			ExtraConfig: map[string]string{
+				config.KeyControlPlaneIP: c.controlPlaneIP.String(),
 			},
 		}
 		createWorkerNode := provisioner.NewCreateNode(wConfig, c.handlers.Provisioner, c.log)
@@ -230,7 +238,8 @@ func getNetworkConfig(clusterNetwork *network.ClusterNetwork) (*node.NetworkConf
 
 	networkConfig := &node.NetworkConfig{
 		MacAddress: macAddress,
-		IP:         []byte(ip),
+		IP:         net.ParseIP(ip),
+		Mask:       clusterNetwork.ClusterNetworkCIDR.Mask,
 		Gateway:    clusterNetwork.Gateway,
 		Nameserver: clusterNetwork.Nameserver,
 	}

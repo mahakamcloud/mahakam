@@ -64,3 +64,13 @@ func CopyFile(src, dst string) (int64, error) {
 	nBytes, err := io.Copy(destination, source)
 	return nBytes, err
 }
+
+// IPv4MaskString converts byte Mask to string
+// i.e. it will give out 255.x.x.x format
+func IPv4MaskString(m []byte) string {
+	if len(m) != 4 {
+		// Len must be 4 bytes
+		return ""
+	}
+	return fmt.Sprintf("%d.%d.%d.%d", m[0], m[1], m[2], m[3])
+}
