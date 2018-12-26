@@ -1,8 +1,6 @@
 package tfmodule
 
 import (
-	"fmt"
-
 	"github.com/mahakamcloud/mahakam/pkg/cmd_runner"
 )
 
@@ -22,28 +20,25 @@ func New() *Terraform {
 
 func (t *Terraform) Init(tfDir string) (string, error) {
 	args := []string{"init", tfDir}
-	return t.runner.CombinedOutput("terraform", args...)
+	return t.runner.CombinedOutputWithDir(tfDir, "terraform", args...)
 }
 
 func (t *Terraform) Plan(options string, tfDir string) (string, error) {
 	args := []string{"plan", options, tfDir}
-	fmt.Println(args)
 	return t.runner.CombinedOutput("terraform", args...)
 }
 
 func (t *Terraform) Apply(options string, tfDir string) (string, error) {
 	args := []string{"apply", options, tfDir}
-	fmt.Println(args)
 	return t.runner.CombinedOutput("terraform", args...)
 }
 
-func (t *Terraform) ApplyWithTFVars(tfvarspath string) (string, error) {
-	args := []string{"apply", "-var-file", tfvarspath, "-auto-approve"}
-	return t.runner.CombinedOutput("terraform", args...)
+func (t *Terraform) ApplyWithTFVars(tfvarspath, tfDir string) (string, error) {
+	args := []string{"apply", "-var-file", tfvarspath, "-auto-approve", tfDir}
+	return t.runner.CombinedOutputWithDir(tfDir, "terraform", args...)
 }
 
 func (t *Terraform) Destroy(tfDir string) (string, error) {
 	args := []string{"destroy", tfDir}
-	fmt.Println(args)
 	return t.runner.CombinedOutput("terraform", args...)
 }

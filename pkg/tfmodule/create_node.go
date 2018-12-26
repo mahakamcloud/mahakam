@@ -33,7 +33,7 @@ func CreateNode(name, destdir string, data map[string]string) error {
 // CreateControlPlaneNode creates VM with kubernetes control plane configuration
 // through terraform
 func CreateControlPlaneNode(name, destdir string, data map[string]string) error {
-	var cpNode = &TerraformProvisioner{
+	cpNode := &TerraformProvisioner{
 		Name:    name,
 		DestDir: destdir,
 		Files: []TerraformFile{
@@ -57,7 +57,7 @@ func CreateControlPlaneNode(name, destdir string, data map[string]string) error 
 // CreateWorkerNode creates VM with kubernetes worker configuration
 // through terraform
 func CreateWorkerNode(name, destdir string, data map[string]string) error {
-	var cpNode = &TerraformProvisioner{
+	wNode := &TerraformProvisioner{
 		Name:    name,
 		DestDir: destdir,
 		Files: []TerraformFile{
@@ -70,8 +70,8 @@ func CreateWorkerNode(name, destdir string, data map[string]string) error {
 		},
 	}
 
-	cpNode.GenerateProvisionerFiles(data)
-	err := cpNode.ExecuteProvisioner()
+	wNode.GenerateProvisionerFiles(data)
+	err := wNode.ExecuteProvisioner()
 	if err != nil {
 		return err
 	}

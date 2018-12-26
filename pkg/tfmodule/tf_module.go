@@ -2,7 +2,6 @@ package tfmodule
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 )
 
@@ -47,21 +46,16 @@ func (tfProvisioner *TerraformProvisioner) ExecuteProvisioner() error {
 	tfModuleDestDir := tfProvisioner.DestDir
 	tfVarsFile := filepath.Join(tfProvisioner.DestDir, "terraform.tfvars")
 
-	err := os.Chdir(tfModuleDestDir)
-	if err != nil {
-		return fmt.Errorf("terraform directory doesn't exist '%s': %s", tfModuleDestDir, err)
-	}
-
 	// TODO(giri/himani): pass proper thread safe logger instead of fmt.Println
-	res, err := t.Init(tfModuleDestDir)
-	fmt.Println(res)
+	resInit, err := t.Init(tfModuleDestDir)
+	fmt.Println(resInit)
 	if err != nil {
 		return fmt.Errorf("error initializing terraform: %s", err)
 	}
 
 	// TODO(giri/himani): pass proper thread safe logger instead of fmt.Println
-	res, err = t.ApplyWithTFVars(tfVarsFile)
-	fmt.Println(res)
+	resApply, err := t.ApplyWithTFVars(tfVarsFile, tfModuleDestDir)
+	fmt.Println(resApply)
 	if err != nil {
 		return fmt.Errorf("error applying terraform files: %s", err)
 	}
