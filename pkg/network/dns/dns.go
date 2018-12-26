@@ -9,7 +9,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type DNSConfig struct {
+// Config defines zone file configuration for a host
+type Config struct {
 	PrivateIP          net.IP
 	DNSZoneName        string
 	DNSReverseZonename string
@@ -26,34 +27,34 @@ var (
 )
 
 // GenerateZoneFileHostRecord returns a record to be appended in zone file
-func (d DNSConfig) GenerateZoneFileHostRecord() string {
+func (d Config) GenerateZoneFileHostRecord() string {
 	dnsTemplVal := template.New("dns")
 	tmpl, err := dnsTemplVal.Parse(zoneFileRecordTemplate)
 	if err != nil {
-		log.Errorf("Template parse error: ", err)
+		log.Errorf("Template parse error: %s", err)
 	}
 
 	var data strings.Builder
 	err = tmpl.Execute(&data, d)
 	if err != nil {
-		log.Errorf("Template execute error: ", err)
+		log.Errorf("Template execute error: %s", err)
 	}
 
 	return data.String()
 }
 
 // GenerateReverseZoneFileHostRecord returns a record to be appended in reverse zone file
-func (d DNSConfig) GenerateReverseZoneFileHostRecord() string {
+func (d Config) GenerateReverseZoneFileHostRecord() string {
 	dnsTemplVal := template.New("dns").Funcs(funcs)
 	tmpl, err := dnsTemplVal.Parse(reverseZoneFileRecordTemplate)
 	if err != nil {
-		log.Errorf("Parse: ", err)
+		log.Errorf("Template parse error: %s", err)
 	}
 
 	var data strings.Builder
 	err = tmpl.Execute(&data, d)
 	if err != nil {
-		log.Errorf("Execute: ", err)
+		log.Errorf("Template execute error: %s", err)
 	}
 
 	return data.String()

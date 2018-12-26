@@ -10,11 +10,11 @@ import (
 
 var _ = Describe("DNS", func() {
 	var (
-		dnsConfig DNSConfig
+		dnsConfig Config
 	)
 
 	BeforeEach(func() {
-		dnsConfig = DNSConfig{
+		dnsConfig = Config{
 			PrivateIP:   net.ParseIP("10.10.10.1"),
 			DNSZoneName: "sample.domain.io",
 			Hostname:    "mahakam-dns-01",
