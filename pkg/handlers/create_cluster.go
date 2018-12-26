@@ -19,14 +19,16 @@ import (
 // CreateCluster is handlers for create-cluster operation
 type CreateCluster struct {
 	Handlers
-	log log.FieldLogger
+	KubernetesConfig config.KubernetesConfig
+	log              log.FieldLogger
 }
 
-func NewCreateClusterHandler(handlers Handlers) *CreateCluster {
+func NewCreateClusterHandler(handlers Handlers, config config.KubernetesConfig) *CreateCluster {
 	log := log.WithField("create", "cluster")
 	return &CreateCluster{
-		Handlers: handlers,
-		log:      log,
+		Handlers:         handlers,
+		KubernetesConfig: config,
+		log:              log,
 	}
 }
 
@@ -114,6 +116,8 @@ type createClusterWF struct {
 	workers        []node.Node
 
 	controlPlaneIP net.IP
+	podNetworkCidr string
+	kubeadmToken   string
 }
 
 func newCreateClusterWF(cluster *models.Cluster, clusterNetwork *network.ClusterNetwork, cHandler *CreateCluster) (*createClusterWF, error) {
@@ -152,6 +156,8 @@ func newCreateClusterWF(cluster *models.Cluster, clusterNetwork *network.Cluster
 		controlPlane:   controlPlane,
 		workers:        workers,
 		controlPlaneIP: controlPlane.NetworkConfig.IP,
+		podNetworkCidr: cHandler.KubernetesConfig.PodNetworkCidr,
+		kubeadmToken:   cHandler.KubernetesConfig.KubeadmToken,
 	}, nil
 }
 
@@ -194,6 +200,10 @@ func (c *createClusterWF) setupControlPlaneSteps(tasks []provisioner.Task) []pro
 				Nameserver: c.controlPlane.Nameserver,
 			},
 		},
+		ExtraConfig: map[string]string{
+			config.KeyPodNetworkCidr: c.podNetworkCidr,
+			config.KeyKubeadmToken:   c.kubeadmToken,
+		},
 	}
 
 	createControlPlaneNode := provisioner.NewCreateNode(cpConfig, c.handlers.Provisioner, c.log)
@@ -220,6 +230,8 @@ func (c *createClusterWF) setupWorkerSteps(tasks []provisioner.Task) []provision
 			},
 			ExtraConfig: map[string]string{
 				config.KeyControlPlaneIP: c.controlPlaneIP.String(),
+				config.KeyPodNetworkCidr: c.podNetworkCidr,
+				config.KeyKubeadmToken:   c.kubeadmToken,
 			},
 		}
 		createWorkerNode := provisioner.NewCreateNode(wConfig, c.handlers.Provisioner, c.log)
