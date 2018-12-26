@@ -227,7 +227,7 @@ func init() {
         "numNodes": {
           "type": "integer",
           "maximum": 10,
-          "minimum": 3
+          "minimum": 1
         },
         "owner": {
           "type": "string",
@@ -240,9 +240,6 @@ func init() {
     },
     "error": {
       "type": "object",
-      "required": [
-        "message"
-      ],
       "properties": {
         "code": {
           "type": "integer",
@@ -465,7 +462,7 @@ func init() {
         "numNodes": {
           "type": "integer",
           "maximum": 10,
-          "minimum": 3
+          "minimum": 1
         },
         "owner": {
           "type": "string",
@@ -478,9 +475,6 @@ func init() {
     },
     "error": {
       "type": "object",
-      "required": [
-        "message"
-      ],
       "properties": {
         "code": {
           "type": "integer",

@@ -18,6 +18,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/clusters"
 	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/mahakamcloud/mahakam/pkg/handlers"
+	"github.com/mahakamcloud/mahakam/pkg/provisioner"
 )
 
 var opts struct {
@@ -42,7 +43,7 @@ func configureAPI(api *operations.MahakamAPI) http.Handler {
 	if err != nil {
 		log.Fatalf("Error loading configuration file for mahakam server: %s\n", err)
 	}
-	h := handlers.New(mahakamConfig.KVStoreConfig, mahakamConfig.NetworkConfig)
+	h := handlers.New(mahakamConfig.KVStoreConfig, mahakamConfig.NetworkConfig, provisioner.NewTerraformProvisioner())
 
 	// configure the api here
 	api.ServeError = errors.ServeError
@@ -51,7 +52,7 @@ func configureAPI(api *operations.MahakamAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	api.ClustersCreateClusterHandler = &handlers.CreateCluster{Handlers: *h}
+	api.ClustersCreateClusterHandler = handlers.NewCreateClusterHandler(*h)
 
 	api.ClustersGetClustersHandler = clusters.GetClustersHandlerFunc(func(params clusters.GetClustersParams) middleware.Responder {
 		return middleware.NotImplemented("operation clusters.GetClusters has not yet been implemented")

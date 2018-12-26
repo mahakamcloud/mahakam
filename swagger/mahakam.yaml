@@ -119,7 +119,7 @@ definitions:
         minLength: 1
       numNodes:
         type: integer
-        minimum: 3
+        minimum: 1
         maximum: 10
       status:
         type: string
@@ -146,8 +146,6 @@ definitions:
         type: string
   error:
     type: object
-    required:
-      - message
     properties:
       code:
         type: integer

@@ -31,7 +31,7 @@ type Cluster struct {
 
 	// num nodes
 	// Maximum: 10
-	// Minimum: 3
+	// Minimum: 1
 	NumNodes int64 `json:"numNodes,omitempty"`
 
 	// owner
@@ -83,7 +83,7 @@ func (m *Cluster) validateNumNodes(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.MinimumInt("numNodes", "body", int64(m.NumNodes), 3, false); err != nil {
+	if err := validate.MinimumInt("numNodes", "body", int64(m.NumNodes), 1, false); err != nil {
 		return err
 	}
 
