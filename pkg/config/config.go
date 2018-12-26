@@ -34,6 +34,9 @@ const (
 	TerraformDefaultDirectory = "/opt/mahakamcloud/terraform/"
 	TerraformDefaultBucket    = "tf-mahakam"
 	TerraformDefaultRegion    = "ap-southeast-1"
+
+	// Various keys for storing metadata in map
+	KeyControlPlaneIP = "key-control-plane-ip"
 )
 
 // Config represents mahakam configuration

@@ -7,14 +7,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// Role of Kubernetes node
-type Role string
-
-const (
-	RoleControlPlane Role = "control-plane"
-	RoleWorker       Role = "worker"
-)
-
 type CreateNode struct {
 	Config node.NodeCreateConfig
 	p      Provisioner

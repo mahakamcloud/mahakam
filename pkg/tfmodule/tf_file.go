@@ -2,11 +2,11 @@ package tfmodule
 
 import (
 	"bytes"
-	"html/template"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+	"text/template"
 )
 
 // Represents a terraform file as TerraformFile object
