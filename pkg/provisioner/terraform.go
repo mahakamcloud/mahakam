@@ -16,6 +16,7 @@ const (
 	TerraformLibvirtModulePath = "LibvirtModulePath"
 	TerraformHost              = "Host"
 	TerraformImageSourcePath   = "ImageSourcePath"
+	TerraformSSHPublicKey      = "SSHPublicKey"
 	TerraformMacAddress        = "MacAddress"
 	TerraformIPAddress         = "IPAddress"
 	TerraformNetmask           = "NetMask"
@@ -67,6 +68,7 @@ func (tp *terraformProvisioner) getTerraformData(nconfig node.NodeCreateConfig) 
 		TerraformLibvirtModulePath: tp.config.LibvirtModulePath,
 		TerraformHost:              nconfig.Host.String(),
 		TerraformImageSourcePath:   tp.config.ImageSourcePath,
+		TerraformSSHPublicKey:      nconfig.SSHPublicKey,
 		TerraformMacAddress:        nconfig.MacAddress,
 		TerraformIPAddress:         nconfig.IP.String(),
 		TerraformNetmask:           utils.IPv4MaskString(nconfig.Node.Mask),

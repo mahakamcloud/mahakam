@@ -17,6 +17,10 @@ variable "password" {
     default = "passw0rd"
 }
 
+variable "ssh_public_key" {
+    type = "string"
+}
+
 variable "mac_address" {
     type = "string"
 }

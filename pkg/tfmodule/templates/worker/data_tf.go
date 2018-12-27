@@ -5,6 +5,7 @@ var Data = `data "template_file" "user_data" {
 
     vars {
         hostname                 = "${var.hostname}"
+        ssh_public_key           = "${var.ssh_public_key}"
         password                 = "${var.password}"
         ip_address               = "${var.ip_address}"
         netmask                  = "${var.netmask}"

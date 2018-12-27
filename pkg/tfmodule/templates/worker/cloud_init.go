@@ -5,6 +5,8 @@ chpasswd: { expire: False }
 ssh_pwauth: True
 hostname: ${hostname}
 fqdn: ${hostname}.${dns_domain_name}
+ssh_authorized_keys:
+  - ${ssh_public_key}
 
 resolv_conf:
   nameservers: ['8.8.8.8']
@@ -70,6 +72,7 @@ packages:
 
 runcmd:
   - echo "Starting worker VM" >> /var/log/start-worker.log
+  - bash -ex /opt/cloud-init/setup-public-key.sh >> /var/log/start-worker.log 2>&1
   - bash -ex /opt/cloud-init/setup-network.sh >> /var/log/start-worker.log 2>&1
   - bash -ex /opt/cloud-init/setup-docker.sh >> /var/log/start-worker.log 2>&1
   - bash -ex /opt/cloud-init/kubeadm-join.sh >> /var/log/start-worker.log 2>&1

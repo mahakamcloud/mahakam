@@ -103,9 +103,14 @@ func newCreateNetworkWF(cluster *models.Cluster, handlers Handlers) (*createNetw
 func (cn *createNetworkWF) Run() error {
 	// TODO(giri/vijay): create network
 	n, err := cn.handlers.Network.AllocateClusterNetwork()
-	cn.clusterNetwork = n
+	if err != nil {
+		log.Errorf("cluster network creation failed %v: %s", cn, err)
+		return err
+	}
+
 	log.Infof("cluster network has been created %v", cn.clusterNetwork)
-	return err
+	cn.clusterNetwork = n
+	return nil
 }
 
 type createClusterWF struct {
@@ -116,6 +121,7 @@ type createClusterWF struct {
 	workers        []node.Node
 
 	controlPlaneIP net.IP
+	nodePublicKey  string
 	podNetworkCidr string
 	kubeadmToken   string
 }
@@ -156,6 +162,7 @@ func newCreateClusterWF(cluster *models.Cluster, clusterNetwork *network.Cluster
 		controlPlane:   controlPlane,
 		workers:        workers,
 		controlPlaneIP: controlPlane.NetworkConfig.IP,
+		nodePublicKey:  cHandler.KubernetesConfig.SSHPublicKey,
 		podNetworkCidr: cHandler.KubernetesConfig.PodNetworkCidr,
 		kubeadmToken:   cHandler.KubernetesConfig.KubeadmToken,
 	}, nil
@@ -191,7 +198,8 @@ func (c *createClusterWF) setupControlPlaneSteps(tasks []provisioner.Task) []pro
 		Host: net.ParseIP("10.30.0.1"),
 		Role: node.RoleControlPlane,
 		Node: node.Node{
-			Name: c.controlPlane.Name,
+			Name:         c.controlPlane.Name,
+			SSHPublicKey: c.nodePublicKey,
 			NetworkConfig: node.NetworkConfig{
 				MacAddress: c.controlPlane.MacAddress,
 				IP:         c.controlPlane.IP,
@@ -219,7 +227,8 @@ func (c *createClusterWF) setupWorkerSteps(tasks []provisioner.Task) []provision
 			Host: net.ParseIP("10.30.0.1"),
 			Role: node.RoleWorker,
 			Node: node.Node{
-				Name: worker.Name,
+				Name:         worker.Name,
+				SSHPublicKey: c.nodePublicKey,
 				NetworkConfig: node.NetworkConfig{
 					MacAddress: worker.MacAddress,
 					IP:         worker.IP,
@@ -230,7 +239,6 @@ func (c *createClusterWF) setupWorkerSteps(tasks []provisioner.Task) []provision
 			},
 			ExtraConfig: map[string]string{
 				config.KeyControlPlaneIP: c.controlPlaneIP.String(),
-				config.KeyPodNetworkCidr: c.podNetworkCidr,
 				config.KeyKubeadmToken:   c.kubeadmToken,
 			},
 		}

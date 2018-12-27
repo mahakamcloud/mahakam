@@ -5,6 +5,8 @@ chpasswd: { expire: False }
 ssh_pwauth: True
 hostname: ${hostname}
 fqdn: ${hostname}.${dns_domain_name}
+ssh_authorized_keys:
+  - ${ssh_public_key}
 
 resolv_conf:
   nameservers: ['8.8.8.8']

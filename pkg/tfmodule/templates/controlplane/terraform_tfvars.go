@@ -3,6 +3,7 @@ package controlplane
 var TFVars = `hostname = "{{.Name}}"
 host = "{{.Host}}"
 image_source_path = "{{.ImageSourcePath}}"
+ssh_public_key = "{{.SSHPublicKey}}"
 mac_address = "{{.MacAddress}}"
 ip_address = "{{.IPAddress}}"
 netmask = "{{.NetMask}}"

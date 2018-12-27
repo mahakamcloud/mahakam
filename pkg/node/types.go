@@ -12,10 +12,11 @@ const (
 
 // Node represents VM node metadata
 type Node struct {
-	Name       string
-	NumCPUs    int32
-	MemoryMB   int64
-	DiskSizeGB int32
+	Name         string
+	NumCPUs      int32
+	MemoryMB     int64
+	DiskSizeGB   int32
+	SSHPublicKey string
 	NetworkConfig
 }
 
