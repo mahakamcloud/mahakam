@@ -14,6 +14,7 @@ import (
 
 type CreateClusterOptions struct {
 	Name     string
+	Owner    string
 	NumNodes int
 }
 
@@ -26,6 +27,11 @@ var createClusterCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		if cco.Name == "" {
 			exitWithHelp(cmd, "Please provide name for your cluster.")
+		}
+
+		if cao.Owner == "" {
+			// Hack since we don't have login mechanism yet
+			cco.Owner = config.ResourceOwnerGojek
 		}
 
 		res, err := RunCreateCluster(cco)
@@ -46,8 +52,8 @@ func RunCreateCluster(cco *CreateClusterOptions) (*models.Cluster, error) {
 	c := GetMahakamClient()
 	req := &models.Cluster{
 		Name:     swag.String(cco.Name),
+		Owner:    cco.Owner,
 		NumNodes: int64(cco.NumNodes),
-		Owner:    config.ResourceOwnerGojek,
 	}
 
 	res, err := c.Clusters.CreateCluster(clusters.NewCreateClusterParams().WithBody(req))
@@ -63,6 +69,7 @@ func init() {
 	createClusterCmd.Flags().StringVarP(&cco.Name, "cluster-name", "c", "", "Name for your kubernetes cluster")
 
 	// Optional flags
+	createClusterCmd.Flags().StringVarP(&cco.Owner, "owner", "o", "", "Owner of your kubernetes cluster")
 	createClusterCmd.Flags().IntVarP(&cco.NumNodes, "num-nodes", "n", 1, "Number of worker nodes you want kubernetes cluster to run")
 
 	createCmd.AddCommand(createClusterCmd)

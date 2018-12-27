@@ -77,11 +77,11 @@ func RunCreateApp(cao *CreateAppOptions) (*models.App, error) {
 func init() {
 	// Required flags
 	createAppCmd.Flags().StringVarP(&cao.Name, "app-name", "a", "", "Name for your application")
-	createAppCmd.Flags().StringVarP(&cao.Owner, "owner", "o", "", "Name for your owner or app group")
 	createAppCmd.Flags().StringVarP(&cao.ClusterName, "cluster-name", "c", "", "Name of your kubernetes cluster")
 	createAppCmd.Flags().StringVarP(&cao.ChartURL, "chart", "u", "", "Helm chart url to run your application")
 
 	// Optional flags
+	createAppCmd.Flags().StringVarP(&cao.Owner, "owner", "o", "", "Name for your owner or app group")
 	createAppCmd.Flags().StringVarP(&cao.ChartValues, "values", "v", "", "Helm values to override default one in the chart")
 
 	createCmd.AddCommand(createAppCmd)
