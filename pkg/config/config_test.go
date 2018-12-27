@@ -28,6 +28,7 @@ var (
 		KubernetesConfig: KubernetesConfig{
 			PodNetworkCidr: "1.2.3.4/16",
 			KubeadmToken:   "fake-kubeadm-token",
+			SSHPublicKey:   "fake-ssh-public-key",
 		},
 		GateConfig: GateConfig{
 			GateNSSApiKey: "fake-gate-nss-api-key",

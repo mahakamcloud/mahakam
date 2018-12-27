@@ -8,39 +8,6 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// Some config constants or environment variables will go away
-// once we populate this through kind of config.yaml
-const (
-	// ResourceOwner hardcodes all tenant resources to be owned by gojek
-	// since we don't have auth mechanism yet
-	ResourceOwnerGojek   = "gojek"
-	ResourceOwnerMahakam = "mahakam"
-
-	// Custom path for storing resource in kvstore
-	KeyPathMahakam       = "mahakamcloud/"
-	KeyPathNetworkSubnet = KeyPathMahakam + "network/subnets/"
-
-	// Helm default configuration
-	HelmDefaultNamespace             = "default"
-	HelmDefaultTillerNamespace       = "kube-system"
-	HelmDefaultKubecontext           = "kubernetes-admin@kubernetes"
-	HelmControllerWait               = false
-	HelmControllerDefaultWaitTimeout = 300
-
-	// Default mahakam config path to store multiple kubeconfig files
-	MahakamMultiKubeconfigPath = "/opt/mahakamcloud/clusters"
-
-	// Default terraform config
-	TerraformDefaultDirectory = "/opt/mahakamcloud/terraform/"
-	TerraformDefaultBucket    = "tf-mahakam"
-	TerraformDefaultRegion    = "ap-southeast-1"
-
-	// Various keys for storing metadata in map
-	KeyControlPlaneIP = "key-control-plane-ip"
-	KeyPodNetworkCidr = "key-pod-network-cidr"
-	KeyKubeadmToken   = "key-kubeadm-token"
-)
-
 // Config represents mahakam configuration
 type Config struct {
 	KVStoreConfig    StorageBackendConfig `yaml:"storage_backend"`
@@ -143,6 +110,8 @@ type KubernetesConfig struct {
 	PodNetworkCidr string `yaml:"pod_network_cidr"`
 	// KubeadmToken is token secret used for workers to join Kubernetes cluster
 	KubeadmToken string `yaml:"kubeadm_token"`
+	// SSHPublicKey is public key that will be authorized to access Kubernetes nodes from its private key pair
+	SSHPublicKey string `yaml:"ssh_public_key"`
 }
 
 // Validate validates storage backend configuration
@@ -153,6 +122,10 @@ func (kc *KubernetesConfig) Validate() error {
 
 	if kc.KubeadmToken == "" {
 		return fmt.Errorf("Must provide non-empty kubeadm token")
+	}
+
+	if kc.SSHPublicKey == "" {
+		return fmt.Errorf("Must provide non-empty SSH public key")
 	}
 
 	return nil

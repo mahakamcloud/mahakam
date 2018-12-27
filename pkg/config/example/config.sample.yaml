@@ -9,9 +9,10 @@ network:
   cluster_netmask: 24
 kubernetes:
   pod_network_cidr: "10.244.0.0/16"
-  kubeadm_token: "dummykubeadmtoken"
+  kubeadm_token: "<TODO: pass valid kubeadm token here>"
+  ssh_public_key: "<TODO: pass generated ssh public key to access k8s nodes here>"
 gate:
-  gate_nss_api_key: "dummygatekey"
+  gate_nss_api_key: "<TODO: pass nss api key here if gate enabled>"
 terraform:
   libvirt_module_path: "git::https://github.com/mahakamcloud/terraform-libvirt-vm-single?ref=v0.1.1"
   image_source_path: "https://cloud-images.ubuntu.com/xenial/20181223/xenial-server-cloudimg-amd64-disk1.img"
