@@ -27,6 +27,10 @@ func NewSCPClient() *SCPClient {
 
 func (s *SCPClient) CopyRemoteFile(config SCPConfig) (string, error) {
 	conn := fmt.Sprintf("%s@%s:%s", config.Username, config.RemoteIPAddress, config.RemoteFilePath)
-	args := []string{conn, config.LocalFilePath}
+	args := []string{
+		"-o", "StrictHostKeyChecking=no",
+		"-o", "UserKnownHostsFile=/dev/null",
+		conn, config.LocalFilePath,
+	}
 	return s.runner.CombinedOutput("scp", args...)
 }
