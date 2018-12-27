@@ -4,7 +4,8 @@ RUN yum install -y \
     genisoimage-1.1.11 \
     libvirt-3.9.0 \
     unzip \
-    git
+    git \
+    wget
 
 RUN curl -O https://releases.hashicorp.com/terraform/0.11.8/terraform_0.11.8_linux_amd64.zip \
     && unzip ./terraform_* \
@@ -22,3 +23,8 @@ RUN curl -LO https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz \
     && mkdir -p ~/go/src/github.com/mahakamcloud/mahakam \
     && echo "export GOPATH=~/go" >> ~/.bash_profile \
     && source ~/.bash_profile
+
+RUN wget https://storage.googleapis.com/kubernetes-helm/helm-v2.12.1-linux-amd64.tar.gz \
+    && tar -zxvf ./helm-v2.12.1-linux-amd64.tar.gz \
+    && mv ./linux-amd64/helm /usr/local/bin/helm \
+    && helm init
