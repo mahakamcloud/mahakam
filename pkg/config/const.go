@@ -1,5 +1,7 @@
 package config
 
+import "time"
+
 // Some config constants or environment variables will go away
 // once we populate this through kind of config.yaml
 const (
@@ -21,11 +23,20 @@ const (
 
 	// Default mahakam config path to store multiple kubeconfig files
 	MahakamMultiKubeconfigPath = "/opt/mahakamcloud/clusters"
+	MahakamSSHPrivateKeyPath   = "/root/.ssh/id_rsa"
 
 	// Default terraform config
 	TerraformDefaultDirectory = "/opt/mahakamcloud/terraform/"
 	TerraformDefaultBucket    = "tf-mahakam"
 	TerraformDefaultRegion    = "ap-southeast-1"
+
+	// Default kubernetes node config
+	KubernetesNodeUsername        = "ubuntu"
+	KubernetesAdminKubeconfigPath = "/home/ubuntu/.kube/config"
+	KubernetesAPIServerPort       = 6443
+	KubernetesNodePingTimeout     = 5 * time.Second
+	KubernetesNodePingRetry       = 20
+	KubernetesNodePingDelay       = 60 * time.Second
 
 	// Various keys for storing metadata in map
 	KeyControlPlaneIP = "key-control-plane-ip"

@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net"
+	"strconv"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
@@ -13,6 +14,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/node"
 	"github.com/mahakamcloud/mahakam/pkg/provisioner"
 	r "github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
+	"github.com/mahakamcloud/mahakam/pkg/utils"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -53,7 +55,7 @@ func (h *CreateCluster) Handle(params clusters.CreateClusterParams) middleware.R
 
 	// TODO(giri): create cluster workflow should pull
 	// /etc/kubernetes/admin.conf into this kubeconfig path
-	c.KubeconfigPath = h.generateKubeconfigPath(c.Owner, c.Name)
+	c.KubeconfigPath = utils.GenerateKubeconfigPath(config.MahakamMultiKubeconfigPath, c.Owner, c.Name)
 
 	_, err = h.Handlers.Store.Add(c)
 	if err != nil {
@@ -84,10 +86,6 @@ func (h *CreateCluster) Handle(params clusters.CreateClusterParams) middleware.R
 	return clusters.NewCreateClusterCreated().WithPayload(res)
 }
 
-func (h *CreateCluster) generateKubeconfigPath(owner, clusterName string) string {
-	return fmt.Sprintf(config.MahakamMultiKubeconfigPath + "/" + owner + "-" + clusterName + "-kubeconfig")
-}
-
 // TODO(giri/vijay): create network
 type createNetworkWF struct {
 	handlers       Handlers
@@ -116,6 +114,8 @@ func (cn *createNetworkWF) Run() error {
 type createClusterWF struct {
 	handlers       Handlers
 	log            log.FieldLogger
+	owner          string
+	clustername    string
 	clusterNetwork *network.ClusterNetwork
 	controlPlane   node.Node
 	workers        []node.Node
@@ -158,6 +158,8 @@ func newCreateClusterWF(cluster *models.Cluster, clusterNetwork *network.Cluster
 	return &createClusterWF{
 		handlers:       cHandler.Handlers,
 		log:            cHandler.log,
+		owner:          cluster.Owner,
+		clustername:    swag.StringValue(cluster.Name),
 		clusterNetwork: clusterNetwork,
 		controlPlane:   controlPlane,
 		workers:        workers,
@@ -189,6 +191,7 @@ func (c *createClusterWF) getCreateTask() ([]provisioner.Task, error) {
 	var tasks []provisioner.Task
 	tasks = c.setupControlPlaneSteps(tasks)
 	tasks = c.setupWorkerSteps(tasks)
+	tasks = c.setupAdminKubeconfigSteps(tasks)
 	return tasks, nil
 }
 
@@ -246,6 +249,26 @@ func (c *createClusterWF) setupWorkerSteps(tasks []provisioner.Task) []provision
 		tasks = append(tasks, createWorkerNode)
 	}
 
+	return tasks
+}
+
+func (c *createClusterWF) setupAdminKubeconfigSteps(tasks []provisioner.Task) []provisioner.Task {
+	sConfig := utils.SCPConfig{
+		Username:        config.KubernetesNodeUsername,
+		RemoteIPAddress: c.controlPlaneIP.String(),
+		PrivateKeyPath:  config.MahakamSSHPrivateKeyPath,
+		RemoteFilePath:  config.KubernetesAdminKubeconfigPath,
+		LocalFilePath: utils.GenerateKubeconfigPath(
+			config.MahakamMultiKubeconfigPath,
+			c.owner,
+			c.clustername,
+		),
+	}
+
+	createAdminKubeconfig := provisioner.NewCreateAdminKubeconfig(c.clustername,
+		c.controlPlaneIP.String(), strconv.Itoa(config.KubernetesAPIServerPort), sConfig)
+
+	tasks = append(tasks, createAdminKubeconfig)
 	return tasks
 }
 

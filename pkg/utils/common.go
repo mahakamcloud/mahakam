@@ -74,3 +74,8 @@ func IPv4MaskString(m []byte) string {
 	}
 	return fmt.Sprintf("%d.%d.%d.%d", m[0], m[1], m[2], m[3])
 }
+
+// GenerateKubeconfigPath provides absolute path of kubeconfig
+func GenerateKubeconfigPath(basePath, owner, clusterName string) string {
+	return fmt.Sprintf("%s/%s-%s-kubeconfig", basePath, owner, clusterName)
+}

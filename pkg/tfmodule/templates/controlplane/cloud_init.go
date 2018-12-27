@@ -69,6 +69,10 @@ write_files:
       sudo cp -i /etc/kubernetes/admin.conf /root/.kube/config
       sudo chown $(id -u):$(id -g) /root/.kube/config
 
+      mkdir -p /home/ubuntu/.kube
+      sudo cp -i /etc/kubernetes/admin.conf /home/ubuntu/.kube/config
+      sudo chown ubuntu:ubuntu /home/ubuntu/.kube/config
+
       sysctl net.bridge.bridge-nf-call-iptables=1
       kubectl apply --kubeconfig /etc/kubernetes/admin.conf -f https://raw.githubusercontent.com/coreos/flannel/bc79dd1505b0c8681ece4de4c0d86c5cd2643275/Documentation/kube-flannel.yml
 

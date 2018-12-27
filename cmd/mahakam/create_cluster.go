@@ -8,6 +8,7 @@ import (
 
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/clusters"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
+	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/spf13/cobra"
 )
 
@@ -46,6 +47,7 @@ func RunCreateCluster(cco *CreateClusterOptions) (*models.Cluster, error) {
 	req := &models.Cluster{
 		Name:     swag.String(cco.Name),
 		NumNodes: int64(cco.NumNodes),
+		Owner:    config.ResourceOwnerGojek,
 	}
 
 	res, err := c.Clusters.CreateCluster(clusters.NewCreateClusterParams().WithBody(req))
