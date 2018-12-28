@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/go-openapi/swag"
 	"github.com/golang/glog"
@@ -9,6 +10,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/clusters"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/mahakamcloud/mahakam/pkg/config"
+	"github.com/mahakamcloud/mahakam/pkg/handlers"
 	"github.com/spf13/cobra"
 )
 
@@ -49,7 +51,7 @@ var createClusterCmd = &cobra.Command{
 }
 
 func RunCreateCluster(cco *CreateClusterOptions) (*models.Cluster, error) {
-	c := GetMahakamClient()
+	c := handlers.GetMahakamClient(os.Getenv("MAHAKAM_API_SERVER_HOST"))
 	req := &models.Cluster{
 		Name:     swag.String(cco.Name),
 		Owner:    cco.Owner,

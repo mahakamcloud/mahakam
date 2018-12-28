@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/go-openapi/swag"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/apps"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/mahakamcloud/mahakam/pkg/config"
+	"github.com/mahakamcloud/mahakam/pkg/handlers"
 	"github.com/spf13/cobra"
 )
 
@@ -57,7 +59,7 @@ var createAppCmd = &cobra.Command{
 }
 
 func RunCreateApp(cao *CreateAppOptions) (*models.App, error) {
-	c := GetMahakamClient()
+	c := handlers.GetMahakamClient(os.Getenv("MAHAKAM_API_SERVER_HOST"))
 	req := &models.App{
 		Name:        swag.String(cao.Name),
 		Owner:       cao.Owner,
