@@ -13,6 +13,7 @@ import (
 
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/apps"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/clusters"
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/networks"
 )
 
 // Default mahakam HTTP client.
@@ -62,6 +63,8 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *Mahakam {
 
 	cli.Clusters = clusters.New(transport, formats)
 
+	cli.Networks = networks.New(transport, formats)
+
 	return cli
 }
 
@@ -110,6 +113,8 @@ type Mahakam struct {
 
 	Clusters *clusters.Client
 
+	Networks *networks.Client
+
 	Transport runtime.ClientTransport
 }
 
@@ -120,5 +125,7 @@ func (c *Mahakam) SetTransport(transport runtime.ClientTransport) {
 	c.Apps.SetTransport(transport)
 
 	c.Clusters.SetTransport(transport)
+
+	c.Networks.SetTransport(transport)
 
 }

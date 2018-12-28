@@ -21,6 +21,7 @@ import (
 
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/apps"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/clusters"
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/networks"
 )
 
 // NewMahakamAPI creates a new Mahakam instance
@@ -46,6 +47,9 @@ func NewMahakamAPI(spec *loads.Document) *MahakamAPI {
 		ClustersCreateClusterHandler: clusters.CreateClusterHandlerFunc(func(params clusters.CreateClusterParams) middleware.Responder {
 			return middleware.NotImplemented("operation ClustersCreateCluster has not yet been implemented")
 		}),
+		NetworksCreateNetworkHandler: networks.CreateNetworkHandlerFunc(func(params networks.CreateNetworkParams) middleware.Responder {
+			return middleware.NotImplemented("operation NetworksCreateNetwork has not yet been implemented")
+		}),
 		ClustersDescribeClustersHandler: clusters.DescribeClustersHandlerFunc(func(params clusters.DescribeClustersParams) middleware.Responder {
 			return middleware.NotImplemented("operation ClustersDescribeClusters has not yet been implemented")
 		}),
@@ -54,6 +58,9 @@ func NewMahakamAPI(spec *loads.Document) *MahakamAPI {
 		}),
 		ClustersGetClustersHandler: clusters.GetClustersHandlerFunc(func(params clusters.GetClustersParams) middleware.Responder {
 			return middleware.NotImplemented("operation ClustersGetClusters has not yet been implemented")
+		}),
+		NetworksGetNetworksHandler: networks.GetNetworksHandlerFunc(func(params networks.GetNetworksParams) middleware.Responder {
+			return middleware.NotImplemented("operation NetworksGetNetworks has not yet been implemented")
 		}),
 	}
 }
@@ -90,12 +97,16 @@ type MahakamAPI struct {
 	AppsCreateAppHandler apps.CreateAppHandler
 	// ClustersCreateClusterHandler sets the operation handler for the create cluster operation
 	ClustersCreateClusterHandler clusters.CreateClusterHandler
+	// NetworksCreateNetworkHandler sets the operation handler for the create network operation
+	NetworksCreateNetworkHandler networks.CreateNetworkHandler
 	// ClustersDescribeClustersHandler sets the operation handler for the describe clusters operation
 	ClustersDescribeClustersHandler clusters.DescribeClustersHandler
 	// AppsGetAppsHandler sets the operation handler for the get apps operation
 	AppsGetAppsHandler apps.GetAppsHandler
 	// ClustersGetClustersHandler sets the operation handler for the get clusters operation
 	ClustersGetClustersHandler clusters.GetClustersHandler
+	// NetworksGetNetworksHandler sets the operation handler for the get networks operation
+	NetworksGetNetworksHandler networks.GetNetworksHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -167,6 +178,10 @@ func (o *MahakamAPI) Validate() error {
 		unregistered = append(unregistered, "clusters.CreateClusterHandler")
 	}
 
+	if o.NetworksCreateNetworkHandler == nil {
+		unregistered = append(unregistered, "networks.CreateNetworkHandler")
+	}
+
 	if o.ClustersDescribeClustersHandler == nil {
 		unregistered = append(unregistered, "clusters.DescribeClustersHandler")
 	}
@@ -177,6 +192,10 @@ func (o *MahakamAPI) Validate() error {
 
 	if o.ClustersGetClustersHandler == nil {
 		unregistered = append(unregistered, "clusters.GetClustersHandler")
+	}
+
+	if o.NetworksGetNetworksHandler == nil {
+		unregistered = append(unregistered, "networks.GetNetworksHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -287,6 +306,11 @@ func (o *MahakamAPI) initHandlerCache() {
 	}
 	o.handlers["POST"]["/clusters"] = clusters.NewCreateCluster(o.context, o.ClustersCreateClusterHandler)
 
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/networks"] = networks.NewCreateNetwork(o.context, o.NetworksCreateNetworkHandler)
+
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -301,6 +325,11 @@ func (o *MahakamAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/clusters"] = clusters.NewGetClusters(o.context, o.ClustersGetClustersHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/networks"] = networks.NewGetNetworks(o.context, o.NetworksGetNetworksHandler)
 
 }
 

@@ -172,6 +172,60 @@ func init() {
           }
         }
       }
+    },
+    "/networks": {
+      "get": {
+        "tags": [
+          "networks"
+        ],
+        "operationId": "getNetworks",
+        "responses": {
+          "200": {
+            "description": "list created networks",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/network"
+              }
+            }
+          },
+          "default": {
+            "description": "generic error response",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "networks"
+        ],
+        "operationId": "createNetwork",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/network"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/network"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -246,6 +300,34 @@ func init() {
           "format": "int64"
         },
         "message": {
+          "type": "string"
+        }
+      }
+    },
+    "network": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "gateway": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "name": {
+          "type": "string"
+        },
+        "nameserver": {
+          "type": "string"
+        },
+        "networkCIDR": {
+          "type": "string"
+        },
+        "networkName": {
           "type": "string"
         }
       }
@@ -407,6 +489,60 @@ func init() {
           }
         }
       }
+    },
+    "/networks": {
+      "get": {
+        "tags": [
+          "networks"
+        ],
+        "operationId": "getNetworks",
+        "responses": {
+          "200": {
+            "description": "list created networks",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/network"
+              }
+            }
+          },
+          "default": {
+            "description": "generic error response",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "networks"
+        ],
+        "operationId": "createNetwork",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/network"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/network"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -481,6 +617,34 @@ func init() {
           "format": "int64"
         },
         "message": {
+          "type": "string"
+        }
+      }
+    },
+    "network": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "gateway": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "name": {
+          "type": "string"
+        },
+        "nameserver": {
+          "type": "string"
+        },
+        "networkCIDR": {
+          "type": "string"
+        },
+        "networkName": {
           "type": "string"
         }
       }
