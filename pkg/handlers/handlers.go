@@ -1,6 +1,9 @@
 package handlers
 
 import (
+	httptransport "github.com/go-openapi/runtime/client"
+	"github.com/go-openapi/strfmt"
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/client"
 	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/mahakamcloud/mahakam/pkg/network"
 	"github.com/mahakamcloud/mahakam/pkg/provisioner"
@@ -35,4 +38,10 @@ func New(storeConfig config.StorageBackendConfig, networkConfig config.NetworkCo
 		Network:     n,
 		Provisioner: provisioner,
 	}
+}
+
+func GetMahakamClient(host string) *client.Mahakam {
+	t := httptransport.New(host, config.MahakamAPIBasePath, nil)
+	c := client.New(t, strfmt.Default)
+	return c
 }

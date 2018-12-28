@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/networks"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/clusters"
 	"github.com/mahakamcloud/mahakam/pkg/config"
@@ -37,37 +38,8 @@ func NewCreateClusterHandler(handlers Handlers, config config.KubernetesConfig) 
 // Handle is handler for create-cluster operation
 func (h *CreateCluster) Handle(params clusters.CreateClusterParams) middleware.Responder {
 
-	// TODO(giri/vijay): create network first before creating cluster
-	nwf, err := newCreateNetworkWF(params.Body, h.Handlers)
-	if err != nil {
-		log.Errorf("error creating network workflow %s", err)
-		return clusters.NewCreateClusterDefault(405).WithPayload(&models.Error{
-			Code:    405,
-			Message: fmt.Sprintf("error creating network workflow %s", err),
-		})
-	}
-	nwf.Run()
-
-	c := r.NewResourceCluster(swag.StringValue(params.Body.Name))
-	c.NumNodes = int(params.Body.NumNodes)
-	c.Status = r.StatusPending
-	c.NetworkName = nwf.clusterNetwork.Name
-
-	// TODO(giri): create cluster workflow should pull
-	// /etc/kubernetes/admin.conf into this kubeconfig path
-	c.KubeconfigPath = utils.GenerateKubeconfigPath(config.MahakamMultiKubeconfigPath, c.Owner, c.Name)
-
-	_, err = h.Handlers.Store.Add(c)
-	if err != nil {
-		log.Errorf("error adding network resource into kv store '%v': %s", c, err)
-		return clusters.NewCreateClusterDefault(405).WithPayload(&models.Error{
-			Code:    405,
-			Message: err.Error(),
-		})
-	}
-
 	// TODO(giri): must update resource status to creating and succcess accordingly
-	wf, err := newCreateClusterWF(params.Body, nwf.clusterNetwork, h)
+	wf, err := newCreateClusterWF(params.Body, h)
 	if err != nil {
 		log.Errorf("error creating cluster workflow %s", err)
 		return clusters.NewCreateClusterDefault(405).WithPayload(&models.Error{
@@ -77,38 +49,13 @@ func (h *CreateCluster) Handle(params clusters.CreateClusterParams) middleware.R
 	}
 	wf.Run()
 
-	res := &models.Cluster{
-		Name:        swag.String(c.Name),
-		ClusterPlan: string(c.Plan),
-		NumNodes:    int64(c.NumNodes),
-		Status:      string(c.Status),
+	cres := &models.Cluster{
+		Name:        params.Body.Name,
+		ClusterPlan: params.Body.ClusterPlan,
+		NumNodes:    params.Body.NumNodes,
+		Status:      string(r.StatusPending),
 	}
-	return clusters.NewCreateClusterCreated().WithPayload(res)
-}
-
-// TODO(giri/vijay): create network
-type createNetworkWF struct {
-	handlers       Handlers
-	clusterNetwork *network.ClusterNetwork
-}
-
-func newCreateNetworkWF(cluster *models.Cluster, handlers Handlers) (*createNetworkWF, error) {
-	return &createNetworkWF{
-		handlers: handlers,
-	}, nil
-}
-
-func (cn *createNetworkWF) Run() error {
-	// TODO(giri/vijay): create network
-	n, err := cn.handlers.Network.AllocateClusterNetwork()
-	if err != nil {
-		log.Errorf("cluster network creation failed %v: %s", cn, err)
-		return err
-	}
-
-	log.Infof("cluster network has been created %v", cn.clusterNetwork)
-	cn.clusterNetwork = n
-	return nil
+	return clusters.NewCreateClusterCreated().WithPayload(cres)
 }
 
 type createClusterWF struct {
@@ -126,8 +73,13 @@ type createClusterWF struct {
 	kubeadmToken   string
 }
 
-func newCreateClusterWF(cluster *models.Cluster, clusterNetwork *network.ClusterNetwork, cHandler *CreateCluster) (*createClusterWF, error) {
+func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*createClusterWF, error) {
 	clusterName := swag.StringValue(cluster.Name)
+
+	clusterNetwork, err := getClusterNetwork(clusterName, cHandler.Network)
+	if err != nil {
+		log.Errorf("error getting network allocation for cluster %s: %s", clusterName, err)
+	}
 
 	controlPlaneNetworkConfig, err := getNetworkConfig(clusterNetwork)
 	if err != nil {
@@ -155,11 +107,17 @@ func newCreateClusterWF(cluster *models.Cluster, clusterNetwork *network.Cluster
 		workers = append(workers, worker)
 	}
 
+	err = storeClusterResource(clusterName, workerNodesCount, clusterNetwork, cHandler)
+	if err != nil {
+		log.Errorf("error storing cluster resource to kvstore '%v': %s", cluster, err)
+		return nil, err
+	}
+
 	return &createClusterWF{
 		handlers:       cHandler.Handlers,
 		log:            cHandler.log,
 		owner:          cluster.Owner,
-		clustername:    swag.StringValue(cluster.Name),
+		clustername:    clusterName,
 		clusterNetwork: clusterNetwork,
 		controlPlane:   controlPlane,
 		workers:        workers,
@@ -270,6 +228,37 @@ func (c *createClusterWF) setupAdminKubeconfigSteps(tasks []provisioner.Task) []
 
 	tasks = append(tasks, createAdminKubeconfig)
 	return tasks
+}
+
+func storeClusterResource(clusterName string, numNodes int, clusternet *network.ClusterNetwork, cHandler *CreateCluster) error {
+	c := r.NewResourceCluster(clusterName)
+	c.NumNodes = numNodes
+	c.Status = r.StatusPending
+	c.NetworkName = clusternet.Name
+	c.KubeconfigPath = utils.GenerateKubeconfigPath(config.MahakamMultiKubeconfigPath, c.Owner, c.Name)
+
+	_, err := cHandler.Handlers.Store.Add(c)
+	if err != nil {
+		log.Errorf("error adding cluster resource into kv store '%v': %s", c, err)
+		return fmt.Errorf("error adding cluster resource into kv store '%v': %s", c, err)
+	}
+	return nil
+}
+
+func getClusterNetwork(clusterName string, netmanager *network.NetworkManager) (*network.ClusterNetwork, error) {
+	// TODO(giri): get local host and local port from config.yaml
+	client := GetMahakamClient(":" + strconv.Itoa(config.MahakamAPIDefaultPort))
+	req := &models.Network{
+		Name: swag.String(clusterName),
+	}
+
+	res, err := client.Networks.CreateNetwork(networks.NewCreateNetworkParams().WithBody(req))
+	if err != nil {
+		return nil, err
+	}
+
+	_, cidr, _ := net.ParseCIDR(res.Payload.NetworkCIDR)
+	return network.NewClusterNetwork(*cidr, netmanager), nil
 }
 
 func getNetworkConfig(clusterNetwork *network.ClusterNetwork) (*node.NetworkConfig, error) {

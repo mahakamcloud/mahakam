@@ -10,6 +10,10 @@ const (
 	ResourceOwnerGojek   = "gojek"
 	ResourceOwnerMahakam = "mahakam"
 
+	// Mahakam API server config
+	MahakamAPIBasePath    = "/v1"
+	MahakamAPIDefaultPort = 9000
+
 	// Custom path for storing resource in kvstore
 	KeyPathMahakam       = "mahakamcloud/"
 	KeyPathNetworkSubnet = KeyPathMahakam + "network/subnets/"
