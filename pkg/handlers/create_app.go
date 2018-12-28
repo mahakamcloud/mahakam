@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
@@ -13,6 +14,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/kube"
 	r "github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
 	log "github.com/sirupsen/logrus"
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	helm_env "k8s.io/helm/pkg/helm/environment"
@@ -23,6 +25,7 @@ type CreateApp struct {
 	Handlers
 	tillerTunnel *kube.Tunnel
 	settings     helm_env.EnvSettings
+	kubeclient   kubernetes.Interface
 	chartValues  []string
 }
 
@@ -74,7 +77,26 @@ func (h *CreateApp) Handle(params apps.CreateAppParams) middleware.Responder {
 		})
 	}
 
-	return apps.NewCreateAppCreated().WithPayload(params.Body)
+	serviceFQDN, err := h.getServiceFQDN(b.ChartURL, config.HelmDefaultNamespace,
+		getReleaseName(b.Owner, swag.StringValue(b.Name)))
+	if err != nil {
+		log.Errorf("error getting service name with helm chart '%v': %v\n", req, err)
+		return apps.NewCreateAppDefault(405).WithPayload(&models.Error{
+			Code:    405,
+			Message: "cannot retrieve service endpoint of application",
+		})
+	}
+
+	res := &models.App{
+		Name:        params.Body.Name,
+		Owner:       params.Body.Owner,
+		ClusterName: params.Body.ClusterName,
+		ChartURL:    params.Body.ChartURL,
+		ChartValues: params.Body.ChartValues,
+		ServiceFQDN: serviceFQDN,
+		Status:      string(r.StatusPending),
+	}
+	return apps.NewCreateAppCreated().WithPayload(res)
 }
 
 func (h *CreateApp) createHelmTillerTunnel(kubeconfig string) error {
@@ -86,6 +108,7 @@ func (h *CreateApp) createHelmTillerTunnel(kubeconfig string) error {
 	if err != nil {
 		return fmt.Errorf("could not get kubernetes client for context %q: %s", h.settings.KubeContext, err)
 	}
+	h.kubeclient = client
 
 	tillerTunnel, err := portforwarder.New(h.settings.TillerNamespace, client, config)
 	if err != nil {
@@ -96,6 +119,23 @@ func (h *CreateApp) createHelmTillerTunnel(kubeconfig string) error {
 	log.Infof("created tunnel using local port: %d\n", tillerTunnel.Local)
 
 	return nil
+}
+
+func (h *CreateApp) getServiceFQDN(chartURL, namespace, releaseName string) (string, error) {
+	app := strings.Split(chartURL, "/")
+	if len(app) < 2 {
+		return "", fmt.Errorf("invalid chart url %s", chartURL)
+	}
+	appName := app[1]
+
+	serviceLabels := labels.Set{"app": appName, "release": releaseName, "heritage": "Tiller"}
+	serviceName, err := kube.GetServiceName(h.kubeclient.CoreV1(), namespace, serviceLabels)
+	if err != nil {
+		return "", fmt.Errorf("could not retrieve endpoint service of deployed chart: %s", err)
+	}
+
+	serviceFQDN := fmt.Sprintf("%s.%s.svc.cluster.local", serviceName, namespace)
+	return serviceFQDN, nil
 }
 
 func configForContext(context string, kubeconfig string) (*rest.Config, error) {

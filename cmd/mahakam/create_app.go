@@ -54,6 +54,7 @@ var createAppCmd = &cobra.Command{
 		fmt.Println("Creating your application...")
 		fmt.Printf("\nName:\t%s", swag.StringValue(res.Name))
 		fmt.Printf("\nCluster:\t%s", res.ClusterName)
+		fmt.Printf("\nApp endpoint:\t%s", res.ServiceFQDN)
 		fmt.Printf("\n\nUse 'mahakam describe app %s' to monitor the state of your application", swag.StringValue(res.Name))
 	},
 }

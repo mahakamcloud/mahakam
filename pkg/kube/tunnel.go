@@ -47,9 +47,6 @@ func (t *Tunnel) Close() {
 
 // ForwardPort opens a tunnel to kubernetes pod
 func (t *Tunnel) ForwardPort() error {
-	fmt.Printf("namespace: %s\n", t.Namespace)
-	fmt.Printf("podname: %s\n", t.PodName)
-
 	u := t.client.Post().
 		Resource("pods").
 		Namespace(t.Namespace).
