@@ -37,6 +37,9 @@ type App struct {
 	// owner
 	Owner string `json:"owner,omitempty"`
 
+	// service f q d n
+	ServiceFQDN string `json:"serviceFQDN,omitempty"`
+
 	// status
 	Status string `json:"status,omitempty"`
 }

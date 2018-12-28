@@ -255,6 +255,9 @@ func init() {
         "owner": {
           "type": "string"
         },
+        "serviceFQDN": {
+          "type": "string"
+        },
         "status": {
           "type": "string"
         }
@@ -570,6 +573,9 @@ func init() {
           "type": "string"
         },
         "owner": {
+          "type": "string"
+        },
+        "serviceFQDN": {
           "type": "string"
         },
         "status": {
