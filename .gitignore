@@ -2,3 +2,4 @@ dist/
 playground
 .vscode
 config.dev*
+.terraform
