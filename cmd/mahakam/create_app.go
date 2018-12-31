@@ -69,6 +69,22 @@ func RunCreateApp(cao *CreateAppOptions) (*models.App, error) {
 		ChartValues: cao.ChartValues,
 	}
 
+	if cao.ChartValues != "" {
+		f, err := os.Open(cao.ChartValues)
+		if err != nil {
+			return nil, fmt.Errorf("error reading app values path '%v': '%v'", cao, err.Error())
+		}
+
+		_, err = c.Apps.UploadAppValues(apps.NewUploadAppValuesParams().
+			WithValues(f).
+			WithAppName(req.Name).
+			WithOwner(swag.String(req.Owner)).
+			WithClusterName(swag.String(req.ClusterName)))
+		if err != nil {
+			return nil, fmt.Errorf("error uploading app values '%v': '%v'", cao, err.Error())
+		}
+	}
+
 	res, err := c.Apps.CreateApp(apps.NewCreateAppParams().WithBody(req))
 	if err != nil {
 		return nil, fmt.Errorf("error creating app '%v': '%v'", cao, err.Error())

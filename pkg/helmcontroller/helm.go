@@ -81,6 +81,7 @@ func (hc *HelmController) installOrUpdate(app *models.App) error {
 	if err != nil {
 		return err
 	}
+	hc.logger.Infof("custom chart values for '%s': %v", swag.StringValue(app.Name), string(rawVals))
 
 	chartPath, err := hc.GetRemoteChart()
 	if err != nil {

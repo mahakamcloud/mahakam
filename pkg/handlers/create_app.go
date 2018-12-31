@@ -51,12 +51,15 @@ func (h *CreateApp) Handle(params apps.CreateAppParams) middleware.Responder {
 		})
 	}
 
+	releaseName := getReleaseName(b.Owner, swag.StringValue(b.Name))
+	chartValuesFile := getChartValuesFile(b.Owner, b.ClusterName, swag.StringValue(b.Name))
+
 	hc := helmcontroller.New(
 		h.settings.TillerHost,
 		b.ChartURL,
-		getChartValues(b.ChartValues),
+		getChartValues(config.HelmDefaultChartValuesDirectory+chartValuesFile),
 		config.HelmDefaultNamespace,
-		getReleaseName(b.Owner, swag.StringValue(b.Name)),
+		releaseName,
 		config.HelmControllerWait,
 		config.HelmControllerDefaultWaitTimeout,
 		nil,
@@ -168,4 +171,8 @@ func getChartValues(value string) []string {
 
 func getReleaseName(owner, appName string) string {
 	return fmt.Sprintf("%s-%s", owner, appName)
+}
+
+func getChartValuesFile(owner, clusterName, appName string) string {
+	return fmt.Sprintf("%s-%s-%s", owner, clusterName, appName)
 }

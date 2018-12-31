@@ -24,6 +24,7 @@ const (
 	HelmDefaultKubecontext           = "kubernetes-admin@kubernetes"
 	HelmControllerWait               = false
 	HelmControllerDefaultWaitTimeout = 300
+	HelmDefaultChartValuesDirectory  = "/opt/mahakamcloud/chartvalues/"
 
 	// Default mahakam config path to store multiple kubeconfig files
 	MahakamMultiKubeconfigPath = "/opt/mahakamcloud/clusters"
