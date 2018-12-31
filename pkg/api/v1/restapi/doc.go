@@ -13,6 +13,7 @@ API definitions for Mahakam Cloud Platform
 
     Consumes:
     - application/json
+    - multipart/form-data
 
     Produces:
     - application/json

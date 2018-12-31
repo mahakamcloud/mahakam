@@ -98,6 +98,37 @@ paths:
           description: error
           schema:
             $ref: "#/definitions/error"
+  /apps/values:
+    post:
+      tags:
+        - apps
+      operationId: uploadAppValues
+      consumes:
+      - multipart/form-data
+      parameters:
+        - name: values
+          in: formData
+          description: App values.yaml to upload
+          type: file
+        - name: appName
+          in: formData
+          description: App name
+          type: string
+        - name: owner
+          in: formData
+          description: Owner of the app
+          type: string
+        - name: clusterName
+          in: formData
+          description: Cluster name to deploy app
+          type: string
+      responses:
+        201:
+          description: App values added
+        default:
+          description: error
+          schema:
+            $ref: "#/definitions/error"
   /networks:
     get:
       tags:

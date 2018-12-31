@@ -77,6 +77,8 @@ func configureAPI(api *operations.MahakamAPI) http.Handler {
 		return middleware.NotImplemented("operation apps.GetApps has not yet been implemented")
 	})
 
+	api.AppsUploadAppValuesHandler = &handlers.UploadAppValues{Handlers: *h}
+
 	api.ServerShutdown = func() {}
 
 	return setupGlobalMiddleware(api.Serve(setupMiddlewares))

@@ -27,20 +27,21 @@ import (
 // NewMahakamAPI creates a new Mahakam instance
 func NewMahakamAPI(spec *loads.Document) *MahakamAPI {
 	return &MahakamAPI{
-		handlers:            make(map[string]map[string]http.Handler),
-		formats:             strfmt.Default,
-		defaultConsumes:     "application/json",
-		defaultProduces:     "application/json",
-		customConsumers:     make(map[string]runtime.Consumer),
-		customProducers:     make(map[string]runtime.Producer),
-		ServerShutdown:      func() {},
-		spec:                spec,
-		ServeError:          errors.ServeError,
-		BasicAuthenticator:  security.BasicAuth,
-		APIKeyAuthenticator: security.APIKeyAuth,
-		BearerAuthenticator: security.BearerAuth,
-		JSONConsumer:        runtime.JSONConsumer(),
-		JSONProducer:        runtime.JSONProducer(),
+		handlers:              make(map[string]map[string]http.Handler),
+		formats:               strfmt.Default,
+		defaultConsumes:       "application/json",
+		defaultProduces:       "application/json",
+		customConsumers:       make(map[string]runtime.Consumer),
+		customProducers:       make(map[string]runtime.Producer),
+		ServerShutdown:        func() {},
+		spec:                  spec,
+		ServeError:            errors.ServeError,
+		BasicAuthenticator:    security.BasicAuth,
+		APIKeyAuthenticator:   security.APIKeyAuth,
+		BearerAuthenticator:   security.BearerAuth,
+		JSONConsumer:          runtime.JSONConsumer(),
+		MultipartformConsumer: runtime.DiscardConsumer,
+		JSONProducer:          runtime.JSONProducer(),
 		AppsCreateAppHandler: apps.CreateAppHandlerFunc(func(params apps.CreateAppParams) middleware.Responder {
 			return middleware.NotImplemented("operation AppsCreateApp has not yet been implemented")
 		}),
@@ -61,6 +62,9 @@ func NewMahakamAPI(spec *loads.Document) *MahakamAPI {
 		}),
 		NetworksGetNetworksHandler: networks.GetNetworksHandlerFunc(func(params networks.GetNetworksParams) middleware.Responder {
 			return middleware.NotImplemented("operation NetworksGetNetworks has not yet been implemented")
+		}),
+		AppsUploadAppValuesHandler: apps.UploadAppValuesHandlerFunc(func(params apps.UploadAppValuesParams) middleware.Responder {
+			return middleware.NotImplemented("operation AppsUploadAppValues has not yet been implemented")
 		}),
 	}
 }
@@ -89,6 +93,8 @@ type MahakamAPI struct {
 
 	// JSONConsumer registers a consumer for a "application/json" mime type
 	JSONConsumer runtime.Consumer
+	// MultipartformConsumer registers a consumer for a "multipart/form-data" mime type
+	MultipartformConsumer runtime.Consumer
 
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
@@ -107,6 +113,8 @@ type MahakamAPI struct {
 	ClustersGetClustersHandler clusters.GetClustersHandler
 	// NetworksGetNetworksHandler sets the operation handler for the get networks operation
 	NetworksGetNetworksHandler networks.GetNetworksHandler
+	// AppsUploadAppValuesHandler sets the operation handler for the upload app values operation
+	AppsUploadAppValuesHandler apps.UploadAppValuesHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -166,6 +174,10 @@ func (o *MahakamAPI) Validate() error {
 		unregistered = append(unregistered, "JSONConsumer")
 	}
 
+	if o.MultipartformConsumer == nil {
+		unregistered = append(unregistered, "MultipartformConsumer")
+	}
+
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
 	}
@@ -196,6 +208,10 @@ func (o *MahakamAPI) Validate() error {
 
 	if o.NetworksGetNetworksHandler == nil {
 		unregistered = append(unregistered, "networks.GetNetworksHandler")
+	}
+
+	if o.AppsUploadAppValuesHandler == nil {
+		unregistered = append(unregistered, "apps.UploadAppValuesHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -233,6 +249,9 @@ func (o *MahakamAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consum
 
 		case "application/json":
 			result["application/json"] = o.JSONConsumer
+
+		case "multipart/form-data":
+			result["multipart/form-data"] = o.MultipartformConsumer
 
 		}
 
@@ -330,6 +349,11 @@ func (o *MahakamAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/networks"] = networks.NewGetNetworks(o.context, o.NetworksGetNetworksHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/apps/values"] = apps.NewUploadAppValues(o.context, o.AppsUploadAppValuesHandler)
 
 }
 

@@ -89,6 +89,54 @@ func init() {
         }
       }
     },
+    "/apps/values": {
+      "post": {
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "apps"
+        ],
+        "operationId": "uploadAppValues",
+        "parameters": [
+          {
+            "type": "file",
+            "description": "App values.yaml to upload",
+            "name": "values",
+            "in": "formData"
+          },
+          {
+            "type": "string",
+            "description": "App name",
+            "name": "appName",
+            "in": "formData"
+          },
+          {
+            "type": "string",
+            "description": "Owner of the app",
+            "name": "owner",
+            "in": "formData"
+          },
+          {
+            "type": "string",
+            "description": "Cluster name to deploy app",
+            "name": "clusterName",
+            "in": "formData"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "App values added"
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/clusters": {
       "get": {
         "tags": [
@@ -399,6 +447,54 @@ func init() {
             "schema": {
               "$ref": "#/definitions/app"
             }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/apps/values": {
+      "post": {
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "apps"
+        ],
+        "operationId": "uploadAppValues",
+        "parameters": [
+          {
+            "type": "file",
+            "description": "App values.yaml to upload",
+            "name": "values",
+            "in": "formData"
+          },
+          {
+            "type": "string",
+            "description": "App name",
+            "name": "appName",
+            "in": "formData"
+          },
+          {
+            "type": "string",
+            "description": "Owner of the app",
+            "name": "owner",
+            "in": "formData"
+          },
+          {
+            "type": "string",
+            "description": "Cluster name to deploy app",
+            "name": "clusterName",
+            "in": "formData"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "App values added"
           },
           "default": {
             "description": "error",
