@@ -57,6 +57,7 @@ func (h *CreateNetwork) Handle(params networks.CreateNetworkParams) middleware.R
 		NetworkCIDR: nwf.clusterNetwork.ClusterNetworkCIDR.String(),
 		Gateway:     nwf.clusterNetwork.Gateway.String(),
 		Nameserver:  nwf.clusterNetwork.Nameserver.String(),
+		Dhcp:        nwf.clusterNetwork.Dhcp.String(),
 	}
 	return networks.NewCreateNetworkCreated().WithPayload(res)
 }
@@ -100,22 +101,22 @@ func (cn *createNetworkWF) Run() error {
 		return err
 	}
 
-	for i := range tasks {
-		go func(t provisioner.Task) {
-			cn.log.Infof("running task %v", t)
+	go func(taskList []provisioner.Task) {
+		for _, t := range taskList {
 			if err := t.Run(); err != nil {
 				cn.log.Errorf("error running task %v: %s", t, err)
 			}
-		}(tasks[i])
-	}
+		}
+	}(tasks)
+
 	return nil
 }
 
 func (cn *createNetworkWF) getCreateTask() ([]provisioner.Task, error) {
 	var tasks []provisioner.Task
 	tasks = cn.setupNetworkGateway(tasks)
-	tasks = cn.setupNetworkNameserver(tasks)
 	tasks = cn.setupNetworkDHCP(tasks)
+	// tasks = cn.setupNetworkNameserver(tasks)
 	return tasks, nil
 }
 
@@ -133,11 +134,11 @@ func (cn *createNetworkWF) setupNetworkGateway(tasks []provisioner.Task) []provi
 			},
 			ExtraNetworks: []node.NetworkConfig{
 				node.NetworkConfig{
-				// TODO(giri): pass proper public IP from config.yaml
-				// IP:         net.ParseIP("1.2.3.4"),
-				// Mask:       net.CIDRMask(28, 32),
-				// Gateway:    net.ParseIP("1.2.3.1"),
-				// Nameserver: net.ParseIP("8.8.8.8"),
+					// TODO(giri): pass proper public IP from config.yaml
+					// IP:         net.ParseIP("1.2.3.4"),
+					// Mask:       net.CIDRMask(28, 32),
+					// Gateway:    net.ParseIP("1.2.3.1"),
+					// Nameserver: net.ParseIP("8.8.8.8"),
 				},
 			},
 		},
@@ -154,7 +155,7 @@ func (cn *createNetworkWF) setupNetworkGateway(tasks []provisioner.Task) []provi
 }
 
 func (cn *createNetworkWF) setupNetworkDHCP(tasks []provisioner.Task) []provisioner.Task {
-	gwConfig := node.NodeCreateConfig{
+	dhcpConfig := node.NodeCreateConfig{
 		Host: net.ParseIP("10.30.0.1"),
 		Role: node.RoleNetworkDHCP,
 		Node: node.Node{
@@ -162,25 +163,14 @@ func (cn *createNetworkWF) setupNetworkDHCP(tasks []provisioner.Task) []provisio
 			SSHPublicKey: cn.nodePublicKey,
 			NetworkConfig: node.NetworkConfig{
 				MacAddress: network.GenerateMacAddress(),
-				IP:         cn.clusterNetwork.Gateway,
+				IP:         cn.clusterNetwork.Dhcp,
 				Mask:       cn.clusterNetwork.ClusterNetworkCIDR.Mask,
+				Gateway:    cn.clusterNetwork.Gateway,
 			},
-			ExtraNetworks: []node.NetworkConfig{
-				node.NetworkConfig{
-				// TODO(giri): pass proper public IP from config.yaml
-				// IP:         net.ParseIP("1.2.3.4"),
-				// Mask:       net.CIDRMask(28, 32),
-				// Gateway:    net.ParseIP("1.2.3.1"),
-				// Nameserver: net.ParseIP("8.8.8.8"),
-				},
-			},
-		},
-		ExtraConfig: map[string]string{
-			config.KeyClusterNetworkCidr: cn.clusterNetwork.ClusterNetworkCIDR.String(),
 		},
 	}
 
-	createDHCPNode := provisioner.NewCreateNode(gwConfig, cn.handlers.Provisioner, cn.log)
+	createDHCPNode := provisioner.NewCreateNode(dhcpConfig, cn.handlers.Provisioner, cn.log)
 
 	tasks = append(tasks, createDHCPNode)
 

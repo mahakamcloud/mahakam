@@ -135,12 +135,15 @@ type ClusterNetwork struct {
 	ClusterNetworkCIDR net.IPNet
 	Gateway            net.IP
 	Nameserver         net.IP
+	Dhcp               net.IP
 }
 
+// NewClusterNetwork returns a new ClusterNetwork
 func NewClusterNetwork(cidr net.IPNet, nm *NetworkManager) *ClusterNetwork {
 	name := utils.CidrToKeyString(cidr)
 	gatewayIP := getGatewayIP(cidr)
 	nameserverIP := getNameserverIP(cidr)
+	dhcpIP := getDHCPIP(cidr)
 
 	return &ClusterNetwork{
 		NetworkManager:     nm,
@@ -148,6 +151,7 @@ func NewClusterNetwork(cidr net.IPNet, nm *NetworkManager) *ClusterNetwork {
 		ClusterNetworkCIDR: cidr,
 		Gateway:            gatewayIP,
 		Nameserver:         nameserverIP,
+		Dhcp:               dhcpIP,
 	}
 }
 
@@ -213,4 +217,13 @@ func getNameserverIP(cidr net.IPNet) net.IP {
 	// Reserved IPs for main network components in cluster network
 	nameserver[3] = byte(3)
 	return nameserver
+}
+
+func getDHCPIP(cidr net.IPNet) net.IP {
+	dhcp := make(net.IP, len(cidr.IP))
+	copy(dhcp, cidr.IP)
+
+	// Reserved IPs for main network components in cluster network
+	dhcp[3] = byte(2)
+	return dhcp
 }
