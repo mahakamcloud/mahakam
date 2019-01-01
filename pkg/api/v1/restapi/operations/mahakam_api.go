@@ -42,11 +42,17 @@ func NewMahakamAPI(spec *loads.Document) *MahakamAPI {
 		JSONConsumer:          runtime.JSONConsumer(),
 		MultipartformConsumer: runtime.DiscardConsumer,
 		JSONProducer:          runtime.JSONProducer(),
+		NetworksAllocateOrReleaseFromIPPoolHandler: networks.AllocateOrReleaseFromIPPoolHandlerFunc(func(params networks.AllocateOrReleaseFromIPPoolParams) middleware.Responder {
+			return middleware.NotImplemented("operation NetworksAllocateOrReleaseFromIPPool has not yet been implemented")
+		}),
 		AppsCreateAppHandler: apps.CreateAppHandlerFunc(func(params apps.CreateAppParams) middleware.Responder {
 			return middleware.NotImplemented("operation AppsCreateApp has not yet been implemented")
 		}),
 		ClustersCreateClusterHandler: clusters.CreateClusterHandlerFunc(func(params clusters.CreateClusterParams) middleware.Responder {
 			return middleware.NotImplemented("operation ClustersCreateCluster has not yet been implemented")
+		}),
+		NetworksCreateIPPoolHandler: networks.CreateIPPoolHandlerFunc(func(params networks.CreateIPPoolParams) middleware.Responder {
+			return middleware.NotImplemented("operation NetworksCreateIPPool has not yet been implemented")
 		}),
 		NetworksCreateNetworkHandler: networks.CreateNetworkHandlerFunc(func(params networks.CreateNetworkParams) middleware.Responder {
 			return middleware.NotImplemented("operation NetworksCreateNetwork has not yet been implemented")
@@ -99,10 +105,14 @@ type MahakamAPI struct {
 	// JSONProducer registers a producer for a "application/json" mime type
 	JSONProducer runtime.Producer
 
+	// NetworksAllocateOrReleaseFromIPPoolHandler sets the operation handler for the allocate or release from Ip pool operation
+	NetworksAllocateOrReleaseFromIPPoolHandler networks.AllocateOrReleaseFromIPPoolHandler
 	// AppsCreateAppHandler sets the operation handler for the create app operation
 	AppsCreateAppHandler apps.CreateAppHandler
 	// ClustersCreateClusterHandler sets the operation handler for the create cluster operation
 	ClustersCreateClusterHandler clusters.CreateClusterHandler
+	// NetworksCreateIPPoolHandler sets the operation handler for the create Ip pool operation
+	NetworksCreateIPPoolHandler networks.CreateIPPoolHandler
 	// NetworksCreateNetworkHandler sets the operation handler for the create network operation
 	NetworksCreateNetworkHandler networks.CreateNetworkHandler
 	// ClustersDescribeClustersHandler sets the operation handler for the describe clusters operation
@@ -182,12 +192,20 @@ func (o *MahakamAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.NetworksAllocateOrReleaseFromIPPoolHandler == nil {
+		unregistered = append(unregistered, "networks.AllocateOrReleaseFromIPPoolHandler")
+	}
+
 	if o.AppsCreateAppHandler == nil {
 		unregistered = append(unregistered, "apps.CreateAppHandler")
 	}
 
 	if o.ClustersCreateClusterHandler == nil {
 		unregistered = append(unregistered, "clusters.CreateClusterHandler")
+	}
+
+	if o.NetworksCreateIPPoolHandler == nil {
+		unregistered = append(unregistered, "networks.CreateIPPoolHandler")
 	}
 
 	if o.NetworksCreateNetworkHandler == nil {
@@ -318,12 +336,22 @@ func (o *MahakamAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/networks/pools/ipPools/{poolId}"] = networks.NewAllocateOrReleaseFromIPPool(o.context, o.NetworksAllocateOrReleaseFromIPPoolHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/apps"] = apps.NewCreateApp(o.context, o.AppsCreateAppHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/clusters"] = clusters.NewCreateCluster(o.context, o.ClustersCreateClusterHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/networks/pools/ipPools"] = networks.NewCreateIPPool(o.context, o.NetworksCreateIPPoolHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)

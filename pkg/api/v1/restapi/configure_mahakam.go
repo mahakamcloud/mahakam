@@ -71,6 +71,8 @@ func configureAPI(api *operations.MahakamAPI) http.Handler {
 		return middleware.NotImplemented("operation apps.GetNetworks has not yet been implemented")
 	})
 
+	api.NetworksCreateIPPoolHandler = handlers.NewCreateIPPoolHandler(*h)
+
 	api.AppsCreateAppHandler = &handlers.CreateApp{Handlers: *h}
 
 	api.AppsGetAppsHandler = apps.GetAppsHandlerFunc(func(params apps.GetAppsParams) middleware.Responder {

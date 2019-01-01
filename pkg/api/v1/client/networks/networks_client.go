@@ -25,6 +25,62 @@ type Client struct {
 }
 
 /*
+AllocateOrReleaseFromIPPool allocate or release from Ip pool API
+*/
+func (a *Client) AllocateOrReleaseFromIPPool(params *AllocateOrReleaseFromIPPoolParams) (*AllocateOrReleaseFromIPPoolCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAllocateOrReleaseFromIPPoolParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "allocateOrReleaseFromIpPool",
+		Method:             "POST",
+		PathPattern:        "/networks/pools/ipPools/{poolId}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &AllocateOrReleaseFromIPPoolReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*AllocateOrReleaseFromIPPoolCreated), nil
+
+}
+
+/*
+CreateIPPool create Ip pool API
+*/
+func (a *Client) CreateIPPool(params *CreateIPPoolParams) (*CreateIPPoolCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewCreateIPPoolParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "createIpPool",
+		Method:             "POST",
+		PathPattern:        "/networks/pools/ipPools",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &CreateIPPoolReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*CreateIPPoolCreated), nil
+
+}
+
+/*
 CreateNetwork create network API
 */
 func (a *Client) CreateNetwork(params *CreateNetworkParams) (*CreateNetworkCreated, error) {

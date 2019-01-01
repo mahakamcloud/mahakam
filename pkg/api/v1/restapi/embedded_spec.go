@@ -274,9 +274,96 @@ func init() {
           }
         }
       }
+    },
+    "/networks/pools/ipPools": {
+      "post": {
+        "tags": [
+          "networks"
+        ],
+        "operationId": "createIpPool",
+        "parameters": [
+          {
+            "name": "ipPool",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ipPool"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created new ip pool",
+            "schema": {
+              "$ref": "#/definitions/ipPool"
+            }
+          },
+          "default": {
+            "description": "generic error response",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/networks/pools/ipPools/{poolId}": {
+      "post": {
+        "tags": [
+          "networks"
+        ],
+        "operationId": "allocateOrReleaseFromIpPool",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "poolId",
+            "in": "path"
+          },
+          {
+            "type": "string",
+            "name": "ipAddressToBeReleased",
+            "in": "body"
+          },
+          {
+            "enum": [
+              "ALLOCATE",
+              "RELEASE"
+            ],
+            "type": "string",
+            "name": "action",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Allocated new IP from IP pool",
+            "schema": {
+              "$ref": "#/definitions/allocatedIpPool"
+            }
+          },
+          "default": {
+            "description": "generic error response",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
+    "allocatedIpPool": {
+      "type": "object",
+      "properties": {
+        "allocatedIp": {
+          "type": "string"
+        },
+        "ipPoolId": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        }
+      }
+    },
     "app": {
       "type": "object",
       "required": [
@@ -352,6 +439,30 @@ func init() {
         },
         "message": {
           "type": "string"
+        }
+      }
+    },
+    "ipPool": {
+      "type": "object",
+      "properties": {
+        "cidr": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "readOnly": true
+        },
+        "ipPoolRangeEnd": {
+          "type": "string"
+        },
+        "ipPoolRangeStart": {
+          "type": "string"
+        },
+        "reservedIPPools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
@@ -645,9 +756,96 @@ func init() {
           }
         }
       }
+    },
+    "/networks/pools/ipPools": {
+      "post": {
+        "tags": [
+          "networks"
+        ],
+        "operationId": "createIpPool",
+        "parameters": [
+          {
+            "name": "ipPool",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/ipPool"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created new ip pool",
+            "schema": {
+              "$ref": "#/definitions/ipPool"
+            }
+          },
+          "default": {
+            "description": "generic error response",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/networks/pools/ipPools/{poolId}": {
+      "post": {
+        "tags": [
+          "networks"
+        ],
+        "operationId": "allocateOrReleaseFromIpPool",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "poolId",
+            "in": "path"
+          },
+          {
+            "type": "string",
+            "name": "ipAddressToBeReleased",
+            "in": "body"
+          },
+          {
+            "enum": [
+              "ALLOCATE",
+              "RELEASE"
+            ],
+            "type": "string",
+            "name": "action",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Allocated new IP from IP pool",
+            "schema": {
+              "$ref": "#/definitions/allocatedIpPool"
+            }
+          },
+          "default": {
+            "description": "generic error response",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
+    "allocatedIpPool": {
+      "type": "object",
+      "properties": {
+        "allocatedIp": {
+          "type": "string"
+        },
+        "ipPoolId": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        }
+      }
+    },
     "app": {
       "type": "object",
       "required": [
@@ -723,6 +921,30 @@ func init() {
         },
         "message": {
           "type": "string"
+        }
+      }
+    },
+    "ipPool": {
+      "type": "object",
+      "properties": {
+        "cidr": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "readOnly": true
+        },
+        "ipPoolRangeEnd": {
+          "type": "string"
+        },
+        "ipPoolRangeStart": {
+          "type": "string"
+        },
+        "reservedIPPools": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },

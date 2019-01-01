@@ -163,6 +163,52 @@ paths:
           description: error
           schema:
             $ref: "#/definitions/error"
+  /networks/pools/ipPools:
+    post:
+      tags:
+        - networks
+      operationId: createIpPool
+      parameters:
+        - name: ipPool
+          in: body
+          schema:
+            $ref: "#/definitions/ipPool"   
+      responses:
+        201:
+          description: Created new ip pool
+          schema:
+            $ref: "#/definitions/ipPool"
+        default:
+          description: generic error response
+          schema:
+            $ref: "#/definitions/error"
+  /networks/pools/ipPools/{poolId}:
+    post:
+      tags:
+        - networks
+      operationId: allocateOrReleaseFromIpPool
+      parameters:
+        - name: poolId
+          in: path
+          type: string
+        - name: ipAddressToBeReleased
+          in: body
+          type: string
+        - name: action
+          enum:
+          - ALLOCATE
+          - RELEASE
+          in: query
+          type: string
+      responses:
+        201:
+          description: Allocated new IP from IP pool
+          schema:
+            $ref: "#/definitions/allocatedIpPool"
+        default:
+          description: generic error response
+          schema:
+            $ref: "#/definitions/error"
 definitions:
   cluster:
     type: object
@@ -208,6 +254,31 @@ definitions:
       nameserver:
         type: string
       dhcp:
+        type: string
+  ipPool:
+    type: object
+    properties:
+      id:
+        type: string
+        readOnly: true
+      cidr:
+        type: string
+      ipPoolRangeStart:
+        type: string
+      ipPoolRangeEnd:
+        type: string
+      reservedIPPools:
+        type: array
+        items:
+          type: string
+  allocatedIpPool:
+    type: object
+    properties:
+      ipPoolId:
+        type: integer
+        format: int64
+        readOnly: true
+      allocatedIp:
         type: string
   app:
     type: object
