@@ -6,6 +6,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates/controlplane"
 	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates/dhcp"
 	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates/dns"
+	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates/gateway"
 	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates/worker"
 )
 
@@ -120,6 +121,30 @@ func CreateWorkerNode(name, destdir string, data map[string]string) error {
 
 	wNode.GenerateProvisionerFiles(data)
 	err := wNode.ExecuteProvisioner()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// CreateNetworkGWNode creates VM with network gateway configuration
+// through terraform
+func CreateNetworkGWNode(name, destdir string, data map[string]string) error {
+	gwNode := &TerraformProvisioner{
+		Name:    name,
+		DestDir: destdir,
+		Files: []TerraformFile{
+			TerraformFile{"backend", templates.Backend, destdir, "backend.tf"},
+			TerraformFile{"data", gateway.Data, destdir, "data.tf"},
+			TerraformFile{"main", templates.MainFile, destdir, "main.tf"},
+			TerraformFile{"tfvars", gateway.TFVars, destdir, "terraform.tfvars"},
+			TerraformFile{"vars", gateway.Vars, destdir, "vars.tf"},
+			TerraformFile{"cloudinit", gateway.CloudInit, destdir + "/templates/", "user_data.tpl"},
+		},
+	}
+
+	gwNode.GenerateProvisionerFiles(data)
+	err := gwNode.ExecuteProvisioner()
 	if err != nil {
 		return err
 	}

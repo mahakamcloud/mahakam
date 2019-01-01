@@ -11,11 +11,11 @@ const (
 	// RoleWorker defines a k8s worker node
 	RoleWorker Role = "worker"
 	// RoleNetworkDNS defines a dns node in a network
-	RoleNetworkDNS Role = "dns"
+	RoleNetworkDNS Role = "network-dns"
 	// RoleNetworkDHCP defines a dhcp node in a network
-	RoleNetworkDHCP Role = "dhcp"
+	RoleNetworkDHCP Role = "network-dhcp"
 	// RoleNetworkGW defines a gateway node in a network
-	RoleNetworkGW Role = "gw"
+	RoleNetworkGW Role = "network-gw"
 )
 
 // Node represents VM node metadata
@@ -26,6 +26,7 @@ type Node struct {
 	DiskSizeGB   int32
 	SSHPublicKey string
 	NetworkConfig
+	ExtraNetworks []NetworkConfig
 }
 
 // NetworkConfig represents network config of a node

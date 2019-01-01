@@ -2,22 +2,27 @@ package handlers
 
 import (
 	"fmt"
+	"net"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/swag"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/networks"
 	"github.com/mahakamcloud/mahakam/pkg/network"
+	"github.com/mahakamcloud/mahakam/pkg/node"
+	"github.com/mahakamcloud/mahakam/pkg/provisioner"
 	log "github.com/sirupsen/logrus"
 )
 
 // CreateNetwork is handlers for create-network operation
 type CreateNetwork struct {
 	Handlers
+	log log.FieldLogger
 }
 
 // Handle is handler for create-network operation
 func (h *CreateNetwork) Handle(params networks.CreateNetworkParams) middleware.Responder {
-	nwf, err := newCreateNetworkWF(params.Body, h.Handlers)
+	nwf, err := newCreateNetworkWF(params.Body, h)
 	if err != nil {
 		log.Errorf("error creating network workflow %s", err)
 		return networks.NewCreateNetworkDefault(405).WithPayload(&models.Error{
@@ -27,7 +32,7 @@ func (h *CreateNetwork) Handle(params networks.CreateNetworkParams) middleware.R
 	}
 
 	// Blocking allocate cluster network,
-	// then parallel network nodes provisioning
+	// then async network nodes provisioning
 	err = nwf.Run()
 	if err != nil {
 		log.Errorf("error creating network components %s", err)
@@ -47,28 +52,100 @@ func (h *CreateNetwork) Handle(params networks.CreateNetworkParams) middleware.R
 	return networks.NewCreateNetworkCreated().WithPayload(res)
 }
 
-// TODO(giri/vijay): create network
 type createNetworkWF struct {
 	handlers       Handlers
+	log            log.FieldLogger
 	clusterNetwork *network.ClusterNetwork
+	gateway        node.Node
+	nameserver     node.Node
+	dhcp           node.Node
+
+	nodePublicKey string
 }
 
-func newCreateNetworkWF(cluster *models.Network, handlers Handlers) (*createNetworkWF, error) {
+func newCreateNetworkWF(cluster *models.Network, cHandler *CreateNetwork) (*createNetworkWF, error) {
+	clusterName := swag.StringValue(cluster.Name)
+
+	gateway := node.Node{
+		Name: fmt.Sprintf("network-%s-gw", clusterName),
+	}
+
 	return &createNetworkWF{
-		handlers: handlers,
+		handlers: cHandler.Handlers,
+		log:      cHandler.log,
+		gateway:  gateway,
 	}, nil
 }
 
 func (cn *createNetworkWF) Run() error {
-	// TODO(giri/vijay): create network components
 	n, err := cn.handlers.Network.AllocateClusterNetwork()
 	if err != nil {
-		log.Errorf("cluster network creation failed %v: %s", cn, err)
+		log.Errorf("cluster network allocation failed %v: %s", cn, err)
 		return err
 	}
-	log.Infof("cluster network has been created %v", n)
-
+	log.Infof("cluster network has been allocated %v", n)
 	cn.clusterNetwork = n
 
+	tasks, err := cn.getCreateTask()
+	if err != nil {
+		return err
+	}
+
+	for i := range tasks {
+		go func(t provisioner.Task) {
+			cn.log.Infof("running task %v", t)
+			if err := t.Run(); err != nil {
+				cn.log.Errorf("error running task %v: %s", t, err)
+			}
+		}(tasks[i])
+	}
 	return nil
+}
+
+func (cn *createNetworkWF) getCreateTask() ([]provisioner.Task, error) {
+	var tasks []provisioner.Task
+	tasks = cn.setupNetworkGateway(tasks)
+	// tasks = cn.setupNetworkNameserver(tasks)
+	// tasks = cn.setupNetworkDHCP(tasks)
+	return tasks, nil
+}
+
+func (cn *createNetworkWF) setupNetworkGateway(tasks []provisioner.Task) []provisioner.Task {
+	gwConfig := node.NodeCreateConfig{
+		Host: net.ParseIP("10.30.0.1"),
+		Role: node.RoleNetworkGateway,
+		Node: node.Node{
+			Name:         cn.gateway.Name,
+			SSHPublicKey: cn.nodePublicKey,
+			NetworkConfig: node.NetworkConfig{
+				MacAddress: network.GenerateMacAddress(),
+				IP:         cn.clusterNetwork.Gateway,
+				Mask:       cn.clusterNetwork.ClusterNetworkCIDR.Mask,
+			},
+			ExtraNetworks: []node.NetworkConfig{
+				node.NetworkConfig{
+					MacAddress: network.GenerateMacAddress(),
+					// TODO(giri): pass proper public IP from config.yaml
+					IP:         net.ParseIP("1.2.3.4"),
+					Mask:       net.CIDRMask(28, 32),
+					Gateway:    net.ParseIP("5.6.7.8"),
+					Nameserver: net.ParseIP("8.8.8.8"),
+				},
+			},
+		},
+	}
+
+	createGatewayNode := provisioner.NewCreateNode(gwConfig, cn.handlers.Provisioner, cn.log)
+
+	tasks = append(tasks, createGatewayNode)
+
+	return tasks
+}
+
+func (cn *createNetworkWF) setupNetworkNameserver(tasks []provisioner.Task) []provisioner.Task {
+	return tasks
+}
+
+func (cn *createNetworkWF) setupNetworkDHCP(tasks []provisioner.Task) []provisioner.Task {
+	return tasks
 }

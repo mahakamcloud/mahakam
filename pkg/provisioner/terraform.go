@@ -23,6 +23,9 @@ const (
 	TerraformGateway           = "Gateway"
 	TerraformDNSAddress        = "DNSAddress"
 	TerraformDNSDomainName     = "DNSDomainName"
+	TerraformPublicIPAddress   = "PublicIPAddress"
+	TerraformPublicNetmask     = "PublicNetmask"
+	TerraformNetworkCIDR       = "NetworkCIDR"
 	TerraformControlPlaneIP    = "ControlPlaneIP"
 	TerraformPodNetworkCidr    = "PodNetworkCidr"
 	TerraformKubeadmToken      = "KubeadmToken"
@@ -41,7 +44,7 @@ func NewTerraformProvisioner(config config.TerraformConfig) Provisioner {
 
 func (tp *terraformProvisioner) CreateNode(nconfig node.NodeCreateConfig) error {
 	data := tp.getTerraformData(nconfig)
-	log.Infof("terraform raw data: %v\n", nconfig)
+	log.Infof("terraform raw data to render files: %v\n", nconfig)
 	log.Infof("terraform data to render files: %v\n", data)
 
 	var err error
@@ -54,6 +57,11 @@ func (tp *terraformProvisioner) CreateNode(nconfig node.NodeCreateConfig) error 
 		err = tfmodule.CreateNetworkDNS(nconfig.Name, config.TerraformDefaultDirectory+nconfig.Name, data)
 	case node.RoleNetworkDHCP:
 		err = tfmodule.CreateNetworkDHCP(nconfig.Name, config.TerraformDefaultDirectory+nconfig.Name, data)
+	case node.RoleNetworkGW:
+		data = tp.overrideNetworkGWData(nconfig, data)
+		log.Infof("terraform data for network gateway to render files: %v\n", data)
+
+		err = tfmodule.CreateNetworkGWNode(nconfig.Name, config.TerraformDefaultDirectory+nconfig.Name, data)
 	default:
 		err = tfmodule.CreateNode(nconfig.Name, config.TerraformDefaultDirectory+nconfig.Name, data)
 	}
@@ -85,4 +93,29 @@ func (tp *terraformProvisioner) getTerraformData(nconfig node.NodeCreateConfig) 
 		TerraformKubeadmToken:      nconfig.ExtraConfig[config.KeyKubeadmToken],
 	}
 	return data
+}
+
+func (tp *terraformProvisioner) overrideNetworkGWData(nconfig node.NodeCreateConfig, data map[string]string) map[string]string {
+	if len(nconfig.ExtraNetworks) == 0 {
+		return data
+	}
+
+	data[TerraformPublicIPAddress] = nconfig.ExtraNetworks[0].IP.String()
+	data[TerraformPublicNetmask] = utils.IPv4MaskString(nconfig.ExtraNetworks[0].Mask)
+	data[TerraformGateway] = nconfig.ExtraNetworks[0].Gateway.String()
+	data[TerraformDNSAddress] = nconfig.ExtraNetworks[0].Nameserver.String()
+	data[TerraformNetworkCIDR] = nconfig.ExtraConfig[config.KeyClusterNetworkCidr]
+	data[TerraformLibvirtModulePath] = tp.config.PublicLibvirtModulePath
+
+	return data
+}
+
+func (tp *terraformProvisioner) mergeTerraformData(tfData ...map[string]string) map[string]string {
+	var mergedData map[string]string
+	for _, data := range tfData {
+		for k, v := range data {
+			mergedData[k] = v
+		}
+	}
+	return mergedData
 }

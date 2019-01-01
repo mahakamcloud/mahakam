@@ -15,4 +15,5 @@ gate:
   gate_nss_api_key: "<TODO: pass nss api key here if gate enabled>"
 terraform:
   libvirt_module_path: "git::https://github.com/mahakamcloud/terraform-libvirt-vm-single?ref=v0.1.1"
+  public_libvirt_module_path: "git::https://github.com/mahakamcloud/terraform-libvirt-vm-double?ref=v0.1.0"
   image_source_path: "https://cloud-images.ubuntu.com/xenial/20181223/xenial-server-cloudimg-amd64-disk1.img"

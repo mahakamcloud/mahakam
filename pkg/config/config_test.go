@@ -30,6 +30,11 @@ var (
 			KubeadmToken:   "fake-kubeadm-token",
 			SSHPublicKey:   "fake-ssh-public-key",
 		},
+		TerraformConfig: TerraformConfig{
+			LibvirtModulePath:       "fake-libvirt-module-path",
+			PublicLibvirtModulePath: "fake-public-libvirt-module-path",
+			ImageSourcePath:         "fake-image-source-path",
+		},
 		GateConfig: GateConfig{
 			GateNSSApiKey: "fake-gate-nss-api-key",
 		},

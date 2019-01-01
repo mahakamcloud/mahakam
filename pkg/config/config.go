@@ -50,6 +50,10 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("Error validating network configuration: %s", err)
 	}
 
+	if err := c.TerraformConfig.Validate(); err != nil {
+		return fmt.Errorf("Error validating terraform configuration: %s", err)
+	}
+
 	if err := c.GateConfig.Validate(); err != nil {
 		return fmt.Errorf("Error validating gate configuration: %s", err)
 	}
@@ -143,13 +147,17 @@ func (gc *GateConfig) Validate() error {
 }
 
 type TerraformConfig struct {
-	LibvirtModulePath string `yaml:"libvirt_module_path"`
-	ImageSourcePath   string `yaml:"image_source_path"`
+	LibvirtModulePath       string `yaml:"libvirt_module_path"`
+	PublicLibvirtModulePath string `yaml:"public_libvirt_module_path"`
+	ImageSourcePath         string `yaml:"image_source_path"`
 }
 
 func (tc *TerraformConfig) Validate() error {
 	if tc.LibvirtModulePath == "" {
 		return fmt.Errorf("Must provide non-empty libvirt module path")
+	}
+	if tc.PublicLibvirtModulePath == "" {
+		return fmt.Errorf("Must provide non-empty public libvirt module path")
 	}
 	if tc.ImageSourcePath == "" {
 		return fmt.Errorf("Must provide non-empty image source path")

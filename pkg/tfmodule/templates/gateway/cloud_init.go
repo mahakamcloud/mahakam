@@ -1,16 +1,16 @@
 package gateway
 
 var CloudInit = `#cloud-config
-password: passw0rd
+password: ${password}
 chpasswd: { expire: False }
 ssh_pwauth: True
 hostname: ${hostname}
 fqdn: ${hostname}.${dns_zone_name}
 ssh_authorized_keys:
-  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDQ8XgUZjVD3GzBFEYlsoxwc5DGFalySo4Lect+KtXhXtfvJiSiGvjAF6gPJrlGQ0s4zmgATYGHXJppIxz33HE4g3w8GBzEr5K3SnyRRl7UwdZP8WSzJFCbuzN31mBDNFHLziRLzEACfNLX40ZMok7aZ26s8nmh2W/rV7tgyJNn01BJEvaTZ/L+PRgdlqCS4uCiNhDxAI+IW3HnCIeNI1gMn4YJq9KgtKm25A2Zj7aXcHSVgvanDOSKMmZIYtvPrinyqM4FevhhI9c/f9v8zmSqUwsBihr0wdPVhPeDZe5z5LLe4y9d6kDm/rJgY9dCCiiuHxmmyi1LMVj+xlRr7fJP vjdhama@Vijays-MacBook-Pro.local
+  - ${ssh_public_key}
 
 resolv_conf:
-  nameservers: [${dns_server}]
+  nameservers: [${dns_address}]
   searchdomains:
     - ${dns_zone_name}
 
@@ -27,7 +27,6 @@ write_files:
     content: |
       cat <<EOF >/etc/network/interfaces
       auto lo
-
       iface lo inet loopback
 
       auto ens4
@@ -35,12 +34,12 @@ write_files:
         address ${public_ip_address}
         netmask ${public_netmask}
         gateway ${public_gateway_ip}
+        dns-nameservers ${dns_address}
 
       auto ens3
       iface ens3 inet static
         address ${ip_address}
         netmask ${netmask}
-        dns-nameservers ${dns_server}
       EOF
 
       ifdown ens3 && ifup ens3
@@ -89,7 +88,7 @@ write_files:
       iptables -t nat -A POSTROUTING -s ${network_cidr} ! -d ${network_cidr} -j MASQUERADE
 
 runcmd:
-  - echo "Configuring DNS VM"
+  - echo "Configuring Gateway VM"
   - bash -ex /opt/cloud-init/setup-network.sh
   - bash -ex /opt/cloud-init/setup-iptables.sh
 
