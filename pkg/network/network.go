@@ -87,7 +87,7 @@ func (nm *NetworkManager) getReservedSubnets() ([]net.IPNet, error) {
 	}
 
 	for _, key := range keys {
-		reservedSubnets = append(reservedSubnets, nm.parseSubnetCIDR(key))
+		reservedSubnets = append(reservedSubnets, ParseSubnetCIDR(key))
 	}
 
 	return reservedSubnets, nil
@@ -125,7 +125,7 @@ func (nm *NetworkManager) reverseIPPools(ipPools []string) {
 	}
 }
 
-func (nm *NetworkManager) parseSubnetCIDR(key string) net.IPNet {
+func ParseSubnetCIDR(key string) net.IPNet {
 	cidrKeys := strings.Split(key, "/")
 	cidr := strings.Replace(cidrKeys[len(cidrKeys)-1], "-", "/", -1)
 	_, ipnet, _ := net.ParseCIDR(cidr)

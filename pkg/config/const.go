@@ -49,4 +49,8 @@ const (
 	KeyPodNetworkCidr     = "key-pod-network-cidr"
 	KeyKubeadmToken       = "key-kubeadm-token"
 	KeyClusterNetworkCidr = "key-cluster-network-cidr"
+
+	// Enum for ip pool service
+	IPPoolActionAllocate = "ALLOCATE"
+	IPPoolActionRelease  = "RELEASE"
 )
