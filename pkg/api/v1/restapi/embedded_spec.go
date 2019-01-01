@@ -361,6 +361,9 @@ func init() {
         "name"
       ],
       "properties": {
+        "dhcp": {
+          "type": "string"
+        },
         "gateway": {
           "type": "string"
         },
@@ -729,6 +732,9 @@ func init() {
         "name"
       ],
       "properties": {
+        "dhcp": {
+          "type": "string"
+        },
         "gateway": {
           "type": "string"
         },

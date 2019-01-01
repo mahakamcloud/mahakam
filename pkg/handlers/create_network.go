@@ -114,8 +114,8 @@ func (cn *createNetworkWF) Run() error {
 func (cn *createNetworkWF) getCreateTask() ([]provisioner.Task, error) {
 	var tasks []provisioner.Task
 	tasks = cn.setupNetworkGateway(tasks)
-	// tasks = cn.setupNetworkNameserver(tasks)
-	// tasks = cn.setupNetworkDHCP(tasks)
+	tasks = cn.setupNetworkNameserver(tasks)
+	tasks = cn.setupNetworkDHCP(tasks)
 	return tasks, nil
 }
 
@@ -133,11 +133,11 @@ func (cn *createNetworkWF) setupNetworkGateway(tasks []provisioner.Task) []provi
 			},
 			ExtraNetworks: []node.NetworkConfig{
 				node.NetworkConfig{
-					// TODO(giri): pass proper public IP from config.yaml
-					// IP:         net.ParseIP("1.2.3.4"),
-					// Mask:       net.CIDRMask(28, 32),
-					// Gateway:    net.ParseIP("1.2.3.1"),
-					// Nameserver: net.ParseIP("8.8.8.8"),
+				// TODO(giri): pass proper public IP from config.yaml
+				// IP:         net.ParseIP("1.2.3.4"),
+				// Mask:       net.CIDRMask(28, 32),
+				// Gateway:    net.ParseIP("1.2.3.1"),
+				// Nameserver: net.ParseIP("8.8.8.8"),
 				},
 			},
 		},
@@ -153,10 +153,40 @@ func (cn *createNetworkWF) setupNetworkGateway(tasks []provisioner.Task) []provi
 	return tasks
 }
 
-func (cn *createNetworkWF) setupNetworkNameserver(tasks []provisioner.Task) []provisioner.Task {
+func (cn *createNetworkWF) setupNetworkDHCP(tasks []provisioner.Task) []provisioner.Task {
+	gwConfig := node.NodeCreateConfig{
+		Host: net.ParseIP("10.30.0.1"),
+		Role: node.RoleNetworkDHCP,
+		Node: node.Node{
+			Name:         cn.dhcp.Name,
+			SSHPublicKey: cn.nodePublicKey,
+			NetworkConfig: node.NetworkConfig{
+				MacAddress: network.GenerateMacAddress(),
+				IP:         cn.clusterNetwork.Gateway,
+				Mask:       cn.clusterNetwork.ClusterNetworkCIDR.Mask,
+			},
+			ExtraNetworks: []node.NetworkConfig{
+				node.NetworkConfig{
+				// TODO(giri): pass proper public IP from config.yaml
+				// IP:         net.ParseIP("1.2.3.4"),
+				// Mask:       net.CIDRMask(28, 32),
+				// Gateway:    net.ParseIP("1.2.3.1"),
+				// Nameserver: net.ParseIP("8.8.8.8"),
+				},
+			},
+		},
+		ExtraConfig: map[string]string{
+			config.KeyClusterNetworkCidr: cn.clusterNetwork.ClusterNetworkCIDR.String(),
+		},
+	}
+
+	createDHCPNode := provisioner.NewCreateNode(gwConfig, cn.handlers.Provisioner, cn.log)
+
+	tasks = append(tasks, createDHCPNode)
+
 	return tasks
 }
 
-func (cn *createNetworkWF) setupNetworkDHCP(tasks []provisioner.Task) []provisioner.Task {
+func (cn *createNetworkWF) setupNetworkNameserver(tasks []provisioner.Task) []provisioner.Task {
 	return tasks
 }

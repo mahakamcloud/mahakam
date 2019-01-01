@@ -69,10 +69,6 @@ func (nm *NetworkManager) AllocateClusterNetwork() (*ClusterNetwork, error) {
 	return cn, nil
 }
 
-func (nm *NetworkManager) CreateDNS() error {
-	return nil
-}
-
 // TODO(giri): Implement release network
 func (nm *NetworkManager) ReleaseClusterNetwork() error {
 	return nil

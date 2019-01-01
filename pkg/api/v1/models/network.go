@@ -17,6 +17,9 @@ import (
 // swagger:model network
 type Network struct {
 
+	// dhcp
+	Dhcp string `json:"dhcp,omitempty"`
+
 	// gateway
 	Gateway string `json:"gateway,omitempty"`
 

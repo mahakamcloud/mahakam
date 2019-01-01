@@ -207,6 +207,8 @@ definitions:
         type: string
       nameserver:
         type: string
+      dhcp:
+        type: string
   app:
     type: object
     required:
