@@ -42,6 +42,27 @@ func (h *AllocateOrReleaseFromIPPool) Handle(params networks.AllocateOrReleaseFr
 			AllocatedIP: allocatedIP,
 		})
 	}
+
+	if swag.StringValue(params.Action) == config.IPPoolActionRelease {
+		releasedIP := swag.StringValue(params.ReleasedIP)
+
+		if releasedIP == "" {
+			return networks.NewAllocateOrReleaseFromIPPoolDefault(405).WithPayload(&models.Error{
+				Code:    405,
+				Message: fmt.Sprintf("must provide non-empty releasedIP for release action"),
+			})
+		}
+
+		err := h.releaseIP(releasedIP)
+		if err != nil {
+			return networks.NewAllocateOrReleaseFromIPPoolDefault(405).WithPayload(&models.Error{
+				Code:    405,
+				Message: fmt.Sprintf("error releaseing ip %s from ip pool: %s", releasedIP, err),
+			})
+		}
+
+		return networks.NewAllocateOrReleaseFromIPPoolCreated()
+	}
 	return networks.NewAllocateOrReleaseFromIPPoolDefault(405)
 }
 
@@ -74,6 +95,37 @@ func (h *AllocateOrReleaseFromIPPool) allocateIP() (string, error) {
 	}
 
 	return allocatedIP, nil
+}
+
+func (h *AllocateOrReleaseFromIPPool) releaseIP(releasedIP string) error {
+	// TODO(giri): replace first IP pool with the one from IP pool ID
+	ipPoolPath, err := h.getFirstIPPool()
+	if err != nil {
+		log.Errorf("error retrieving ip pool: %s", err)
+		return err
+	}
+
+	p := r.NewResourceNetwork(network.ParseSubnetCIDR(ipPoolPath))
+	err = h.Handlers.Store.GetFromPath(ipPoolPath, p)
+	if err != nil {
+		return fmt.Errorf("Error getting ip pool resource from kvstore %s: %s", ipPoolPath, err)
+	}
+
+	ipPools := p.AllocatedIPPools
+	for i, ip := range ipPools {
+		if ip == releasedIP {
+			ipPools = append(ipPools[:i], ipPools[i+1:]...)
+			p.AllocatedIPPools = ipPools
+			p.AvailableIPPools = append(p.AvailableIPPools, releasedIP)
+
+			_, err = h.Handlers.Store.UpdateFromPath(ipPoolPath, p)
+			if err != nil {
+				return fmt.Errorf("Error updating ip pool resource into kvstore '%v': %s", p, err)
+			}
+			return nil
+		}
+	}
+	return fmt.Errorf("Error releasing IP: %s not found in ip pool %v", releasedIP, p)
 }
 
 func (h *AllocateOrReleaseFromIPPool) getFirstIPPool() (string, error) {
