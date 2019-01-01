@@ -1,5 +1,6 @@
 package dns
 
+// CloudInit stores cloud-init template
 var CloudInit = `#cloud-config
 password: ${password}
 chpasswd: { expire: False }
@@ -60,7 +61,8 @@ write_files:
   - path: /opt/cloud-init/setup-consul-docker.sh
     permissions: 0644
     content: |
-      docker run -d --name=dev-consul -e CONSUL_BIND_INTERFACE=ens3 -p 8500:8500 -p 8600:8600 consul
+      mkdir /consul/data
+      docker run -d --name=dev-consul -e CONSUL_BIND_INTERFACE=ens3 -v /consul/data:/consul/data -p 8500:8500 -p 8600:8600 consul
 
   - path: /opt/cloud-init/setup-bind-zone-dir.sh
     permissions: 0644
@@ -252,7 +254,7 @@ write_files:
       echo "Completed consul template setup"
 
 bootcmd:
-  - echo 127.0.1.1 ${hostname} >> /etc/hosts
+  - echo "127.0.1.1 ${hostname}" >> /etc/hosts
 
 runcmd:
   - echo "Configuring DNS VM"

@@ -1,4 +1,4 @@
-package dns
+package dhcp
 
 // Data specfies template of terraform data for dns
 var Data = `data "template_file" "user_data" {
@@ -9,11 +9,13 @@ var Data = `data "template_file" "user_data" {
         password                 = "${var.password}"
         ssh_public_key           = "${var.ssh_public_key}"
         ip_address               = "${var.ip_address}"
-        mac_address              = "${var.mac_address}"
         netmask                  = "${var.netmask}"
-        gateway_ip               = "${var.gateway_ip}"
-        dns_forwarder            = "${var.dns_forwarder}"
+        gateway                  = "${var.gateway}"
+        dns_address              = "${var.dns_address}"
         dns_zone_name            = "${var.dns_zone_name}"
         network_cidr             = "${var.network_cidr}"
+        broadcast_address        = "${var.broadcast_address}"
+        subnet_mask              = "${var.subnet_mask}"
+        subnet_address           = "${var.subnet_address}"
     }
 }`
