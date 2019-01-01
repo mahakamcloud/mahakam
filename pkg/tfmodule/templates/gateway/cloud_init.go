@@ -14,13 +14,6 @@ resolv_conf:
   searchdomains:
     - ${dns_zone_name}
 
-package_upgrade: true
-
-packages:
-  - curl
-  - apt-transport-https
-  - ca-certificates
-
 write_files:
   - path: /opt/cloud-init/setup-network.sh
     permissions: 0644
