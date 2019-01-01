@@ -1,10 +1,11 @@
 package dns
 
+// Vars specifies the terraform variables template
 var Vars = `variable "hostname" {
     type = "string"
 }
 
-variable "host" {
+variable "libvirt_host" {
     type = "string"
 }
 
@@ -33,11 +34,11 @@ variable "netmask" {
     type = "string"
 }
 
-variable "gateway" {
+variable "gateway_ip" {
     type = "string"
 }
 
-variable "dns_address" {
+variable "dns_forwarder" {
     type = "string"
 }
 

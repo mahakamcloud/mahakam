@@ -4,6 +4,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates"
 	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates/basic"
 	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates/controlplane"
+	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates/dns"
 	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates/worker"
 )
 
@@ -48,6 +49,29 @@ func CreateControlPlaneNode(name, destdir string, data map[string]string) error 
 
 	cpNode.GenerateProvisionerFiles(data)
 	err := cpNode.ExecuteProvisioner()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// CreateDNSNode creates VM with DNS server configuration through terraform
+func CreateDNSNode(name, destdir string, data map[string]string) error {
+	dnsNode := &TerraformProvisioner{
+		Name:    name,
+		DestDir: destdir,
+		Files: []TerraformFile{
+			TerraformFile{"backend", templates.Backend, destdir, "backend.tf"},
+			TerraformFile{"data", dns.Data, destdir, "data.tf"},
+			TerraformFile{"main", templates.MainFile, destdir, "main.tf"},
+			TerraformFile{"tfvars", controlplane.TFVars, destdir, "terraform.tfvars"},
+			TerraformFile{"vars", controlplane.Vars, destdir, "vars.tf"},
+			TerraformFile{"cloudinit", controlplane.CloudInit, destdir + "/templates/", "user_data.tpl"},
+		},
+	}
+
+	dnsNode.GenerateProvisionerFiles(data)
+	err := dnsNode.ExecuteProvisioner()
 	if err != nil {
 		return err
 	}

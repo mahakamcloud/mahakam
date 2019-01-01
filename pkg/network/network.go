@@ -69,6 +69,10 @@ func (nm *NetworkManager) AllocateClusterNetwork() (*ClusterNetwork, error) {
 	return cn, nil
 }
 
+func (nm *NetworkManager) CreateDNS() error {
+	return nil
+}
+
 // TODO(giri): Implement release network
 func (nm *NetworkManager) ReleaseClusterNetwork() error {
 	return nil
@@ -99,7 +103,8 @@ func (nm *NetworkManager) allocateIPPools(cidr net.IPNet) []string {
 	// IP x.x.x.1, x.x.x.2, x.x.x.3, and x.x.x.4 are reserved
 	// for network components i.e. GW, DNS, DHCP.
 	// Start from behind to efficiently allocate/release IP.
-	ipPools := ips[4 : len(ips)-1]
+	// First 15 IP addresses are reserved for network components
+	ipPools := ips[15 : len(ips)-1]
 	nm.reverseIPPools(ipPools)
 
 	return ipPools

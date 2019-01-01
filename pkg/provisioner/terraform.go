@@ -49,6 +49,8 @@ func (tp *terraformProvisioner) CreateNode(nconfig node.NodeCreateConfig) error 
 		err = tfmodule.CreateControlPlaneNode(nconfig.Name, config.TerraformDefaultDirectory+nconfig.Name, data)
 	case node.RoleWorker:
 		err = tfmodule.CreateWorkerNode(nconfig.Name, config.TerraformDefaultDirectory+nconfig.Name, data)
+	case node.RoleNetworkDNS:
+		err = tfmodule.CreateDNSNode(nconfig.Name, config.TerraformDefaultDirectory+nconfig.Name, data)
 	default:
 		err = tfmodule.CreateNode(nconfig.Name, config.TerraformDefaultDirectory+nconfig.Name, data)
 	}

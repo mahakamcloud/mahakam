@@ -6,8 +6,16 @@ import "net"
 type Role string
 
 const (
+	// RoleControlPlane defines a k8s control plane node
 	RoleControlPlane Role = "control-plane"
-	RoleWorker       Role = "worker"
+	// RoleWorker defines a k8s worker node
+	RoleWorker Role = "worker"
+	// RoleNetworkDNS defines a dns node in a network
+	RoleNetworkDNS Role = "dns"
+	// RoleNetworkDHCP defines a dhcp node in a network
+	RoleNetworkDHCP Role = "dhcp"
+	// RoleNetworkGW defines a gateway node in a network
+	RoleNetworkGW Role = "gw"
 )
 
 // Node represents VM node metadata
