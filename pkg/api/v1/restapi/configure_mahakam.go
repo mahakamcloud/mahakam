@@ -73,6 +73,8 @@ func configureAPI(api *operations.MahakamAPI) http.Handler {
 
 	api.NetworksCreateIPPoolHandler = handlers.NewCreateIPPoolHandler(*h)
 
+	api.NetworksAllocateOrReleaseFromIPPoolHandler = handlers.NewAllocateOrReleaseFromIPPool(*h)
+
 	api.AppsCreateAppHandler = &handlers.CreateApp{Handlers: *h}
 
 	api.AppsGetAppsHandler = apps.GetAppsHandlerFunc(func(params apps.GetAppsParams) middleware.Responder {

@@ -191,7 +191,7 @@ paths:
         - name: poolId
           in: path
           type: string
-        - name: ipAddressToBeReleased
+        - name: allocatedIP
           in: body
           type: string
         - name: action

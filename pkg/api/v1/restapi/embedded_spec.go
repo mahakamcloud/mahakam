@@ -320,7 +320,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "ipAddressToBeReleased",
+            "name": "allocatedIP",
             "in": "body"
           },
           {
@@ -802,7 +802,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "ipAddressToBeReleased",
+            "name": "allocatedIP",
             "in": "body"
           },
           {

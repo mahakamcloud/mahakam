@@ -39,7 +39,7 @@ type AllocateOrReleaseFromIPPoolParams struct {
 	/*
 	  In: body
 	*/
-	IPAddressToBeReleased interface{}
+	AllocatedIP interface{}
 	/*
 	  In: path
 	*/
@@ -66,10 +66,10 @@ func (o *AllocateOrReleaseFromIPPoolParams) BindRequest(r *http.Request, route *
 		defer r.Body.Close()
 		var body interface{}
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
-			res = append(res, errors.NewParseError("ipAddressToBeReleased", "body", "", err))
+			res = append(res, errors.NewParseError("allocatedIp", "body", "", err))
 		} else {
 			// no validation on generic interface
-			o.IPAddressToBeReleased = body
+			o.AllocatedIP = body
 		}
 	}
 	rPoolID, rhkPoolID, _ := route.Params.GetOK("poolId")

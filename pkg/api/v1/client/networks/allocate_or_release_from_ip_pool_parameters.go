@@ -63,8 +63,8 @@ type AllocateOrReleaseFromIPPoolParams struct {
 
 	/*Action*/
 	Action *string
-	/*IPAddressToBeReleased*/
-	IPAddressToBeReleased interface{}
+	/*AllocatedIP*/
+	AllocatedIP interface{}
 	/*PoolID*/
 	PoolID *string
 
@@ -117,15 +117,15 @@ func (o *AllocateOrReleaseFromIPPoolParams) SetAction(action *string) {
 	o.Action = action
 }
 
-// WithIPAddressToBeReleased adds the iPAddressToBeReleased to the allocate or release from Ip pool params
-func (o *AllocateOrReleaseFromIPPoolParams) WithIPAddressToBeReleased(iPAddressToBeReleased interface{}) *AllocateOrReleaseFromIPPoolParams {
-	o.SetIPAddressToBeReleased(iPAddressToBeReleased)
+// WithAllocatedIP adds the allocatedIP to the allocate or release from Ip pool params
+func (o *AllocateOrReleaseFromIPPoolParams) WithAllocatedIP(allocatedIP interface{}) *AllocateOrReleaseFromIPPoolParams {
+	o.SetAllocatedIP(allocatedIP)
 	return o
 }
 
-// SetIPAddressToBeReleased adds the ipAddressToBeReleased to the allocate or release from Ip pool params
-func (o *AllocateOrReleaseFromIPPoolParams) SetIPAddressToBeReleased(iPAddressToBeReleased interface{}) {
-	o.IPAddressToBeReleased = iPAddressToBeReleased
+// SetAllocatedIP adds the allocatedIp to the allocate or release from Ip pool params
+func (o *AllocateOrReleaseFromIPPoolParams) SetAllocatedIP(allocatedIP interface{}) {
+	o.AllocatedIP = allocatedIP
 }
 
 // WithPoolID adds the poolID to the allocate or release from Ip pool params
@@ -163,8 +163,8 @@ func (o *AllocateOrReleaseFromIPPoolParams) WriteToRequest(r runtime.ClientReque
 
 	}
 
-	if o.IPAddressToBeReleased != nil {
-		if err := r.SetBodyParam(o.IPAddressToBeReleased); err != nil {
+	if o.AllocatedIP != nil {
+		if err := r.SetBodyParam(o.AllocatedIP); err != nil {
 			return err
 		}
 	}
