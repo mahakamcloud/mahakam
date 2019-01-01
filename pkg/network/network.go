@@ -11,6 +11,10 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/utils"
 )
 
+const (
+	ClusterNetworkReservedIPLen = 15
+)
+
 type NetworkManager struct {
 	store store.ResourceStore
 	net   config.NetworkConfig
@@ -58,7 +62,7 @@ func (nm *NetworkManager) AllocateClusterNetwork() (*ClusterNetwork, error) {
 	}
 
 	n := r.NewResourceNetwork(clusterNetworkCIDR)
-	n.AvailableIPPools = nm.allocateIPPools(clusterNetworkCIDR)
+	n.AvailableIPPools = nm.AllocateIPPools(clusterNetworkCIDR, ClusterNetworkReservedIPLen)
 
 	_, err = nm.store.AddFromPath(config.KeyPathNetworkSubnet+n.Name, n)
 	if err != nil {
@@ -89,7 +93,7 @@ func (nm *NetworkManager) getReservedSubnets() ([]net.IPNet, error) {
 	return reservedSubnets, nil
 }
 
-func (nm *NetworkManager) allocateIPPools(cidr net.IPNet) []string {
+func (nm *NetworkManager) AllocateIPPools(cidr net.IPNet, reservedIPLen int) []string {
 	var ips []string
 	for ip := cidr.IP.Mask(cidr.Mask); cidr.Contains(ip); nm.nextIP(ip) {
 		ips = append(ips, ip.String())
@@ -100,7 +104,7 @@ func (nm *NetworkManager) allocateIPPools(cidr net.IPNet) []string {
 	// for network components i.e. GW, DNS, DHCP.
 	// Start from behind to efficiently allocate/release IP.
 	// First 15 IP addresses are reserved for network components
-	ipPools := ips[15 : len(ips)-1]
+	ipPools := ips[reservedIPLen : len(ips)-1]
 	nm.reverseIPPools(ipPools)
 
 	return ipPools

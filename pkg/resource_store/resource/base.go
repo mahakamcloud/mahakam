@@ -24,6 +24,7 @@ const (
 	KindTerraformBackend ResourceKind = "terraform backend"
 	KindTask             ResourceKind = "task"
 	KindNetwork          ResourceKind = "network"
+	KindIPPool           ResourceKind = "ippool"
 )
 
 // Resource is interface for all stored resources or objects
