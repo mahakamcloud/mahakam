@@ -55,8 +55,8 @@ func CreateControlPlaneNode(name, destdir string, data map[string]string) error 
 	return nil
 }
 
-// CreateDNSNode creates VM with DNS server configuration through terraform
-func CreateDNSNode(name, destdir string, data map[string]string) error {
+// CreateNetworkDNS creates VM with DNS server configuration through terraform
+func CreateNetworkDNS(name, destdir string, data map[string]string) error {
 	dnsNode := &TerraformProvisioner{
 		Name:    name,
 		DestDir: destdir,
