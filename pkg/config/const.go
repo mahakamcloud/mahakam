@@ -44,7 +44,8 @@ const (
 	KubernetesNodePingDelay       = 60 * time.Second
 
 	// Various keys for storing metadata in map
-	KeyControlPlaneIP = "key-control-plane-ip"
-	KeyPodNetworkCidr = "key-pod-network-cidr"
-	KeyKubeadmToken   = "key-kubeadm-token"
+	KeyControlPlaneIP     = "key-control-plane-ip"
+	KeyPodNetworkCidr     = "key-pod-network-cidr"
+	KeyKubeadmToken       = "key-kubeadm-token"
+	KeyClusterNetworkCidr = "key-cluster-network-cidr"
 )

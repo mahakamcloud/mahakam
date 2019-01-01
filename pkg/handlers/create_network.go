@@ -8,6 +8,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/networks"
+	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/mahakamcloud/mahakam/pkg/network"
 	"github.com/mahakamcloud/mahakam/pkg/node"
 	"github.com/mahakamcloud/mahakam/pkg/provisioner"
@@ -18,6 +19,14 @@ import (
 type CreateNetwork struct {
 	Handlers
 	log log.FieldLogger
+}
+
+func NewCreateNetworkHandler(handlers Handlers) *CreateNetwork {
+	log := log.WithField("create", "network")
+	return &CreateNetwork{
+		Handlers: handlers,
+		log:      log,
+	}
 }
 
 // Handle is handler for create-network operation
@@ -67,7 +76,7 @@ func newCreateNetworkWF(cluster *models.Network, cHandler *CreateNetwork) (*crea
 	clusterName := swag.StringValue(cluster.Name)
 
 	gateway := node.Node{
-		Name: fmt.Sprintf("network-%s-gw", clusterName),
+		Name: fmt.Sprintf("%s-network-gw", clusterName),
 	}
 
 	return &createNetworkWF{
@@ -113,7 +122,7 @@ func (cn *createNetworkWF) getCreateTask() ([]provisioner.Task, error) {
 func (cn *createNetworkWF) setupNetworkGateway(tasks []provisioner.Task) []provisioner.Task {
 	gwConfig := node.NodeCreateConfig{
 		Host: net.ParseIP("10.30.0.1"),
-		Role: node.RoleNetworkGateway,
+		Role: node.RoleNetworkGW,
 		Node: node.Node{
 			Name:         cn.gateway.Name,
 			SSHPublicKey: cn.nodePublicKey,
@@ -124,14 +133,16 @@ func (cn *createNetworkWF) setupNetworkGateway(tasks []provisioner.Task) []provi
 			},
 			ExtraNetworks: []node.NetworkConfig{
 				node.NetworkConfig{
-					MacAddress: network.GenerateMacAddress(),
 					// TODO(giri): pass proper public IP from config.yaml
-					IP:         net.ParseIP("1.2.3.4"),
-					Mask:       net.CIDRMask(28, 32),
-					Gateway:    net.ParseIP("5.6.7.8"),
-					Nameserver: net.ParseIP("8.8.8.8"),
+					// IP:         net.ParseIP("1.2.3.4"),
+					// Mask:       net.CIDRMask(28, 32),
+					// Gateway:    net.ParseIP("1.2.3.1"),
+					// Nameserver: net.ParseIP("8.8.8.8"),
 				},
 			},
+		},
+		ExtraConfig: map[string]string{
+			config.KeyClusterNetworkCidr: cn.clusterNetwork.ClusterNetworkCIDR.String(),
 		},
 	}
 
