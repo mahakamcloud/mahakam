@@ -38,7 +38,7 @@ variable "gateway_ip" {
     type = "string"
 }
 
-variable "dns_forwarder" {
+variable "upstream_dns" {
     type = "string"
 }
 

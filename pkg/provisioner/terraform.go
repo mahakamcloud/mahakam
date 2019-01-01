@@ -32,6 +32,7 @@ type terraformProvisioner struct {
 	config config.TerraformConfig
 }
 
+// NewTerraformProvisioner returns a terraform provisioner based on passed config
 func NewTerraformProvisioner(config config.TerraformConfig) Provisioner {
 	return &terraformProvisioner{
 		config: config,
@@ -51,6 +52,8 @@ func (tp *terraformProvisioner) CreateNode(nconfig node.NodeCreateConfig) error 
 		err = tfmodule.CreateWorkerNode(nconfig.Name, config.TerraformDefaultDirectory+nconfig.Name, data)
 	case node.RoleNetworkDNS:
 		err = tfmodule.CreateNetworkDNS(nconfig.Name, config.TerraformDefaultDirectory+nconfig.Name, data)
+	case node.RoleNetworkDHCP:
+		err = tfmodule.CreateNetworkDHCP(nconfig.Name, config.TerraformDefaultDirectory+nconfig.Name, data)
 	default:
 		err = tfmodule.CreateNode(nconfig.Name, config.TerraformDefaultDirectory+nconfig.Name, data)
 	}

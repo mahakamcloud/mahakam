@@ -4,6 +4,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates"
 	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates/basic"
 	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates/controlplane"
+	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates/dhcp"
 	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates/dns"
 	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates/worker"
 )
@@ -64,14 +65,37 @@ func CreateNetworkDNS(name, destdir string, data map[string]string) error {
 			TerraformFile{"backend", templates.Backend, destdir, "backend.tf"},
 			TerraformFile{"data", dns.Data, destdir, "data.tf"},
 			TerraformFile{"main", templates.MainFile, destdir, "main.tf"},
-			TerraformFile{"tfvars", controlplane.TFVars, destdir, "terraform.tfvars"},
-			TerraformFile{"vars", controlplane.Vars, destdir, "vars.tf"},
-			TerraformFile{"cloudinit", controlplane.CloudInit, destdir + "/templates/", "user_data.tpl"},
+			TerraformFile{"tfvars", dns.TFVars, destdir, "terraform.tfvars"},
+			TerraformFile{"vars", dns.Vars, destdir, "vars.tf"},
+			TerraformFile{"cloudinit", dns.CloudInit, destdir + "/templates/", "user_data.tpl"},
 		},
 	}
 
 	dnsNode.GenerateProvisionerFiles(data)
 	err := dnsNode.ExecuteProvisioner()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// CreateNetworkDHCP creates VM with DNS server configuration through terraform
+func CreateNetworkDHCP(name, destdir string, data map[string]string) error {
+	dhcpNode := &TerraformProvisioner{
+		Name:    name,
+		DestDir: destdir,
+		Files: []TerraformFile{
+			TerraformFile{"backend", templates.Backend, destdir, "backend.tf"},
+			TerraformFile{"data", dhcp.Data, destdir, "data.tf"},
+			TerraformFile{"main", templates.MainFile, destdir, "main.tf"},
+			TerraformFile{"tfvars", dhcp.TFVars, destdir, "terraform.tfvars"},
+			TerraformFile{"vars", dhcp.Vars, destdir, "vars.tf"},
+			TerraformFile{"cloudinit", dhcp.CloudInit, destdir + "/templates/", "user_data.tpl"},
+		},
+	}
+
+	dhcpNode.GenerateProvisionerFiles(data)
+	err := dhcpNode.ExecuteProvisioner()
 	if err != nil {
 		return err
 	}
