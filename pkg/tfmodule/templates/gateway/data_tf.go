@@ -12,9 +12,9 @@ var Data = `data "template_file" "user_data" {
         netmask                  = "${var.netmask}"
         public_ip_address        = "${var.public_ip_address}"
         public_netmask           = "${var.public_netmask}"
-        gateway                  = "${var.gateway}"
+        public_gateway           = "${var.gateway}"
         dns_address              = "${var.dns_address}"
-        dns_zone_name            = "${var.dns_zone_name}"
+        dns_zone_name            = "${var.dns_domain_name}"
         network_cidr             = "${var.network_cidr}"
     }
 }`
