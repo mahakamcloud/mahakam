@@ -324,6 +324,11 @@ func init() {
             "in": "body"
           },
           {
+            "type": "string",
+            "name": "releasedIP",
+            "in": "query"
+          },
+          {
             "enum": [
               "ALLOCATE",
               "RELEASE"
@@ -804,6 +809,11 @@ func init() {
             "type": "string",
             "name": "allocatedIP",
             "in": "body"
+          },
+          {
+            "type": "string",
+            "name": "releasedIP",
+            "in": "query"
           },
           {
             "enum": [

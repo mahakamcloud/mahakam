@@ -67,6 +67,8 @@ type AllocateOrReleaseFromIPPoolParams struct {
 	AllocatedIP interface{}
 	/*PoolID*/
 	PoolID *string
+	/*ReleasedIP*/
+	ReleasedIP *string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -139,6 +141,17 @@ func (o *AllocateOrReleaseFromIPPoolParams) SetPoolID(poolID *string) {
 	o.PoolID = poolID
 }
 
+// WithReleasedIP adds the releasedIP to the allocate or release from Ip pool params
+func (o *AllocateOrReleaseFromIPPoolParams) WithReleasedIP(releasedIP *string) *AllocateOrReleaseFromIPPoolParams {
+	o.SetReleasedIP(releasedIP)
+	return o
+}
+
+// SetReleasedIP adds the releasedIp to the allocate or release from Ip pool params
+func (o *AllocateOrReleaseFromIPPoolParams) SetReleasedIP(releasedIP *string) {
+	o.ReleasedIP = releasedIP
+}
+
 // WriteToRequest writes these params to a swagger request
 func (o *AllocateOrReleaseFromIPPoolParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
@@ -174,6 +187,22 @@ func (o *AllocateOrReleaseFromIPPoolParams) WriteToRequest(r runtime.ClientReque
 		// path param poolId
 		if err := r.SetPathParam("poolId", *o.PoolID); err != nil {
 			return err
+		}
+
+	}
+
+	if o.ReleasedIP != nil {
+
+		// query param releasedIP
+		var qrReleasedIP string
+		if o.ReleasedIP != nil {
+			qrReleasedIP = *o.ReleasedIP
+		}
+		qReleasedIP := qrReleasedIP
+		if qReleasedIP != "" {
+			if err := r.SetQueryParam("releasedIP", qReleasedIP); err != nil {
+				return err
+			}
 		}
 
 	}

@@ -194,6 +194,9 @@ paths:
         - name: allocatedIP
           in: body
           type: string
+        - name: releasedIP
+          in: query
+          type: string
         - name: action
           enum:
           - ALLOCATE

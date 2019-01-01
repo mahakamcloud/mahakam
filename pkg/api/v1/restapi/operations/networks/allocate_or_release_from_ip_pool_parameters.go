@@ -44,6 +44,10 @@ type AllocateOrReleaseFromIPPoolParams struct {
 	  In: path
 	*/
 	PoolID *string
+	/*
+	  In: query
+	*/
+	ReleasedIP *string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -74,6 +78,11 @@ func (o *AllocateOrReleaseFromIPPoolParams) BindRequest(r *http.Request, route *
 	}
 	rPoolID, rhkPoolID, _ := route.Params.GetOK("poolId")
 	if err := o.bindPoolID(rPoolID, rhkPoolID, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qReleasedIP, qhkReleasedIP, _ := qs.GetOK("releasedIP")
+	if err := o.bindReleasedIP(qReleasedIP, qhkReleasedIP, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -126,6 +135,24 @@ func (o *AllocateOrReleaseFromIPPoolParams) bindPoolID(rawData []string, hasKey 
 	// Parameter is provided by construction from the route
 
 	o.PoolID = &raw
+
+	return nil
+}
+
+// bindReleasedIP binds and validates parameter ReleasedIP from query.
+func (o *AllocateOrReleaseFromIPPoolParams) bindReleasedIP(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	o.ReleasedIP = &raw
 
 	return nil
 }

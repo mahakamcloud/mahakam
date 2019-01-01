@@ -16,7 +16,8 @@ import (
 type AllocateOrReleaseFromIPPoolURL struct {
 	PoolID string
 
-	Action *string
+	Action     *string
+	ReleasedIP *string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -65,6 +66,14 @@ func (o *AllocateOrReleaseFromIPPoolURL) Build() (*url.URL, error) {
 	}
 	if action != "" {
 		qs.Set("action", action)
+	}
+
+	var releasedIP string
+	if o.ReleasedIP != nil {
+		releasedIP = *o.ReleasedIP
+	}
+	if releasedIP != "" {
+		qs.Set("releasedIP", releasedIP)
 	}
 
 	_result.RawQuery = qs.Encode()
