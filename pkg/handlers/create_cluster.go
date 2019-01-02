@@ -205,12 +205,12 @@ func (c *createClusterWF) setupWorkerSteps(tasks []task.Task) []task.Task {
 			},
 		}
 
-		checkClusterNetworkNodes := provisioner.
 		createWorkerNode := provisioner.NewCreateNode(wConfig, c.handlers.Provisioner, c.log)
 
-		seqTask := task.NewSeqTask(c.log, checkClusterNetworkNodes, createWorkerNode)
+		// TODO(giri): do precheck in sequential task
+		// seqTask := task.NewSeqTask(c.log, checkClusterNetworkNodes, createWorkerNode)
 
-		tasks = append(tasks, seqTask)
+		tasks = append(tasks, createWorkerNode)
 	}
 
 	return tasks
