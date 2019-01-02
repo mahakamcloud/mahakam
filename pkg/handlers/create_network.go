@@ -15,6 +15,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/network"
 	"github.com/mahakamcloud/mahakam/pkg/node"
 	"github.com/mahakamcloud/mahakam/pkg/provisioner"
+	"github.com/mahakamcloud/mahakam/pkg/task"
 	"github.com/mahakamcloud/mahakam/pkg/utils"
 	log "github.com/sirupsen/logrus"
 )
@@ -133,7 +134,7 @@ func (cn *createNetworkWF) Run() error {
 		return err
 	}
 
-	go func(taskList []provisioner.Task) {
+	go func(taskList []task.Task) {
 		for _, t := range taskList {
 			if err := t.Run(); err != nil {
 				cn.log.Errorf("error running task %v: %s", t, err)
@@ -144,15 +145,15 @@ func (cn *createNetworkWF) Run() error {
 	return nil
 }
 
-func (cn *createNetworkWF) getCreateTask() ([]provisioner.Task, error) {
-	var tasks []provisioner.Task
+func (cn *createNetworkWF) getCreateTask() ([]task.Task, error) {
+	var tasks []task.Task
 	tasks = cn.setupNetworkGateway(tasks)
 	tasks = cn.setupNetworkDHCP(tasks)
 	// tasks = cn.setupNetworkNameserver(tasks)
 	return tasks, nil
 }
 
-func (cn *createNetworkWF) setupNetworkGateway(tasks []provisioner.Task) []provisioner.Task {
+func (cn *createNetworkWF) setupNetworkGateway(tasks []task.Task) []task.Task {
 	gwConfig := node.NodeCreateConfig{
 		Host: net.ParseIP("10.30.0.1"),
 		Role: node.RoleNetworkGW,
@@ -185,7 +186,7 @@ func (cn *createNetworkWF) setupNetworkGateway(tasks []provisioner.Task) []provi
 	return tasks
 }
 
-func (cn *createNetworkWF) setupNetworkDHCP(tasks []provisioner.Task) []provisioner.Task {
+func (cn *createNetworkWF) setupNetworkDHCP(tasks []task.Task) []task.Task {
 	netCIDR := cn.clusterNetwork.ClusterNetworkCIDR
 	dhcpConfig := node.NodeCreateConfig{
 		Host: net.ParseIP("10.30.0.1"),
@@ -216,7 +217,7 @@ func (cn *createNetworkWF) setupNetworkDHCP(tasks []provisioner.Task) []provisio
 	return tasks
 }
 
-func (cn *createNetworkWF) setupNetworkNameserver(tasks []provisioner.Task) []provisioner.Task {
+func (cn *createNetworkWF) setupNetworkNameserver(tasks []task.Task) []task.Task {
 	return tasks
 }
 
