@@ -59,6 +59,9 @@ func (tp *terraformProvisioner) CreateNode(nconfig node.NodeCreateConfig) error 
 	case node.RoleNetworkDNS:
 		err = tfmodule.CreateNetworkDNS(nconfig.Name, config.TerraformDefaultDirectory+nconfig.Name, data)
 	case node.RoleNetworkDHCP:
+		data = tp.overrideNetworkDHCPData(nconfig, data)
+		log.Infof("terraform data for network dhcp to render files: %v\n", data)
+
 		err = tfmodule.CreateNetworkDHCP(nconfig.Name, config.TerraformDefaultDirectory+nconfig.Name, data)
 	case node.RoleNetworkGW:
 		data = tp.overrideNetworkGWData(nconfig, data)
@@ -94,10 +97,17 @@ func (tp *terraformProvisioner) getTerraformData(nconfig node.NodeCreateConfig) 
 		TerraformControlPlaneIP:    nconfig.ExtraConfig[config.KeyControlPlaneIP],
 		TerraformPodNetworkCidr:    nconfig.ExtraConfig[config.KeyPodNetworkCidr],
 		TerraformKubeadmToken:      nconfig.ExtraConfig[config.KeyKubeadmToken],
-		TerraformBroadcastAddress:  nconfig.ExtraConfig[config.KeyBroadcastAddress],
-		TerraformSubnetAddress:     nconfig.ExtraConfig[config.KeySubnetAddress],
-		TerraformSubnetMask:        nconfig.ExtraConfig[config.KeySubnetMask],
 	}
+	return data
+}
+
+func (tp *terraformProvisioner) overrideNetworkDHCPData(nconfig node.NodeCreateConfig, data map[string]string) map[string]string {
+
+	data[TerraformNetworkCIDR] = nconfig.ExtraConfig[config.KeyClusterNetworkCidr]
+	data[TerraformBroadcastAddress] = nconfig.ExtraConfig[config.KeyBroadcastAddress]
+	data[TerraformSubnetAddress] = nconfig.ExtraConfig[config.KeySubnetAddress]
+	data[TerraformSubnetMask] = nconfig.ExtraConfig[config.KeySubnetMask]
+
 	return data
 }
 
