@@ -60,8 +60,11 @@ func NewCreateAdminKubeconfig(clustername, apiServerAddress, apiServerPort strin
 func (k *CreateAdminKubeconfig) Run() error {
 	// Blocking check waiting control plane to be up
 	apiServer := fmt.Sprintf("%s:%s", k.apiServerAddress, k.apiServerPort)
-	ready := utils.PingNWithDelay("tcp", apiServer, config.KubernetesNodePingTimeout,
-		config.KubernetesNodePingRetry, config.KubernetesNodePingDelay, k.log)
+	ready := utils.PingNWithDelay(
+		utils.PortPing(apiServer, config.KubernetesNodePingTimeout, k.log),
+		config.KubernetesNodePingRetry,
+		config.KubernetesNodePingDelay,
+	)
 
 	// Control plane node still not up after max retry
 	if !ready {
