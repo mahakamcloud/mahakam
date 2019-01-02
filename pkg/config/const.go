@@ -49,6 +49,9 @@ const (
 	KeyPodNetworkCidr     = "key-pod-network-cidr"
 	KeyKubeadmToken       = "key-kubeadm-token"
 	KeyClusterNetworkCidr = "key-cluster-network-cidr"
+	KeySubnetMask         = "key-subnet-mask"
+	KeySubnetAddress      = "key-subnet-address"
+	KeyBroadcastAddress   = "key-broadcast-address"
 
 	// Enum for ip pool service
 	IPPoolActionAllocate = "ALLOCATE"
