@@ -27,12 +27,12 @@ func PortPing(addressWithPort string, timeout time.Duration, log log.FieldLogger
 	return err
 }
 
-// PingNWithDelay calls Ping N number of times with delay in between
-func PingNWithDelay(pingFn func(string, time.Duration, log.FieldLogger) error,
+// PortPingNWithDelay calls PortPing N number of times with delay in between
+func PortPingNWithDelay(addressWithPort string, timeout time.Duration, log log.FieldLogger,
 	count int, delay time.Duration) bool {
 
 	for i := 0; i < count; i++ {
-		if err := pingFn; err == nil {
+		if err := PortPing(addressWithPort, timeout, log); err == nil {
 			return true
 		}
 		time.Sleep(delay)
@@ -60,4 +60,17 @@ func ICMPPing(address string, timeout time.Duration, log log.FieldLogger) error 
 	}
 
 	return nil
+}
+
+// ICMPPingNWithDelay calls ICMPPing N number of times with delay in between
+func ICMPPingNWithDelay(address string, timeout time.Duration, log log.FieldLogger,
+	count int, delay time.Duration) bool {
+
+	for i := 0; i < count; i++ {
+		if err := ICMPPing(address, timeout, log); err == nil {
+			return true
+		}
+		time.Sleep(delay)
+	}
+	return false
 }

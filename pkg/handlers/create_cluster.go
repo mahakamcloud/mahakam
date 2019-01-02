@@ -15,6 +15,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/node"
 	"github.com/mahakamcloud/mahakam/pkg/provisioner"
 	r "github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
+	"github.com/mahakamcloud/mahakam/pkg/task"
 	"github.com/mahakamcloud/mahakam/pkg/utils"
 	log "github.com/sirupsen/logrus"
 )
@@ -135,7 +136,7 @@ func (c *createClusterWF) Run() error {
 	}
 
 	for i := range tasks {
-		go func(t provisioner.Task) {
+		go func(t task.Task) {
 			c.log.Infof("Running task %v", t)
 			if err := t.Run(); err != nil {
 				c.log.Errorf("error running task %v: %s", t, err)
@@ -145,15 +146,15 @@ func (c *createClusterWF) Run() error {
 	return nil
 }
 
-func (c *createClusterWF) getCreateTask() ([]provisioner.Task, error) {
-	var tasks []provisioner.Task
+func (c *createClusterWF) getCreateTask() ([]task.Task, error) {
+	var tasks []task.Task
 	tasks = c.setupControlPlaneSteps(tasks)
 	tasks = c.setupWorkerSteps(tasks)
 	tasks = c.setupAdminKubeconfigSteps(tasks)
 	return tasks, nil
 }
 
-func (c *createClusterWF) setupControlPlaneSteps(tasks []provisioner.Task) []provisioner.Task {
+func (c *createClusterWF) setupControlPlaneSteps(tasks []task.Task) []task.Task {
 	cpConfig := node.NodeCreateConfig{
 		// TODO(giri): must be getting from list of hosts
 		Host: net.ParseIP("10.30.0.1"),
@@ -182,7 +183,7 @@ func (c *createClusterWF) setupControlPlaneSteps(tasks []provisioner.Task) []pro
 	return tasks
 }
 
-func (c *createClusterWF) setupWorkerSteps(tasks []provisioner.Task) []provisioner.Task {
+func (c *createClusterWF) setupWorkerSteps(tasks []task.Task) []task.Task {
 	for _, worker := range c.workers {
 		wConfig := node.NodeCreateConfig{
 			Host: net.ParseIP("10.30.0.1"),
@@ -203,14 +204,19 @@ func (c *createClusterWF) setupWorkerSteps(tasks []provisioner.Task) []provision
 				config.KeyKubeadmToken:   c.kubeadmToken,
 			},
 		}
+
+		checkClusterNetworkNodes := provisioner.
 		createWorkerNode := provisioner.NewCreateNode(wConfig, c.handlers.Provisioner, c.log)
-		tasks = append(tasks, createWorkerNode)
+
+		seqTask := task.NewSeqTask(c.log, checkClusterNetworkNodes, createWorkerNode)
+
+		tasks = append(tasks, seqTask)
 	}
 
 	return tasks
 }
 
-func (c *createClusterWF) setupAdminKubeconfigSteps(tasks []provisioner.Task) []provisioner.Task {
+func (c *createClusterWF) setupAdminKubeconfigSteps(tasks []task.Task) []task.Task {
 	sConfig := utils.SCPConfig{
 		Username:        config.KubernetesNodeUsername,
 		RemoteIPAddress: c.controlPlaneIP.String(),
