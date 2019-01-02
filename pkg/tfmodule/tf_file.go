@@ -11,7 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// Represents a terraform file as TerraformFile object
+// TerraformFile represents a terraform file as TerraformFile object
 type TerraformFile struct {
 	// TODO: the Source and Destination path would be absolute
 	// TODO: validation for struct values
@@ -21,6 +21,7 @@ type TerraformFile struct {
 	DestFile string `json:"destfile"`
 }
 
+// ParseTerraformFile parses terraform file and return string content
 func (tfFile TerraformFile) ParseTerraformFile(data map[string]string) string {
 	// TODO: check if source path exists -> raise error
 	tfFileTemplate := template.New(tfFile.FileType)
@@ -39,6 +40,7 @@ func (tfFile TerraformFile) ParseTerraformFile(data map[string]string) string {
 	return buf.String()
 }
 
+// WriteTerraformFile writes string content to files
 func (tfFile TerraformFile) WriteTerraformFile(data string) {
 	// TODO: check if destination path exists -> create if not
 	destdir := tfFile.DestDir
