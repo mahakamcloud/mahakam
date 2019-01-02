@@ -1,16 +1,17 @@
 package dhcp
 
 var CloudInit = `#cloud-config
-password: passw0rd
+password: ${password}
 chpasswd: { expire: False }
 ssh_pwauth: True
 hostname: ${hostname}
 fqdn: ${hostname}.${dns_zone_name}
+
 ssh_authorized_keys:
   - ${ssh_public_key}
 
 resolv_conf:
-  nameservers: ['${dns_server}']
+  nameservers: ['${dns_address}']
   searchdomains:
     - ${dns_zone_name}
 
@@ -28,8 +29,8 @@ write_files:
       iface ens3 inet static
         address ${ip_address}
         netmask ${netmask}
-        dns-nameservers ${dns_server}
-        gateway ${gateway_ip}
+        dns-nameservers ${dns_address}
+        gateway ${gateway}
       EOF
 
       ifdown ens3 && ifup ens3
@@ -47,7 +48,7 @@ write_files:
       authoritative;
 
       option domain-name "${dns_zone_name}";
-      option domain-name-servers ${dns_server};
+      option domain-name-servers ${dns_address};
 
       default-lease-time 7200;
       max-lease-time 14400;
@@ -56,10 +57,10 @@ write_files:
 
       subnet ${subnet_address} netmask ${subnet_mask} {
         range ${ip_address} ${ip_address};
-        option domain-name-servers ${dns_server};
+        option domain-name-servers ${dns_address};
         option domain-name "${dns_zone_name}";
         option subnet-mask ${subnet_mask};
-        option routers ${gateway_ip};
+        option routers ${gateway};
         option broadcast-address ${broadcast_address};
         default-lease-time 7200;
         max-lease-time 14400;
@@ -72,7 +73,7 @@ write_files:
       authoritative;
 
       option domain-name "${dns_zone_name}";
-      option domain-name-servers ${dns_server};
+      option domain-name-servers ${dns_address};
 
       default-lease-time 7200;
       max-lease-time 14400;
@@ -81,10 +82,10 @@ write_files:
 
       subnet ${subnet_address} netmask ${subnet_mask} {
         range ${ip_address} ${ip_address};
-        option domain-name-servers ${dns_server};
+        option domain-name-servers ${dns_address};
         option domain-name "${dns_zone_name}";
         option subnet-mask ${subnet_mask};
-        option routers ${gateway_ip};
+        option routers ${gateway};
         option broadcast-address ${broadcast_address};
         default-lease-time 7200;
         max-lease-time 14400;
@@ -120,28 +121,19 @@ write_files:
   - path: /opt/cloud-init/setup-consul-template.sh
     permissions: 0644
     content: |
-      CONSUL_TEMPLATE_VERSION=${VERSION:-0.19.5}
-      CONSUL_TEMPLATE_ZIP=consul-template_${CONSUL_TEMPLATE_VERSION}_linux_amd64.zip
-      CONSUL_TEMPLATE_URL=${URL:-https://releases.hashicorp.com/consul-template/${CONSUL_TEMPLATE_VERSION}/${CONSUL_TEMPLATE_ZIP}}
-      CONSUL_TEMPLATE_USER=${USER:-consul-template}
-      CONSUL_TEMPLATE_GROUP=${GROUP:-consul-template}
-      CONFIG_DIR=/etc/consul-template.d
-      DATA_DIR=/opt/consul-template/data
-      DOWNLOAD_DIR=/tmp
-
-      echo "Downloading consul-template ${CONSUL_TEMPLATE_VERSION}"
-      curl --silent --output ${DOWNLOAD_DIR}/${CONSUL_TEMPLATE_ZIP} ${CONSUL_TEMPLATE_URL}
+      echo "Downloading consul-template 0.19.5"
+      curl --silent --output /tmp/consul-template_0.19.5_linux_amd64.zip https://releases.hashicorp.com/consul-template/0.19.5/consul-template_0.19.5_linux_amd64.zip
 
       echo "Setup consul-template user and group"
       groupadd -r consul-template
       useradd -r -g consul-template -d /var/lib/consul-template -s /sbin/nologin -c "consul-template user" consul-template
-      mkdir -p ${CONFIG_DIR}
+      mkdir -p /etc/consul-template.d
 
       echo "Installing consul-template"
       apt install -y unzip
-      sudo unzip -o ${DOWNLOAD_DIR}/${CONSUL_TEMPLATE_ZIP} -d /usr/local/bin/
+      sudo unzip -o /tmp/consul-template_0.19.5_linux_amd64.zip -d /usr/local/bin/
       sudo chmod 0755 /usr/local/bin/consul-template
-      sudo chown ${CONSUL_TEMPLATE_USER}:${CONSUL_TEMPLATE_GROUP} /usr/local/bin/consul-template
+      sudo chown consul-template:consul-template /usr/local/bin/consul-template
 
       echo "/usr/local/bin/consul-template --version: $(/usr/local/bin/consul-template --version)"
 
@@ -186,9 +178,9 @@ write_files:
       EOF
 
       echo "Configuring consul-template"
-      sudo mkdir -pm 0755 ${CONFIG_DIR} ${DATA_DIR}
-      sudo chown -R ${CONSUL_TEMPLATE_USER}:${CONSUL_TEMPLATE_GROUP} ${CONFIG_DIR} ${DATA_DIR}
-      sudo chmod -R 0644 ${CONFIG_DIR}/*
+      sudo mkdir -pm 0755 /etc/consul-template.d /opt/consul-template/data
+      sudo chown -R consul-template:consul-template /etc/consul-template.d /opt/consul-template/data
+      sudo chmod -R 0644 /etc/consul-template.d/*
 
       echo "Installing consul template systemd service and config"
 

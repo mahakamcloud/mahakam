@@ -1,7 +1,7 @@
 package templates
 
-var MainFile = `module "{{.Name}}" {
-    source = "{{.LibvirtModulePath}}"
+var MainFile = `module "[[.Name]]" {
+    source = "[[.LibvirtModulePath]]"
 
     instance_name = "${var.hostname}"
     libvirt_host  = "${var.host}"
