@@ -29,6 +29,9 @@ const (
 	TerraformControlPlaneIP    = "ControlPlaneIP"
 	TerraformPodNetworkCidr    = "PodNetworkCidr"
 	TerraformKubeadmToken      = "KubeadmToken"
+	TerraformBroadcastAddress  = "BroadcastAddress"
+	TerraformSubnetAddress     = "SubnetAddress"
+	TerraformSubnetMask        = "SubnetMask"
 )
 
 type terraformProvisioner struct {
@@ -91,6 +94,9 @@ func (tp *terraformProvisioner) getTerraformData(nconfig node.NodeCreateConfig) 
 		TerraformControlPlaneIP:    nconfig.ExtraConfig[config.KeyControlPlaneIP],
 		TerraformPodNetworkCidr:    nconfig.ExtraConfig[config.KeyPodNetworkCidr],
 		TerraformKubeadmToken:      nconfig.ExtraConfig[config.KeyKubeadmToken],
+		TerraformBroadcastAddress:  nconfig.ExtraConfig[config.KeyBroadcastAddress],
+		TerraformSubnetAddress:     nconfig.ExtraConfig[config.KeySubnetAddress],
+		TerraformSubnetMask:        nconfig.ExtraConfig[config.KeySubnetMask],
 	}
 	return data
 }

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/binary"
 	"fmt"
 	"net"
 	"strconv"
@@ -14,6 +15,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/network"
 	"github.com/mahakamcloud/mahakam/pkg/node"
 	"github.com/mahakamcloud/mahakam/pkg/provisioner"
+	"github.com/mahakamcloud/mahakam/pkg/utils"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -87,6 +89,14 @@ func newCreateNetworkWF(cluster *models.Network, cHandler *CreateNetwork) (*crea
 		Name: fmt.Sprintf("%s-network-gw", clusterName),
 	}
 
+	dhcp := node.Node{
+		Name: fmt.Sprintf("%s-network-dhcp", clusterName),
+	}
+
+	dns := node.Node{
+		Name: fmt.Sprintf("%s-network-dns", clusterName),
+	}
+
 	dcGatewayIP, dcPublicNetworkCIDR, _ := net.ParseCIDR(cHandler.AppConfig.NetworkConfig.DatacenterGatewayCIDR)
 
 	dcNameserverIP := net.ParseIP(cHandler.AppConfig.NetworkConfig.DatacenterNameserver)
@@ -100,6 +110,8 @@ func newCreateNetworkWF(cluster *models.Network, cHandler *CreateNetwork) (*crea
 		handlers:               cHandler.Handlers,
 		log:                    cHandler.log,
 		gateway:                gateway,
+		dhcp:                   dhcp,
+		nameserver:             dns,
 		dcPublicNetworkCIDR:    *dcPublicNetworkCIDR,
 		dcGatewayIP:            dcGatewayIP,
 		dcNameserverIP:         dcNameserverIP,
@@ -174,6 +186,7 @@ func (cn *createNetworkWF) setupNetworkGateway(tasks []provisioner.Task) []provi
 }
 
 func (cn *createNetworkWF) setupNetworkDHCP(tasks []provisioner.Task) []provisioner.Task {
+	netCIDR := cn.clusterNetwork.ClusterNetworkCIDR
 	dhcpConfig := node.NodeCreateConfig{
 		Host: net.ParseIP("10.30.0.1"),
 		Role: node.RoleNetworkDHCP,
@@ -183,9 +196,16 @@ func (cn *createNetworkWF) setupNetworkDHCP(tasks []provisioner.Task) []provisio
 			NetworkConfig: node.NetworkConfig{
 				MacAddress: network.GenerateMacAddress(),
 				IP:         cn.clusterNetwork.Dhcp,
-				Mask:       cn.clusterNetwork.ClusterNetworkCIDR.Mask,
+				Mask:       netCIDR.Mask,
 				Gateway:    cn.clusterNetwork.Gateway,
+				Nameserver: cn.dcNameserverIP,
 			},
+		},
+		ExtraConfig: map[string]string{
+			config.KeyClusterNetworkCidr: netCIDR.String(),
+			config.KeySubnetAddress:      netCIDR.IP.String(),
+			config.KeySubnetMask:         utils.IPv4MaskString(netCIDR.Mask),
+			config.KeyBroadcastAddress:   broadcastAddr(netCIDR),
 		},
 	}
 
@@ -209,4 +229,13 @@ func getPublicIP() (net.IP, error) {
 	}
 
 	return net.ParseIP(res.Payload.AllocatedIP), nil
+}
+
+func broadcastAddr(n net.IPNet) string {
+	if n.IP.To4() == nil {
+		return ""
+	}
+	ip := make(net.IP, len(n.IP.To4()))
+	binary.BigEndian.PutUint32(ip, binary.BigEndian.Uint32(n.IP.To4())|^binary.BigEndian.Uint32(net.IP(n.Mask).To4()))
+	return ip.String()
 }

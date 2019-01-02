@@ -2,7 +2,7 @@ FROM centos:7
 
 RUN yum install -y \
     genisoimage-1.1.11 \
-    libvirt-3.9.0 \
+    libvirt \
     unzip \
     git \
     wget

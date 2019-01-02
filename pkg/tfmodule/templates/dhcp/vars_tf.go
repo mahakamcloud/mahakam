@@ -5,7 +5,7 @@ var Vars = `variable "hostname" {
     type = "string"
 }
 
-variable "libvirt_host" {
+variable "host" {
     type = "string"
 }
 
@@ -34,11 +34,11 @@ variable "netmask" {
     type = "string"
 }
 
-variable "gateway_ip" {
+variable "gateway" {
     type = "string"
 }
 
-variable "dns_server" {
+variable "dns_address" {
     type = "string"
 }
 
