@@ -124,3 +124,7 @@
 [[constraint]]
   branch = "master"
   name = "k8s.io/api"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/sparrc/go-ping"
