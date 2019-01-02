@@ -45,8 +45,7 @@ func configureAPI(api *operations.MahakamAPI) http.Handler {
 		log.Fatalf("Error loading configuration file for mahakam server: %s\n", err)
 	}
 	h := handlers.New(
-		mahakamConfig.KVStoreConfig,
-		mahakamConfig.NetworkConfig,
+		mahakamConfig,
 		provisioner.NewTerraformProvisioner(mahakamConfig.TerraformConfig),
 	)
 

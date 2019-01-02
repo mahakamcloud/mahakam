@@ -27,16 +27,16 @@ write_files:
         address ${public_ip_address}
         netmask ${public_netmask}
         gateway ${public_gateway}
-        dns-nameservers ${dns_address}
 
       auto ens4
       iface ens4 inet static
         address ${ip_address}
         netmask ${netmask}
+        dns-nameservers ${dns_address}
       EOF
 
-      ifdown ens3 && ifup ens3
       ifdown ens4 && ifup ens4
+      ifdown ens3 && ifup ens3
       systemctl restart networking
       sysctl -w net.ipv4.ip_forward=1
 

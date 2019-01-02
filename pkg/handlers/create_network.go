@@ -3,9 +3,11 @@ package handlers
 import (
 	"fmt"
 	"net"
+	"strconv"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
+	netclient "github.com/mahakamcloud/mahakam/pkg/api/v1/client/networks"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/networks"
 	"github.com/mahakamcloud/mahakam/pkg/config"
@@ -70,6 +72,11 @@ type createNetworkWF struct {
 	nameserver     node.Node
 	dhcp           node.Node
 
+	dcPublicNetworkCIDR    net.IPNet
+	dcGatewayIP            net.IP
+	dcNameserverIP         net.IP
+	clusterGatewayPublicIP net.IP
+
 	nodePublicKey string
 }
 
@@ -80,10 +87,23 @@ func newCreateNetworkWF(cluster *models.Network, cHandler *CreateNetwork) (*crea
 		Name: fmt.Sprintf("%s-network-gw", clusterName),
 	}
 
+	dcGatewayIP, dcPublicNetworkCIDR, _ := net.ParseCIDR(cHandler.AppConfig.NetworkConfig.DatacenterGatewayCIDR)
+
+	dcNameserverIP := net.ParseIP(cHandler.AppConfig.NetworkConfig.DatacenterNameserver)
+
+	allocatedPublicIP, err := getPublicIP()
+	if err != nil {
+		return nil, fmt.Errorf("error getting public IP allocation: %s", err)
+	}
+
 	return &createNetworkWF{
-		handlers: cHandler.Handlers,
-		log:      cHandler.log,
-		gateway:  gateway,
+		handlers:               cHandler.Handlers,
+		log:                    cHandler.log,
+		gateway:                gateway,
+		dcPublicNetworkCIDR:    *dcPublicNetworkCIDR,
+		dcGatewayIP:            dcGatewayIP,
+		dcNameserverIP:         dcNameserverIP,
+		clusterGatewayPublicIP: allocatedPublicIP,
 	}, nil
 }
 
@@ -134,11 +154,10 @@ func (cn *createNetworkWF) setupNetworkGateway(tasks []provisioner.Task) []provi
 			},
 			ExtraNetworks: []node.NetworkConfig{
 				node.NetworkConfig{
-					// TODO(giri): pass proper public IP from config.yaml
-					// IP:         net.ParseIP("1.2.3.4"),
-					// Mask:       net.CIDRMask(28, 32),
-					// Gateway:    net.ParseIP("1.2.3.1"),
-					// Nameserver: net.ParseIP("8.8.8.8"),
+					IP:         cn.clusterGatewayPublicIP,
+					Mask:       cn.dcPublicNetworkCIDR.Mask,
+					Gateway:    cn.dcGatewayIP,
+					Nameserver: cn.dcNameserverIP,
 				},
 			},
 		},
@@ -179,4 +198,15 @@ func (cn *createNetworkWF) setupNetworkDHCP(tasks []provisioner.Task) []provisio
 
 func (cn *createNetworkWF) setupNetworkNameserver(tasks []provisioner.Task) []provisioner.Task {
 	return tasks
+}
+
+func getPublicIP() (net.IP, error) {
+	client := GetMahakamClient(":" + strconv.Itoa(config.MahakamAPIDefaultPort))
+	res, err := client.Networks.AllocateOrReleaseFromIPPool(netclient.NewAllocateOrReleaseFromIPPoolParams().
+		WithAction(swag.String(config.IPPoolActionAllocate)))
+	if err != nil {
+		return nil, err
+	}
+
+	return net.ParseIP(res.Payload.AllocatedIP), nil
 }
