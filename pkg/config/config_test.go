@@ -22,8 +22,10 @@ var (
 			Bucket:      "fake-storage-backend-bucket",
 		},
 		NetworkConfig: NetworkConfig{
-			CIDR:           "1.2.3.4/16",
-			ClusterNetmask: 24,
+			CIDR:                  "1.2.3.4/16",
+			ClusterNetmask:        24,
+			DatacenterGatewayCIDR: "1.2.3.4/28",
+			DatacenterNameserver:  "1.2.3.4",
 		},
 		KubernetesConfig: KubernetesConfig{
 			PodNetworkCidr: "1.2.3.4/16",

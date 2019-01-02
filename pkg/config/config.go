@@ -85,6 +85,10 @@ type NetworkConfig struct {
 	CIDR string `yaml:"cidr"`
 	// ClusterNetmask is subnet length that cluster network will be provisioned as
 	ClusterNetmask int `yaml:"cluster_netmask"`
+	// DatacenterGatewayCIDR is gateway public IP in the datacenter that can reach Internet
+	DatacenterGatewayCIDR string `yaml:"datacenter_gateway_cidr"`
+	// DatacenterNameserver is nameserver in datacenter that can solve domains in Internet
+	DatacenterNameserver string `yaml:"datacenter_nameserver"`
 }
 
 // Validate validates storage backend configuration
@@ -98,11 +102,27 @@ func (nc *NetworkConfig) Validate() error {
 	}
 
 	if _, _, err := net.ParseCIDR(nc.CIDR); err != nil {
-		return fmt.Errorf("Must provide valid CIDR format")
+		return fmt.Errorf("Must provide valid CIDR format for cluster network")
 	}
 
 	if nc.ClusterNetmask > 32 || nc.ClusterNetmask < 1 {
 		return fmt.Errorf("Must provide valid cluster netmask between 0 and 32")
+	}
+
+	if nc.DatacenterGatewayCIDR == "" {
+		return fmt.Errorf("Must provide non-empty datacenter gateway CIDR")
+	}
+
+	if _, _, err := net.ParseCIDR(nc.DatacenterGatewayCIDR); err != nil {
+		return fmt.Errorf("Must provide valid CIDR format for datacenter gateway")
+	}
+
+	if nc.DatacenterNameserver == "" {
+		return fmt.Errorf("Must provide non-empty datacenter nameserver")
+	}
+
+	if validIP := net.ParseIP(nc.DatacenterNameserver); validIP == nil {
+		return fmt.Errorf("Must provide valid IP format for datacenter nameserver")
 	}
 
 	return nil
