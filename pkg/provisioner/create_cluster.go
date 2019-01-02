@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/mahakamcloud/mahakam/pkg/config"
+	"github.com/mahakamcloud/mahakam/pkg/network"
 	"github.com/mahakamcloud/mahakam/pkg/node"
 	"github.com/mahakamcloud/mahakam/pkg/utils"
 	log "github.com/sirupsen/logrus"
@@ -32,6 +33,33 @@ func (n *CreateNode) Run() error {
 	if err != nil {
 		log.Errorf("error creating node '%v': %s", n.Config, err)
 	}
+	return nil
+}
+
+type CheckClusterNetworkNodes struct {
+	clusterNetwork *network.ClusterNetwork
+	log            log.FieldLogger
+}
+
+func NewCheckClusterNetworkNodes(clusterNetwork *network.ClusterNetwork, log log.FieldLogger) *CheckClusterNetworkNodes {
+	checkClusterNetworkNodesLog := log.WithField("task", fmt.Sprintf("check cluster network nodes in %v", clusterNetwork))
+
+	return &CheckClusterNetworkNodes{
+		clusterNetwork: clusterNetwork,
+		log:            checkClusterNetworkNodesLog,
+	}
+}
+
+func (c *CheckClusterNetworkNodes) Run() error {
+	// Blocking check waiting for cluster gateway to be up
+	gwReady := utils.ICMPPingNWithDelay(c.clusterNetwork.Gateway.String(), config.KubernetesNodePingTimeout, c.log,
+		config.KubernetesNodePingRetry, config.KubernetesNodePingDelay)
+
+	// Cluster gateway still not ready after max retry
+	if !gwReady {
+		return fmt.Errorf("timeout waiting for cluster gateway to be up '%v'", c.clusterNetwork)
+	}
+
 	return nil
 }
 

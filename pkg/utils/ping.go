@@ -51,6 +51,7 @@ func ICMPPing(address string, timeout time.Duration, log log.FieldLogger) error 
 
 	pinger.Count = ICMPDefaultPingCount
 	pinger.Timeout = timeout
+	pinger.SetPrivileged(true)
 
 	// blocking run
 	pinger.Run()

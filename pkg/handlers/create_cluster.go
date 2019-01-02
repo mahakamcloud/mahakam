@@ -176,9 +176,11 @@ func (c *createClusterWF) setupControlPlaneSteps(tasks []task.Task) []task.Task 
 		},
 	}
 
+	checkClusterNetworkNodes := provisioner.NewCheckClusterNetworkNodes(c.clusterNetwork, c.log)
 	createControlPlaneNode := provisioner.NewCreateNode(cpConfig, c.handlers.Provisioner, c.log)
 
-	tasks = append(tasks, createControlPlaneNode)
+	controlPlaneSeqTasks := task.NewSeqTask(c.log, checkClusterNetworkNodes, createControlPlaneNode)
+	tasks = append(tasks, controlPlaneSeqTasks)
 
 	return tasks
 }
