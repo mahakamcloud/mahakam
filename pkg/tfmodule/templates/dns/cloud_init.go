@@ -11,7 +11,7 @@ ssh_authorized_keys:
   - ${ssh_public_key}
 
 resolv_conf:
-  nameservers: ['${dns_forwarder}']
+  nameservers: ['${dns_server}']
   searchdomains:
     - ${dns_zone_name}
 
@@ -26,7 +26,7 @@ network:
       gateway4: ${gateway_ip}
       nameservers:
         search: [${dns_zone_name}]
-        addresses: [${dns_forwarder}]
+        addresses: [${dns_server}]
   # static routes
   routes:
    - to: 0.0.0.0/0
@@ -94,7 +94,7 @@ write_files:
         zone-statistics yes;
 
         forwarders {
-          ${dns_forwarder};
+          ${dns_server};
         };
       };
 
@@ -202,10 +202,10 @@ write_files:
     }
 
     template {
-      source = "/etc/dhcp/dhcpd.conf.tpl"
-      destination = "/etc/dhcp/dhcpd.conf"
+      source = "/var/lib/bind/zones/db.mgmt.gocloud.io.tpl"
+      destination = "/var/lib/bind/zones/db.mgmt.gocloud.io"
       create_dest_dirs = true
-      command = "systemctl restart isc-dhcp-server"
+      command = "bash -c 'chown root:bind /var/lib/bind/zones/db.mgmt.gocloud.io && systemctl reload bind9'"
       command_timeout = "60s"
       error_on_missing_key = false
       perms = 0644
