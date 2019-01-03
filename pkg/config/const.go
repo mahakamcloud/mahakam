@@ -40,9 +40,11 @@ const (
 	KubernetesNodeUsername        = "ubuntu"
 	KubernetesAdminKubeconfigPath = "/home/ubuntu/.kube/config"
 	KubernetesAPIServerPort       = 6443
-	KubernetesNodePingTimeout     = 5 * time.Second
-	KubernetesNodePingRetry       = 20
-	KubernetesNodePingDelay       = 60 * time.Second
+
+	// Node Health check config
+	NodePingTimeout = 5 * time.Second
+	NodePingRetry   = 20
+	NodePingDelay   = 60 * time.Second
 
 	// Various keys for storing metadata in map
 	KeyControlPlaneIP     = "key-control-plane-ip"

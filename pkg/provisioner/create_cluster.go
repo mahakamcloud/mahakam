@@ -2,6 +2,7 @@ package provisioner
 
 import (
 	"fmt"
+	"net"
 	"os"
 	"time"
 
@@ -52,12 +53,39 @@ func NewCheckClusterNetworkNodes(clusterNetwork *network.ClusterNetwork, log log
 
 func (c *CheckClusterNetworkNodes) Run() error {
 	// Blocking check waiting for cluster gateway to be up
-	gwReady := utils.ICMPPingNWithDelay(c.clusterNetwork.Gateway.String(), config.KubernetesNodePingTimeout, c.log,
-		config.KubernetesNodePingRetry, config.KubernetesNodePingDelay)
+	gwReady := utils.ICMPPingNWithDelay(c.clusterNetwork.Gateway.String(), config.NodePingTimeout, c.log,
+		config.NodePingRetry, config.NodePingDelay)
 
 	// Cluster gateway still not ready after max retry
 	if !gwReady {
 		return fmt.Errorf("timeout waiting for cluster gateway to be up '%v'", c.clusterNetwork)
+	}
+
+	return nil
+}
+
+type CheckNode struct {
+	ip  net.IP
+	log log.FieldLogger
+}
+
+func NewCheckNode(ip net.IP, log log.FieldLogger) *CheckNode {
+	checkNodeLog := log.WithField("task", fmt.Sprintf("check node with address %v", ip.String()))
+
+	return &CheckNode{
+		ip:  ip,
+		log: checkNodeLog,
+	}
+}
+
+func (c *CheckNode) Run() error {
+	// Blocking check waiting for node to be up
+	nodeReady := utils.ICMPPingNWithDelay(c.ip.String(), config.NodePingTimeout, c.log,
+		config.NodePingRetry, config.NodePingDelay)
+
+	// Cluster gateway still not ready after max retry
+	if !nodeReady {
+		return fmt.Errorf("timeout waiting for node to be up '%v'", c.ip)
 	}
 
 	return nil
@@ -88,8 +116,8 @@ func NewCreateAdminKubeconfig(clustername, apiServerAddress, apiServerPort strin
 func (k *CreateAdminKubeconfig) Run() error {
 	// Blocking check waiting control plane to be up
 	apiServer := fmt.Sprintf("%s:%s", k.apiServerAddress, k.apiServerPort)
-	ready := utils.PortPingNWithDelay(apiServer, config.KubernetesNodePingTimeout, k.log,
-		config.KubernetesNodePingRetry, config.KubernetesNodePingDelay)
+	ready := utils.PortPingNWithDelay(apiServer, config.NodePingTimeout, k.log,
+		config.NodePingRetry, config.NodePingDelay)
 
 	// Control plane node still not up after max retry
 	if !ready {
@@ -97,7 +125,7 @@ func (k *CreateAdminKubeconfig) Run() error {
 	}
 	// TODO(giri): wait until kubeadm finishes bootstraping,
 	// hardcoded wait time 120 sec in cloud init script
-	time.Sleep(3 * config.KubernetesNodePingDelay)
+	time.Sleep(3 * config.NodePingDelay)
 
 	err := os.MkdirAll(config.MahakamMultiKubeconfigPath, os.ModePerm)
 	if err != nil {

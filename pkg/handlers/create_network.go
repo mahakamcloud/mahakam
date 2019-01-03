@@ -210,9 +210,12 @@ func (cn *createNetworkWF) setupNetworkDHCP(tasks []task.Task) []task.Task {
 		},
 	}
 
+	checkNetworkGWNode := provisioner.NewCheckNode(cn.clusterNetwork.Gateway, cn.log)
 	createDHCPNode := provisioner.NewCreateNode(dhcpConfig, cn.handlers.Provisioner, cn.log)
 
-	tasks = append(tasks, createDHCPNode)
+	dhcpSeqTasks := task.NewSeqTask(cn.log, checkNetworkGWNode, createDHCPNode)
+
+	tasks = append(tasks, dhcpSeqTasks)
 
 	return tasks
 }
