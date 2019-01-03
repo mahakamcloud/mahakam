@@ -5,6 +5,7 @@ var Data = `data "template_file" "user_data" {
     template = "${file("${path.module}/templates/user_data.tpl")}"
 
     vars {
+        host                     = "${var.host}"
         hostname                 = "${var.hostname}"
         password                 = "${var.password}"
         ssh_public_key           = "${var.ssh_public_key}"

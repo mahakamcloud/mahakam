@@ -5,7 +5,7 @@ var Vars = `variable "hostname" {
     type = "string"
 }
 
-variable "libvirt_host" {
+variable "host" {
     type = "string"
 }
 

@@ -1,5 +1,6 @@
 package dns
 
+// TFVars specifies the content of terraform.tfvars
 var TFVars = `hostname = "[[.Name]]"
 host = "[[.Host]]"
 image_source_path = "[[.ImageSourcePath]]"

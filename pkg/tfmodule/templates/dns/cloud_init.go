@@ -11,7 +11,7 @@ ssh_authorized_keys:
   - ${ssh_public_key}
 
 resolv_conf:
-  nameservers: ['${dns_server}']
+  nameservers: ['${dns_address}']
   searchdomains:
     - ${dns_zone_name}
 
@@ -23,14 +23,14 @@ network:
         macaddress: ${mac_address}
       wakeonlan: true
       dhcp4: true
-      gateway4: ${gateway_ip}
+      gateway4: ${gateway}
       nameservers:
         search: [${dns_zone_name}]
-        addresses: [${dns_server}]
+        addresses: [${dns_address}]
   # static routes
   routes:
    - to: 0.0.0.0/0
-     via: ${gateway_ip}
+     via: ${gateway}
      metric: 3
 
 package_upgrade: true
@@ -94,7 +94,7 @@ write_files:
         zone-statistics yes;
 
         forwarders {
-          ${dns_server};
+          ${dns_address};
         };
       };
 
@@ -163,91 +163,91 @@ write_files:
   - path: /opt/cloud-init/setup-consul-template.sh
     permissions: 0644
     content: |
-    echo "Downloading consul-template 0.19.5"
-    curl --silent --output /tmp/consul-template_0.19.5_linux_amd64.zip https://releases.hashicorp.com/consul-template/0.19.5/consul-template_0.19.5_linux_amd64.zip
+      echo "Downloading consul-template 0.19.5"
+      curl --silent --output /tmp/consul-template_0.19.5_linux_amd64.zip https://releases.hashicorp.com/consul-template/0.19.5/consul-template_0.19.5_linux_amd64.zip
 
-    echo "Setup consul-template user and group"
-    groupadd -r consul-template
-    useradd -r -g consul-template -d /var/lib/consul-template -s /sbin/nologin -c "consul-template user" consul-template
-    mkdir -p /etc/consul-template.d
+      echo "Setup consul-template user and group"
+      groupadd -r consul-template
+      useradd -r -g consul-template -d /var/lib/consul-template -s /sbin/nologin -c "consul-template user" consul-template
+      mkdir -p /etc/consul-template.d
 
-    echo "Installing consul-template"
-    apt install -y unzip
-    sudo unzip -o /tmp/consul-template_0.19.5_linux_amd64.zip -d /usr/local/bin/
-    sudo chmod 0755 /usr/local/bin/consul-template
-    sudo chown consul-template:consul-template /usr/local/bin/consul-template
+      echo "Installing consul-template"
+      apt install -y unzip
+      sudo unzip -o /tmp/consul-template_0.19.5_linux_amd64.zip -d /usr/local/bin/
+      sudo chmod 0755 /usr/local/bin/consul-template
+      sudo chown consul-template:consul-template /usr/local/bin/consul-template
 
-    echo "/usr/local/bin/consul-template --version: $(/usr/local/bin/consul-template --version)"
+      echo "/usr/local/bin/consul-template --version: $(/usr/local/bin/consul-template --version)"
 
-    echo "Adding consul-template config file"
-    cat <<EOF >/etc/consul-template.d/bind.hcl
-    consul {
-      address = "127.0.0.1:8500"
-      retry {
-        enabled = true
-        attempts = 12
-        backoff = "250ms"
-        max_backoff = "1m"
+      echo "Adding consul-template config file"
+      cat <<EOF >/etc/consul-template.d/bind.hcl
+      consul {
+        address = "127.0.0.1:8500"
+        retry {
+          enabled = true
+          attempts = 12
+          backoff = "250ms"
+          max_backoff = "1m"
+        }
       }
-    }
 
-    reload_signal = "SIGHUP"
-    kill_signal = "SIGINT"
-    max_stale = "10m"
-    log_level = "warn"
+      reload_signal = "SIGHUP"
+      kill_signal = "SIGINT"
+      max_stale = "10m"
+      log_level = "warn"
 
-    wait {
-      min = "5s"
-      max = "10s"
-    }
-
-    template {
-      source = "/var/lib/bind/zones/db.mgmt.gocloud.io.tpl"
-      destination = "/var/lib/bind/zones/db.mgmt.gocloud.io"
-      create_dest_dirs = true
-      command = "bash -c 'chown root:bind /var/lib/bind/zones/db.mgmt.gocloud.io && systemctl reload bind9'"
-      command_timeout = "60s"
-      error_on_missing_key = false
-      perms = 0644
-      backup = true
-      left_delimiter  = "{{"
-      right_delimiter = "}}"
       wait {
-        min = "2s"
+        min = "5s"
         max = "10s"
       }
-    }
-    EOF
 
-    echo "Configuring consul-template"
-    sudo mkdir -pm 0755 /etc/consul-template.d /opt/consul-template/data
-    sudo chown -R consul-template:consul-template /etc/consul-template.d /opt/consul-template/data
-    sudo chmod -R 0644 /etc/consul-template.d/*
+      template {
+        source = "/var/lib/bind/zones/db.mgmt.gocloud.io.tpl"
+        destination = "/var/lib/bind/zones/db.mgmt.gocloud.io"
+        create_dest_dirs = true
+        command = "bash -c 'chown root:bind /var/lib/bind/zones/db.mgmt.gocloud.io && systemctl reload bind9'"
+        command_timeout = "60s"
+        error_on_missing_key = false
+        perms = 0644
+        backup = true
+        left_delimiter  = "{{"
+        right_delimiter = "}}"
+        wait {
+          min = "2s"
+          max = "10s"
+        }
+      }
+      EOF
 
-    echo "Installing consul template systemd service and config"
+      echo "Configuring consul-template"
+      sudo mkdir -pm 0755 /etc/consul-template.d /opt/consul-template/data
+      sudo chown -R consul-template:consul-template /etc/consul-template.d /opt/consul-template/data
+      sudo chmod -R 0644 /etc/consul-template.d/*
 
-    cat <<EOF >/etc/systemd/system/consul-template.service
-    [Unit]
-    Description=consul-template
-    Requires=network-online.target
-    After=network-online.target consul.service
+      echo "Installing consul template systemd service and config"
 
-    [Service]
-    ExecStart=/usr/local/bin/consul-template -config=/etc/consul-template.d
-    KillSignal=SIGINT
-    ExecReload=/bin/kill -HUP $MAINPID
-    Restart=always
-    RestartSec=5
+      cat <<EOF >/etc/systemd/system/consul-template.service
+      [Unit]
+      Description=consul-template
+      Requires=network-online.target
+      After=network-online.target consul.service
 
-    [Install]
-    WantedBy=multi-user.target
-    EOF
+      [Service]
+      ExecStart=/usr/local/bin/consul-template -config=/etc/consul-template.d
+      KillSignal=SIGINT
+      ExecReload=/bin/kill -HUP $MAINPID
+      Restart=always
+      RestartSec=5
 
-    systemctl daemon-reload
-    systemctl enable consul-template
-    systemctl start consul-template
+      [Install]
+      WantedBy=multi-user.target
+      EOF
 
-    echo "Completed consul template setup"
+      systemctl daemon-reload
+      systemctl enable consul-template
+      systemctl start consul-template
+
+      echo "Completed consul template setup"
 
 bootcmd:
   - echo "127.0.1.1 ${hostname}" >> /etc/hosts
