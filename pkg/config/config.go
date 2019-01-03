@@ -15,6 +15,7 @@ type Config struct {
 	KubernetesConfig KubernetesConfig     `yaml:"kubernetes"`
 	GateConfig       GateConfig           `yaml:"gate"`
 	TerraformConfig  TerraformConfig      `yaml:"terraform"`
+	HostsConfig      HostsConfig          `yaml:"hosts"`
 }
 
 // LoadConfig loads a configuration file
@@ -28,11 +29,11 @@ func LoadConfig(configFilePath string) (*Config, error) {
 	if err != nil {
 		return config, err
 	}
-
+	fmt.Println(config)
 	if err = yaml.Unmarshal(bytes, &config); err != nil {
 		return config, fmt.Errorf("Error unmarshaling configuration file: %s", err)
 	}
-
+	fmt.Println(config)
 	if err = config.Validate(); err != nil {
 		return config, fmt.Errorf("Error validating configuration file: %s", err)
 	}
@@ -56,6 +57,14 @@ func (c *Config) Validate() error {
 
 	if err := c.GateConfig.Validate(); err != nil {
 		return fmt.Errorf("Error validating gate configuration: %s", err)
+	}
+
+	if err := c.TerraformConfig.Validate(); err != nil {
+		return fmt.Errorf("Error validating terraform configuration: %s", err)
+	}
+
+	if err := c.HostsConfig.Validate(); err != nil {
+		return fmt.Errorf("Error validating hosts configuration: %s", err)
 	}
 
 	return nil
@@ -181,6 +190,30 @@ func (tc *TerraformConfig) Validate() error {
 	}
 	if tc.ImageSourcePath == "" {
 		return fmt.Errorf("Must provide non-empty image source path")
+	}
+	return nil
+}
+
+type HostsConfig struct {
+	Hosts []struct {
+		Name      string `yaml:"name"`
+		IPAddress string `yaml:"ip_address"`
+	} `yaml:"hosts"`
+}
+
+func (hc *HostsConfig) Validate() error {
+	if len(hc.Hosts) == 0 {
+		return fmt.Errorf("Must provide atleast one host")
+	}
+
+	for _, host := range hc.Hosts {
+		if host.Name == "" {
+			return fmt.Errorf("Must provide non-empty host name for Host: [%s]", host)
+		}
+
+		if validIP := net.ParseIP(host.IPAddress); validIP == nil {
+			return fmt.Errorf("Must provide valid IP format for Host: [%s]", host)
+		}
 	}
 	return nil
 }
