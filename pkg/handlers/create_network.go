@@ -149,7 +149,7 @@ func (cn *createNetworkWF) getCreateTask() ([]task.Task, error) {
 	var tasks []task.Task
 	tasks = cn.setupNetworkGateway(tasks)
 	tasks = cn.setupNetworkDHCP(tasks)
-	// tasks = cn.setupNetworkNameserver(tasks)
+	tasks = cn.setupNetworkNameserver(tasks)
 	return tasks, nil
 }
 
@@ -221,6 +221,34 @@ func (cn *createNetworkWF) setupNetworkDHCP(tasks []task.Task) []task.Task {
 }
 
 func (cn *createNetworkWF) setupNetworkNameserver(tasks []task.Task) []task.Task {
+	netCIDR := cn.clusterNetwork.ClusterNetworkCIDR
+	dnsConfig := node.NodeCreateConfig{
+		Host: net.ParseIP("10.30.0.1"),
+		Role: node.RoleNetworkDHCP,
+		Node: node.Node{
+			Name:         cn.dhcp.Name,
+			SSHPublicKey: cn.nodePublicKey,
+			NetworkConfig: node.NetworkConfig{
+				MacAddress: network.GenerateMacAddress(),
+				IP:         cn.clusterNetwork.Nameserver,
+				Mask:       netCIDR.Mask,
+				Gateway:    cn.clusterNetwork.Gateway,
+				Nameserver: cn.dcNameserverIP,
+			},
+		},
+		ExtraConfig: map[string]string{
+			config.KeyClusterNetworkCidr: netCIDR.String(),
+		},
+	}
+
+	checkNetworkGWNode := provisioner.NewCheckNode(cn.clusterNetwork.Gateway, cn.log)
+	checkNetworkDHCPNode := provisioner.NewCheckNode(cn.clusterNetwork.Dhcp, cn.log)
+	createDNSNode := provisioner.NewCreateNode(dnsConfig, cn.handlers.Provisioner, cn.log)
+
+	dnsSeqTasks := task.NewSeqTask(cn.log, checkNetworkGWNode, checkNetworkDHCPNode, createDNSNode)
+
+	tasks = append(tasks, dnsSeqTasks)
+
 	return tasks
 }
 
