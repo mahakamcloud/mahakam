@@ -76,6 +76,14 @@ write_files:
       sysctl net.bridge.bridge-nf-call-iptables=1
       kubectl apply --kubeconfig /etc/kubernetes/admin.conf -f https://raw.githubusercontent.com/coreos/flannel/bc79dd1505b0c8681ece4de4c0d86c5cd2643275/Documentation/kube-flannel.yml
 
+      wget https://storage.googleapis.com/kubernetes-helm/helm-v2.12.1-linux-amd64.tar.gz
+      tar -zxvf ./helm-v2.12.1-linux-amd64.tar.gz
+      mv ./linux-amd64/helm /usr/local/bin/helm
+
+      kubectl -n kube-system create serviceaccount tiller
+      kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
+      helm init --service-account=tiller
+
 packages:
   - curl
   - apt-transport-https
