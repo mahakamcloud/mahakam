@@ -11,8 +11,8 @@ var Data = `data "template_file" "user_data" {
         ip_address               = "${var.ip_address}"
         mac_address              = "${var.mac_address}"
         netmask                  = "${var.netmask}"
-        gateway_ip               = "${var.gateway_ip}"
-        upstream_dns            = "${var.upstream_dns}"
+        gateway                  = "${var.gateway}"
+        dns_address              = "${var.dns_address}"
         dns_zone_name            = "${var.dns_zone_name}"
         network_cidr             = "${var.network_cidr}"
     }

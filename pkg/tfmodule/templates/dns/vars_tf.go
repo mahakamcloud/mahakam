@@ -34,11 +34,11 @@ variable "netmask" {
     type = "string"
 }
 
-variable "gateway_ip" {
+variable "gateway" {
     type = "string"
 }
 
-variable "upstream_dns" {
+variable "dns_address" {
     type = "string"
 }
 
