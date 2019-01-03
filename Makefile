@@ -43,6 +43,11 @@ dev-docker: ## run dev docker that has terraform libvirt plugin and golang
 	@echo running dev docker container...
 	docker run -it --rm -p 9000:9000 -v $(HOME)/.ssh:/root/.ssh -v $(PWD):/root/go/src/github.com/mahakamcloud/mahakam -v $(HOME)/.aws:/root/.aws -w /root/go/src/github.com/mahakamcloud/mahakam devrunner:latest /bin/bash
 
+.PHONY: staging-docker
+staging-docker: ## run staging docker that has terraform libvirt plugin and golang with privileged access
+	@echo running staging docker container...
+	docker run -it --rm --network host --privileged -v $(PWD):/root/go/src/github.com/mahakamcloud/mahakam -v $(HOME)/.aws:/root/.aws -w /root/go/src/github.com/mahakamcloud/mahakam devrunner:latest /bin/bash
+
 .PHONY: generate-server
 generate-server: ## Generate swagger server
 	cd $(BASE)/pkg/api/v1 && swagger generate server \
