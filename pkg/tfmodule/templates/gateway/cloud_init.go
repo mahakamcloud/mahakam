@@ -33,6 +33,12 @@ write_files:
         address ${ip_address}
         netmask ${netmask}
         dns-nameservers ${dns_address}
+
+      # TODO(giri): dirty hack to let cluster talks to ISCSI
+      auto ens4:0
+      iface ens4:0 inet static
+        address 10.30.10.8
+        netmask 255.255.0.0
       EOF
 
       ifdown ens4 && ifup ens4
@@ -76,6 +82,9 @@ write_files:
       # Allow IP forward from private network to public
       iptables -A FORWARD -i ens3 -o ens4 -m state --state RELATED,ESTABLISHED -j ACCEPT
       iptables -A FORWARD -i ens4 -o ens3 -j ACCEPT
+
+      # Allow IP forward from cluster network to storage network
+      iptables -A FORWARD -i ens4 -o ens4 -j ACCEPT
 
       # Enable SNAT to let VM network access internet
       iptables -t nat -A POSTROUTING -s ${network_cidr} ! -d ${network_cidr} -j MASQUERADE
