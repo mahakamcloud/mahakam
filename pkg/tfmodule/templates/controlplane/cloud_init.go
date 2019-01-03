@@ -80,9 +80,9 @@ write_files:
       tar -zxvf ./helm-v2.12.1-linux-amd64.tar.gz
       mv ./linux-amd64/helm /usr/local/bin/helm
 
-      kubectl -n kube-system create serviceaccount tiller
-      kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
-      helm init --service-account=tiller
+      kubectl create --kubeconfig /etc/kubernetes/admin.conf -n kube-system serviceaccount tiller
+      kubectl create --kubeconfig /etc/kubernetes/admin.conf clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
+      KUBECONFIG=/etc/kubernetes/admin.conf helm init --service-account=tiller
 
 packages:
   - curl
