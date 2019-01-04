@@ -11,5 +11,5 @@ netmask = "[[.NetMask]]"
 gateway = "[[.Gateway]]"
 dns_address = "[[.DNSAddress]]"
 dns_zone_name = "[[.DNSDomainName]]"
-network_cidr = "${.NetworkCIDR}"
+network_cidr = "[[.NetworkCIDR]]"
 `
