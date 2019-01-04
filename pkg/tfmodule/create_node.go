@@ -144,6 +144,7 @@ func CreateNetworkGWNode(name, destdir string, data map[string]string) error {
 	}
 
 	gwNode.GenerateProvisionerFiles(data)
+
 	err := gwNode.ExecuteProvisioner()
 	if err != nil {
 		return err
