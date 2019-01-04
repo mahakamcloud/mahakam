@@ -138,5 +138,7 @@ func (k *CreateAdminKubeconfig) Run() error {
 	if err != nil {
 		return fmt.Errorf("error creating admin kubeconfig file for cluster %s '%v': %s", k.clustername, k.SCPConfig, err)
 	}
+
+	k.log.Infof("admin kubeconfig has been copied over successfully '%v'", k)
 	return nil
 }
