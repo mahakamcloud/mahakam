@@ -224,9 +224,9 @@ func (cn *createNetworkWF) setupNetworkNameserver(tasks []task.Task) []task.Task
 	netCIDR := cn.clusterNetwork.ClusterNetworkCIDR
 	dnsConfig := node.NodeCreateConfig{
 		Host: net.ParseIP("10.30.0.1"),
-		Role: node.RoleNetworkDHCP,
+		Role: node.RoleNetworkDNS,
 		Node: node.Node{
-			Name:         cn.dhcp.Name,
+			Name:         cn.nameserver.Name,
 			SSHPublicKey: cn.nodePublicKey,
 			NetworkConfig: node.NetworkConfig{
 				MacAddress: network.GenerateMacAddress(),
