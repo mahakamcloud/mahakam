@@ -38,7 +38,7 @@ write_files:
       auto ens4:0
       iface ens4:0 inet static
         address 10.30.10.8
-        netmask 255.255.0.0
+        netmask 255.255.240.0
       EOF
 
       ifdown ens4 && ifup ens4

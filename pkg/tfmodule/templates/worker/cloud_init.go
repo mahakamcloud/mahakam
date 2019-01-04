@@ -27,7 +27,7 @@ write_files:
       iface ens3 inet static
         address ${ip_address}
         netmask ${netmask}
-        dns-nameservers ${dns_address}
+        dns-nameservers 8.8.8.8
         gateway ${gateway}
       EOF
 
