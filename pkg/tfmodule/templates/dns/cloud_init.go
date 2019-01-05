@@ -140,7 +140,7 @@ write_files:
       $ORIGIN .
       $TTL 604800 ; 1 week
       ${dns_zone_name}.      IN      SOA     ns1.${dns_zone_name}. admin.${dns_zone_name}. (
-                            {{ keyOrDefault "zones/${dns_zone_name}/serial"  "0" }}         ; Serial
+                            [[ keyOrDefault "zones/${dns_zone_name}/serial"  "0" ]]         ; Serial
                         604800        ; Refresh
                           86400       ; Retry
                         2419200       ; Expire
@@ -157,8 +157,8 @@ write_files:
       $ORIGIN ${dns_zone_name}.
       $TTL 60 ; 1 minute
 
-      {{ range ls "zones/${dns_zone_name}/hosts/" }}
-      {{ .Key }}        A        {{ .Value }}{{ end }}
+      [[ range ls "zones/${dns_zone_name}/hosts/" ]]
+      [[ .Key ]]        A        [[ .Value ]][[ end ]]
 
   - path: /opt/cloud-init/setup-consul-template.sh
     permissions: 0644
@@ -210,8 +210,8 @@ write_files:
         error_on_missing_key = false
         perms = 0644
         backup = true
-        left_delimiter  = "{{"
-        right_delimiter = "}}"
+        left_delimiter  = "[["
+        right_delimiter = "]]"
         wait {
           min = "2s"
           max = "10s"

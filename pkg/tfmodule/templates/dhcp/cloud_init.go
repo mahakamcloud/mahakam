@@ -91,7 +91,7 @@ write_files:
         max-lease-time 14400;
       }
 
-      {{ range ls "hosts" }}{{ .Value }}{{ end }}
+      [[ range ls "hosts" ]][[ .Value ]][[ end ]]
       EOF
 
       cat <<EOF >/etc/default/isc-dhcp-server
@@ -168,8 +168,8 @@ write_files:
         error_on_missing_key = false
         perms = 0644
         backup = true
-        left_delimiter  = "{{"
-        right_delimiter = "}}"
+        left_delimiter  = "[["
+        right_delimiter = "]]"
         wait {
           min = "2s"
           max = "10s"

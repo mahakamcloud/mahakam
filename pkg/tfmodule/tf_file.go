@@ -26,8 +26,6 @@ func (tfFile TerraformFile) ParseTerraformFile(data map[string]string) string {
 	// TODO: check if source path exists -> raise error
 	tfFileTemplate := template.New(tfFile.FileType)
 
-	tfFileTemplate.Delims("[[", "]]")
-
 	tfFileTemplate.Parse(tfFile.Source)
 
 	var buf bytes.Buffer
