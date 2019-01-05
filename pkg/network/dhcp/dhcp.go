@@ -65,13 +65,13 @@ func (nodeDhcpConfig *NodeDHCPConfig) Register(dhcpEpConfig EndpointConfig) erro
 
 	nodeDhcpData, err := nodeDhcpConfig.parse()
 	if err != nil {
-		log.Errorf("Node dhcp config parse error : ", err)
+		log.Errorf("Node dhcp config parse error : %v", err)
 		return err
 	}
 
 	kv, err := dhcpEpConfig.getConsulEndpoint()
 	if err != nil {
-		log.Errorf("Error getting consul KV handle : ", err)
+		log.Errorf("Error getting consul KV handle : %v", err)
 		return err
 	}
 
@@ -79,7 +79,7 @@ func (nodeDhcpConfig *NodeDHCPConfig) Register(dhcpEpConfig EndpointConfig) erro
 	p := &api.KVPair{Key: consulDHCPRootKey + nodeDhcpConfig.NodeHostName, Value: []byte(nodeDhcpData)}
 	_, err = kv.Put(p, nil)
 	if err != nil {
-		log.Errorf("Error writing data to consul : ", err)
+		log.Errorf("Error writing data to consul : %v", err)
 		return err
 	}
 	return nil
@@ -89,14 +89,14 @@ func (nodeDhcpConfig *NodeDHCPConfig) parse() (string, error) {
 	dhcpTmplVal := template.New("dhcp")
 	parsedDHCPTmpl, err := dhcpTmplVal.Parse(dhcpTemplate)
 	if err != nil {
-		log.Fatal("Error parsing the DHCP Template: ", err)
+		log.Errorf("Error parsing the DHCP Template: %v", err)
 		return "", err
 	}
 
 	var data strings.Builder
 	err = parsedDHCPTmpl.Execute(&data, nodeDhcpConfig)
 	if err != nil {
-		log.Fatal("Error executing the DHCP template: ", err)
+		log.Errorf("Error executing the DHCP template: %v", err)
 		return "", err
 	}
 
@@ -117,15 +117,4 @@ func (dhcpEpConfig *EndpointConfig) getConsulEndpoint() (*api.KV, error) {
 	// Get a handle to the KV API
 	kv := client.KV()
 	return kv, nil
-}
-
-// add to utils
-func parseIP(s string) (net.IP, error) {
-	err := net.ParseIP(s)
-
-	if err != nil {
-		log.Fatal("Parse: ", err)
-	}
-
-	return net.ParseIP("10.40.11.1"), nil
 }
