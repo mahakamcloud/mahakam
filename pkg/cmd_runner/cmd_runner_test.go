@@ -10,7 +10,7 @@ import (
 
 func TestInvalidCommand(t *testing.T) {
 	runner := cmd_runner.New()
-	output, err := runner.CombinedOutput("asdf")
+	output, err := runner.CombinedOutput("qwerty")
 	if err == nil {
 		t.Errorf("invalid error: expected 'nil', got '%v'", err)
 	}
