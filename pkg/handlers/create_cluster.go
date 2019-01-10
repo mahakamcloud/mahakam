@@ -26,17 +26,17 @@ import (
 type CreateCluster struct {
 	Handlers
 	KubernetesConfig config.KubernetesConfig
-	hostsConfig      []config.Host
+	hosts            []config.Host
 	log              log.FieldLogger
 }
 
 // NewCreateClusterHandler creates new CreateCluster object
-func NewCreateClusterHandler(handlers Handlers, config config.KubernetesConfig, hostsConfig []config.Host) *CreateCluster {
+func NewCreateClusterHandler(handlers Handlers, config config.KubernetesConfig, hosts []config.Host) *CreateCluster {
 	log := log.WithField("create", "cluster")
 	return &CreateCluster{
 		Handlers:         handlers,
 		KubernetesConfig: config,
-		hostsConfig:      hostsConfig,
+		hosts:            hosts,
 		log:              log,
 	}
 }
@@ -72,7 +72,7 @@ type createClusterWF struct {
 	clusterNetwork *network.ClusterNetwork
 	controlPlane   node.Node
 	workers        []node.Node
-	hostsConfig    []config.Host
+	hosts          []config.Host
 
 	controlPlaneIP net.IP
 	nodePublicKey  string
@@ -128,7 +128,7 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 		clusterNetwork: clusterNetwork,
 		controlPlane:   controlPlane,
 		workers:        workers,
-		hostsConfig:    cHandler.hostsConfig,
+		hosts:          cHandler.hosts,
 		controlPlaneIP: controlPlane.NetworkConfig.IP,
 		nodePublicKey:  cHandler.KubernetesConfig.SSHPublicKey,
 		podNetworkCidr: cHandler.KubernetesConfig.PodNetworkCidr,
@@ -162,7 +162,7 @@ func (c *createClusterWF) getCreateTask() ([]task.Task, error) {
 }
 
 func (c *createClusterWF) setupControlPlaneSteps(tasks []task.Task) []task.Task {
-	host, err := scheduler.GetHost(c.hostsConfig)
+	host, err := scheduler.GetHost(c.hosts)
 	if err != nil {
 		c.log.Errorf("Error : %v", err)
 		return nil
@@ -199,7 +199,7 @@ func (c *createClusterWF) setupControlPlaneSteps(tasks []task.Task) []task.Task 
 
 func (c *createClusterWF) setupWorkerSteps(tasks []task.Task) []task.Task {
 	for _, worker := range c.workers {
-		host, err := scheduler.GetHost(c.hostsConfig)
+		host, err := scheduler.GetHost(c.hosts)
 		if err != nil {
 			c.log.Errorf("Error : %v", err)
 			return nil

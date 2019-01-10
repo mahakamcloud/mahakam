@@ -15,6 +15,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/network"
 	"github.com/mahakamcloud/mahakam/pkg/node"
 	"github.com/mahakamcloud/mahakam/pkg/provisioner"
+	"github.com/mahakamcloud/mahakam/pkg/scheduler"
 	"github.com/mahakamcloud/mahakam/pkg/task"
 	"github.com/mahakamcloud/mahakam/pkg/utils"
 	log "github.com/sirupsen/logrus"
@@ -23,13 +24,16 @@ import (
 // CreateNetwork is handlers for create-network operation
 type CreateNetwork struct {
 	Handlers
-	log log.FieldLogger
+	hosts []config.Host
+	log   log.FieldLogger
 }
 
-func NewCreateNetworkHandler(handlers Handlers) *CreateNetwork {
+// NewCreateNetworkHandler creates a CreateNetwork object
+func NewCreateNetworkHandler(handlers Handlers, hosts []config.Host) *CreateNetwork {
 	log := log.WithField("create", "network")
 	return &CreateNetwork{
 		Handlers: handlers,
+		hosts:    hosts,
 		log:      log,
 	}
 }
@@ -74,6 +78,7 @@ type createNetworkWF struct {
 	gateway        node.Node
 	nameserver     node.Node
 	dhcp           node.Node
+	hosts          []config.Host
 
 	dcPublicNetworkCIDR    net.IPNet
 	dcGatewayIP            net.IP
@@ -113,6 +118,7 @@ func newCreateNetworkWF(cluster *models.Network, cHandler *CreateNetwork) (*crea
 		gateway:                gateway,
 		dhcp:                   dhcp,
 		nameserver:             dns,
+		hosts:                  cHandler.hosts,
 		dcPublicNetworkCIDR:    *dcPublicNetworkCIDR,
 		dcGatewayIP:            dcGatewayIP,
 		dcNameserverIP:         dcNameserverIP,
@@ -154,8 +160,14 @@ func (cn *createNetworkWF) getCreateTask() ([]task.Task, error) {
 }
 
 func (cn *createNetworkWF) setupNetworkGateway(tasks []task.Task) []task.Task {
+	host, err := scheduler.GetHost(cn.hosts)
+	if err != nil {
+		cn.log.Errorf("Error : %v", err)
+		return nil
+	}
+
 	gwConfig := node.NodeCreateConfig{
-		Host: net.ParseIP("10.30.0.1"),
+		Host: host,
 		Role: node.RoleNetworkGW,
 		Node: node.Node{
 			Name:         cn.gateway.Name,
@@ -188,8 +200,15 @@ func (cn *createNetworkWF) setupNetworkGateway(tasks []task.Task) []task.Task {
 
 func (cn *createNetworkWF) setupNetworkDHCP(tasks []task.Task) []task.Task {
 	netCIDR := cn.clusterNetwork.ClusterNetworkCIDR
+
+	host, err := scheduler.GetHost(cn.hosts)
+	if err != nil {
+		cn.log.Errorf("Error : %v", err)
+		return nil
+	}
+
 	dhcpConfig := node.NodeCreateConfig{
-		Host: net.ParseIP("10.30.0.1"),
+		Host: host,
 		Role: node.RoleNetworkDHCP,
 		Node: node.Node{
 			Name:         cn.dhcp.Name,
@@ -222,8 +241,15 @@ func (cn *createNetworkWF) setupNetworkDHCP(tasks []task.Task) []task.Task {
 
 func (cn *createNetworkWF) setupNetworkNameserver(tasks []task.Task) []task.Task {
 	netCIDR := cn.clusterNetwork.ClusterNetworkCIDR
+
+	host, err := scheduler.GetHost(cn.hosts)
+	if err != nil {
+		cn.log.Errorf("Error : %v", err)
+		return nil
+	}
+
 	dnsConfig := node.NodeCreateConfig{
-		Host: net.ParseIP("10.30.0.1"),
+		Host: host,
 		Role: node.RoleNetworkDNS,
 		Node: node.Node{
 			Name:         cn.nameserver.Name,

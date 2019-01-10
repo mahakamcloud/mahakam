@@ -65,7 +65,7 @@ func configureAPI(api *operations.MahakamAPI) http.Handler {
 
 	api.ClustersDescribeClustersHandler = &handlers.DescribeCluster{Handlers: *h}
 
-	api.NetworksCreateNetworkHandler = handlers.NewCreateNetworkHandler(*h)
+	api.NetworksCreateNetworkHandler = handlers.NewCreateNetworkHandler(*h, mahakamConfig.HostsConfig)
 
 	api.NetworksGetNetworksHandler = networks.GetNetworksHandlerFunc(func(params networks.GetNetworksParams) middleware.Responder {
 		return middleware.NotImplemented("operation apps.GetNetworks has not yet been implemented")
