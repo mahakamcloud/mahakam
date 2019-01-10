@@ -20,10 +20,11 @@ func TestGetHostReturnsFirstHost(t *testing.T) {
 		},
 	}
 
-	scheduledHost, _ := scheduler.GetHost(hostConfig)
+	scheduledHost, err := scheduler.GetHost(hostConfig)
 
 	expectedHost := net.ParseIP("127.0.0.1")
 
+	assert.Nil(t, err)
 	assert.Equal(t, scheduledHost, expectedHost, "they should be equal")
 }
 
@@ -36,4 +37,17 @@ func TestGetHostReturnsErrorForEmptyHostList(t *testing.T) {
 	_, err := scheduler.GetHost(hostConfig)
 
 	assert.NotNil(t, err)
+	assert.Equal(t, "Empty hosts config", err.Error(), "they should be equal")
+}
+
+func TestGetHostReturnsErrorForInvalidHost(t *testing.T) {
+
+	hostConfig := config.HostsConfig{
+		Hosts: []config.Host{},
+	}
+
+	_, err := scheduler.GetHost(hostConfig)
+
+	assert.NotNil(t, err)
+	assert.Equal(t, "Empty hosts config", err.Error(), "they should be equal")
 }
