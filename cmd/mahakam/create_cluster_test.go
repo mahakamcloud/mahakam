@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/go-openapi/swag"
@@ -18,7 +19,7 @@ var (
 		Owner:    "fake-cluster-owner",
 		NumNodes: 2,
 	}
-	validCreateClusterRes = &clusters.CreateClusterCreated{
+	createClusterRes = &clusters.CreateClusterCreated{
 		Payload: &models.Cluster{
 			ID:       1,
 			Name:     swag.String("fake-cluster-name"),
@@ -27,6 +28,7 @@ var (
 			Status:   "pending",
 		},
 	}
+	createClusterErr = &clusters.CreateClusterCreated{}
 )
 
 func TestCreateCluster(t *testing.T) {
@@ -37,10 +39,9 @@ func TestCreateCluster(t *testing.T) {
 
 	validCreateClusterOpts.ClusterAPI = clusterAPI
 
-	clusterAPI.EXPECT().CreateCluster(gomock.Any()).
-		Return(validCreateClusterRes, nil)
-
 	// create cluster should succeed
+	clusterAPI.EXPECT().CreateCluster(gomock.Any()).
+		Return(createClusterRes, nil)
 	res, err := RunCreateCluster(validCreateClusterOpts)
 	assert.NoError(t, err)
 	assert.Equal(t, int64(1), res.ID)
@@ -48,4 +49,12 @@ func TestCreateCluster(t *testing.T) {
 	assert.Equal(t, int64(2), res.NumNodes)
 	assert.Equal(t, "fake-cluster-owner", res.Owner)
 	assert.Equal(t, "pending", res.Status)
+
+	// create cluster should error out
+	clusterAPI.EXPECT().CreateCluster(gomock.Any()).
+		Return(createClusterErr, fmt.Errorf("fake create cluster error"))
+	res, err = RunCreateCluster(validCreateClusterOpts)
+	assert.Error(t, err)
+	assert.Nil(t, res)
+	assert.Contains(t, err.Error(), "fake create cluster error")
 }
