@@ -128,3 +128,11 @@
 [[constraint]]
   branch = "master"
   name = "github.com/sparrc/go-ping"
+
+[[constraint]]
+  name = "github.com/stretchr/testify"
+  version = "1.3.0"
+
+[[constraint]]
+  name = "github.com/golang/mock"
+  version = "1.2.0"
