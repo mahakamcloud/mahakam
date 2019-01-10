@@ -9,12 +9,11 @@ import (
 
 // Schedule interface defines a Scheduler that returns allocated node
 type Schedule interface {
-	GetHost(hosts []config.HostsConfig) (net.IP, error)
+	GetHost(hosts []config.Host) (net.IP, error)
 }
 
 // GetHost return a single host IP
-func GetHost(hostConfig config.HostsConfig) (net.IP, error) {
-	hosts := hostConfig.Hosts
+func GetHost(hosts []config.Host) (net.IP, error) {
 	if len(hosts) == 0 {
 		return nil, fmt.Errorf("Empty hosts config")
 	}
