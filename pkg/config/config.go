@@ -194,11 +194,13 @@ func (tc *TerraformConfig) Validate() error {
 	return nil
 }
 
+type Host struct {
+	Name      string `yaml:"name"`
+	IPAddress string `yaml:"ip_address"`
+}
+
 type HostsConfig struct {
-	Hosts []struct {
-		Name      string `yaml:"name"`
-		IPAddress string `yaml:"ip_address"`
-	} `yaml:"hosts"`
+	Hosts []Host `yaml:"hosts"`
 }
 
 func (hc *HostsConfig) Validate() error {
