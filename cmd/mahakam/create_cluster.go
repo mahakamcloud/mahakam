@@ -7,6 +7,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/golang/glog"
 
+	"github.com/mahakamcloud/mahakam/pkg/api/v1"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/clusters"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/mahakamcloud/mahakam/pkg/config"
@@ -18,6 +19,8 @@ type CreateClusterOptions struct {
 	Name     string
 	Owner    string
 	NumNodes int
+
+	ClusterAPI v1.ClusterAPI
 }
 
 var cco = &CreateClusterOptions{}
@@ -36,6 +39,8 @@ var createClusterCmd = &cobra.Command{
 			cco.Owner = config.ResourceOwnerGojek
 		}
 
+		cco.ClusterAPI = handlers.GetMahakamClusterClient(os.Getenv("MAHAKAM_API_SERVER_HOST"))
+
 		res, err := RunCreateCluster(cco)
 		if err != nil {
 			glog.Exit(err)
@@ -51,14 +56,13 @@ var createClusterCmd = &cobra.Command{
 }
 
 func RunCreateCluster(cco *CreateClusterOptions) (*models.Cluster, error) {
-	c := handlers.GetMahakamClient(os.Getenv("MAHAKAM_API_SERVER_HOST"))
 	req := &models.Cluster{
 		Name:     swag.String(cco.Name),
 		Owner:    cco.Owner,
 		NumNodes: int64(cco.NumNodes),
 	}
 
-	res, err := c.Clusters.CreateCluster(clusters.NewCreateClusterParams().WithBody(req))
+	res, err := cco.ClusterAPI.CreateCluster(clusters.NewCreateClusterParams().WithBody(req))
 	if err != nil {
 		return nil, fmt.Errorf("error creating cluster '%v': '%v'", cco, err)
 	}
