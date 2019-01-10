@@ -29,11 +29,11 @@ func LoadConfig(configFilePath string) (*Config, error) {
 	if err != nil {
 		return config, err
 	}
-	fmt.Println(config)
+
 	if err = yaml.Unmarshal(bytes, &config); err != nil {
 		return config, fmt.Errorf("Error unmarshaling configuration file: %s", err)
 	}
-	fmt.Println(config)
+
 	if err = config.Validate(); err != nil {
 		return config, fmt.Errorf("Error validating configuration file: %s", err)
 	}
