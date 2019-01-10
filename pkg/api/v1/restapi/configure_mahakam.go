@@ -44,6 +44,7 @@ func configureAPI(api *operations.MahakamAPI) http.Handler {
 	if err != nil {
 		log.Fatalf("Error loading configuration file for mahakam server: %s\n", err)
 	}
+
 	h := handlers.New(
 		mahakamConfig,
 		provisioner.NewTerraformProvisioner(mahakamConfig.TerraformConfig),
@@ -56,7 +57,7 @@ func configureAPI(api *operations.MahakamAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	api.ClustersCreateClusterHandler = handlers.NewCreateClusterHandler(*h, mahakamConfig.KubernetesConfig)
+	api.ClustersCreateClusterHandler = handlers.NewCreateClusterHandler(*h, mahakamConfig.KubernetesConfig, mahakamConfig.HostsConfig)
 
 	api.ClustersGetClustersHandler = clusters.GetClustersHandlerFunc(func(params clusters.GetClustersParams) middleware.Responder {
 		return middleware.NotImplemented("operation clusters.GetClusters has not yet been implemented")

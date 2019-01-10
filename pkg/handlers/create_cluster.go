@@ -5,6 +5,8 @@ import (
 	"net"
 	"strconv"
 
+	"github.com/mahakamcloud/mahakam/pkg/scheduler"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/networks"
@@ -24,14 +26,17 @@ import (
 type CreateCluster struct {
 	Handlers
 	KubernetesConfig config.KubernetesConfig
+	hostsConfig      []config.Host
 	log              log.FieldLogger
 }
 
-func NewCreateClusterHandler(handlers Handlers, config config.KubernetesConfig) *CreateCluster {
+// NewCreateClusterHandler creates new CreateCluster object
+func NewCreateClusterHandler(handlers Handlers, config config.KubernetesConfig, hostsConfig []config.Host) *CreateCluster {
 	log := log.WithField("create", "cluster")
 	return &CreateCluster{
 		Handlers:         handlers,
 		KubernetesConfig: config,
+		hostsConfig:      hostsConfig,
 		log:              log,
 	}
 }
@@ -67,6 +72,7 @@ type createClusterWF struct {
 	clusterNetwork *network.ClusterNetwork
 	controlPlane   node.Node
 	workers        []node.Node
+	hostsConfig    []config.Host
 
 	controlPlaneIP net.IP
 	nodePublicKey  string
@@ -122,6 +128,7 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 		clusterNetwork: clusterNetwork,
 		controlPlane:   controlPlane,
 		workers:        workers,
+		hostsConfig:    cHandler.hostsConfig,
 		controlPlaneIP: controlPlane.NetworkConfig.IP,
 		nodePublicKey:  cHandler.KubernetesConfig.SSHPublicKey,
 		podNetworkCidr: cHandler.KubernetesConfig.PodNetworkCidr,
@@ -155,9 +162,14 @@ func (c *createClusterWF) getCreateTask() ([]task.Task, error) {
 }
 
 func (c *createClusterWF) setupControlPlaneSteps(tasks []task.Task) []task.Task {
+	host, err := scheduler.GetHost(c.hostsConfig)
+	if err != nil {
+		c.log.Errorf("Error : %v", err)
+		return nil
+	}
+
 	cpConfig := node.NodeCreateConfig{
-		// TODO(giri): must be getting from list of hosts
-		Host: net.ParseIP("10.30.0.1"),
+		Host: host,
 		Role: node.RoleControlPlane,
 		Node: node.Node{
 			Name:         c.controlPlane.Name,
@@ -187,8 +199,14 @@ func (c *createClusterWF) setupControlPlaneSteps(tasks []task.Task) []task.Task 
 
 func (c *createClusterWF) setupWorkerSteps(tasks []task.Task) []task.Task {
 	for _, worker := range c.workers {
+		host, err := scheduler.GetHost(c.hostsConfig)
+		if err != nil {
+			c.log.Errorf("Error : %v", err)
+			return nil
+		}
+
 		wConfig := node.NodeCreateConfig{
-			Host: net.ParseIP("10.30.0.1"),
+			Host: host,
 			Role: node.RoleWorker,
 			Node: node.Node{
 				Name:         worker.Name,
