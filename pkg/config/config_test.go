@@ -2,14 +2,12 @@ package config_test
 
 import (
 	"io/ioutil"
-	"os"
 	"path/filepath"
-
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
-	yaml "gopkg.in/yaml.v2"
+	"testing"
 
 	. "github.com/mahakamcloud/mahakam/pkg/config"
+	"github.com/stretchr/testify/assert"
+	yaml "gopkg.in/yaml.v2"
 )
 
 var (
@@ -42,20 +40,13 @@ var (
 		},
 		HostsConfig: HostsConfig{
 			Hosts: []Host{
-				Host{
-					Name:      "fake-host-name-1",
-					IPAddress: "1.2.3.4",
-				},
-				Host{
-					Name:      "fake-host-name-2",
-					IPAddress: "1.2.3.4",
-				},
-			},
+				Host{Name: "server01", IPAddress: "10.30.0.1"},
+				Host{Name: "server02", IPAddress: "10.30.02"}},
 		},
 	}
 )
 
-var _ = Describe("LoadConfig", func() {
+func TestLoadConfig(t *testing.T) {
 	var (
 		err    error
 		input  Config
@@ -66,32 +57,19 @@ var _ = Describe("LoadConfig", func() {
 		configFileBytes []byte
 	)
 
-	BeforeEach(func() {
-		input = validConfig
-		dir, err = ioutil.TempDir("", "mahakam-config-")
-		Expect(err).ToNot(HaveOccurred())
-		configFilePath = filepath.Join(dir, "config-file")
-	})
+	// Setup config file directory
+	input = validConfig
+	dir, err = ioutil.TempDir("", "mahakam-config-")
+	assert.Nil(t, err)
+	configFilePath = filepath.Join(dir, "config-file")
 
-	JustBeforeEach(func() {
-		output, err = LoadConfig(configFilePath)
-	})
+	// Setup config file data
+	configFileBytes, err = yaml.Marshal(input)
+	assert.Nil(t, err)
+	err = ioutil.WriteFile(configFilePath, configFileBytes, 0644)
+	assert.Nil(t, err)
 
-	AfterEach(func() {
-		os.RemoveAll(dir)
-	})
+	output, err = LoadConfig(configFilePath)
 
-	Context("when having valid config file bytes", func() {
-		BeforeEach(func() {
-			configFileBytes, err = yaml.Marshal(input)
-			Expect(err).ToNot(HaveOccurred())
-			err = ioutil.WriteFile(configFilePath, configFileBytes, 0644)
-			Expect(err).ToNot(HaveOccurred())
-		})
-
-		It("returns config file bytes", func() {
-			Expect(err).ToNot(HaveOccurred())
-			Expect(*output).To(Equal(input))
-		})
-	})
-})
+	assert.Equal(t, *output, input, "they should be equal")
+}
