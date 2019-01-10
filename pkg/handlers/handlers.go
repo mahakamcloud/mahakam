@@ -53,3 +53,9 @@ func GetMahakamClusterClient(host string) v1.ClusterAPI {
 	c := client.New(t, strfmt.Default)
 	return c.Clusters
 }
+
+func GetMahakamAppClient(host string) v1.AppAPI {
+	t := httptransport.New(host, config.MahakamAPIBasePath, nil)
+	c := client.New(t, strfmt.Default)
+	return c.Apps
+}
