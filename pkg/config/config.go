@@ -15,7 +15,7 @@ type Config struct {
 	KubernetesConfig KubernetesConfig     `yaml:"kubernetes"`
 	GateConfig       GateConfig           `yaml:"gate"`
 	TerraformConfig  TerraformConfig      `yaml:"terraform"`
-	HostsConfig      HostsConfig          `yaml:"hosts"`
+	HostsConfig      []Host               `yaml:"hosts"`
 }
 
 // LoadConfig loads a configuration file
@@ -59,8 +59,10 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("Error validating gate configuration: %s", err)
 	}
 
-	if err := c.HostsConfig.Validate(); err != nil {
-		return fmt.Errorf("Error validating hosts configuration: %s", err)
+	for _, host := range c.HostsConfig {
+		if err := host.Validate(); err != nil {
+			return fmt.Errorf("Error validating hosts configuration: %s", err)
+		}
 	}
 
 	return nil
@@ -199,19 +201,13 @@ type HostsConfig struct {
 	Hosts []Host `yaml:"hosts"`
 }
 
-func (hc *HostsConfig) Validate() error {
-	if len(hc.Hosts) == 0 {
-		return fmt.Errorf("Must provide atleast one host")
+func (h *Host) Validate() error {
+	if h.Name == "" {
+		return fmt.Errorf("Must provide non-empty host name for Host: [%s]", h)
 	}
 
-	for _, host := range hc.Hosts {
-		if host.Name == "" {
-			return fmt.Errorf("Must provide non-empty host name for Host: [%s]", host)
-		}
-
-		if validIP := net.ParseIP(host.IPAddress); validIP == nil {
-			return fmt.Errorf("Must provide valid IP format for Host: [%s]", host)
-		}
+	if validIP := net.ParseIP(h.IPAddress); validIP == nil {
+		return fmt.Errorf("Must provide valid IP format for Host: [%s]", h)
 	}
 	return nil
 }

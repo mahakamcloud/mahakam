@@ -38,10 +38,9 @@ var (
 		GateConfig: GateConfig{
 			GateNSSApiKey: "fake-gate-nss-api-key",
 		},
-		HostsConfig: HostsConfig{
-			Hosts: []Host{
-				Host{Name: "server01", IPAddress: "10.30.0.1"},
-				Host{Name: "server02", IPAddress: "10.30.02"}},
+		HostsConfig: []Host{
+			Host{Name: "server01", IPAddress: "10.30.0.1"},
+			Host{Name: "server02", IPAddress: "10.30.02"},
 		},
 	}
 )
