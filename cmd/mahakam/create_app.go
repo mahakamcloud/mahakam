@@ -7,6 +7,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/golang/glog"
+	"github.com/mahakamcloud/mahakam/pkg/api/v1"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/apps"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/mahakamcloud/mahakam/pkg/config"
@@ -20,6 +21,8 @@ type CreateAppOptions struct {
 	ClusterName string
 	ChartURL    string
 	ChartValues string
+
+	AppAPI v1.AppAPI
 }
 
 var cao = &CreateAppOptions{}
@@ -46,6 +49,8 @@ var createAppCmd = &cobra.Command{
 			cao.Owner = config.ResourceOwnerGojek
 		}
 
+		cao.AppAPI = handlers.GetMahakamAppClient(os.Getenv("MAHAKAM_API_SERVER_HOST"))
+
 		res, err := RunCreateApp(cao)
 		if err != nil {
 			glog.Exit(err)
@@ -60,7 +65,6 @@ var createAppCmd = &cobra.Command{
 }
 
 func RunCreateApp(cao *CreateAppOptions) (*models.App, error) {
-	c := handlers.GetMahakamClient(os.Getenv("MAHAKAM_API_SERVER_HOST"))
 	req := &models.App{
 		Name:        swag.String(cao.Name),
 		Owner:       cao.Owner,
@@ -75,7 +79,7 @@ func RunCreateApp(cao *CreateAppOptions) (*models.App, error) {
 			return nil, fmt.Errorf("error reading app values path '%v': '%v'", cao, err.Error())
 		}
 
-		_, err = c.Apps.UploadAppValues(apps.NewUploadAppValuesParams().
+		_, err = cao.AppAPI.UploadAppValues(apps.NewUploadAppValuesParams().
 			WithValues(f).
 			WithAppName(req.Name).
 			WithOwner(swag.String(req.Owner)).
@@ -85,7 +89,7 @@ func RunCreateApp(cao *CreateAppOptions) (*models.App, error) {
 		}
 	}
 
-	res, err := c.Apps.CreateApp(apps.NewCreateAppParams().WithBody(req))
+	res, err := cao.AppAPI.CreateApp(apps.NewCreateAppParams().WithBody(req))
 	if err != nil {
 		return nil, fmt.Errorf("error creating app '%v': '%v'", cao, err.Error())
 	}
