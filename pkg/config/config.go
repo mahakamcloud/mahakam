@@ -59,10 +59,6 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("Error validating gate configuration: %s", err)
 	}
 
-	if err := c.TerraformConfig.Validate(); err != nil {
-		return fmt.Errorf("Error validating terraform configuration: %s", err)
-	}
-
 	if err := c.HostsConfig.Validate(); err != nil {
 		return fmt.Errorf("Error validating hosts configuration: %s", err)
 	}
