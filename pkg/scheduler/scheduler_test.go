@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetHost(t *testing.T) {
+func TestGetHostReturnsFirstHost(t *testing.T) {
 	host1 := config.Host{Name: "i-test-01", IPAddress: "127.0.0.1"}
 	host2 := config.Host{Name: "i-test-02", IPAddress: "127.0.1.1"}
 
@@ -25,4 +25,15 @@ func TestGetHost(t *testing.T) {
 	expectedHost := net.ParseIP("127.0.0.1")
 
 	assert.Equal(t, scheduledHost, expectedHost, "they should be equal")
+}
+
+func TestGetHostReturnsErrorForEmptyHostList(t *testing.T) {
+
+	hostConfig := config.HostsConfig{
+		Hosts: []config.Host{},
+	}
+
+	_, err := scheduler.GetHost(hostConfig)
+
+	assert.NotNil(t, err)
 }
