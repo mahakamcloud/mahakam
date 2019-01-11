@@ -5,10 +5,11 @@ import (
 	"net"
 
 	"github.com/mahakamcloud/mahakam/pkg/config"
+	"github.com/mahakamcloud/mahakam/pkg/scheduler/algorithm"
 )
 
-// Schedule interface defines a Scheduler that returns allocated node
-type Schedule interface {
+// Scheduler interface defines a Scheduler that returns allocated node
+type Scheduler interface {
 	GetHost(hosts []config.Host) (net.IP, error)
 }
 
@@ -18,10 +19,15 @@ func GetHost(hosts []config.Host) (net.IP, error) {
 		return nil, fmt.Errorf("Empty hosts config")
 	}
 
-	host := net.ParseIP(hosts[0].IPAddress)
-	if host == nil {
+	host, err := algorithm.RandomAllocator(hosts)
+	if err != nil {
+		return nil, fmt.Errorf("Empty hosts config")
+	}
+
+	hostIP := net.ParseIP(host.IPAddress)
+	if hostIP == nil {
 		return nil, fmt.Errorf("Invalid host address")
 	}
 
-	return host, nil
+	return hostIP, nil
 }
