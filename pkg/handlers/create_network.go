@@ -242,7 +242,7 @@ func (cn *createNetworkWF) setupNetworkDHCPTasks(tasks []task.Task) []task.Task 
 		},
 	}
 
-	checkNetworkGWNode := provisioner.NewCheckNode(cn.clusterNetwork.Gateway, cn.log)
+	checkNetworkGWNode := provisioner.NewCheckNode(cn.clusterNetwork.Gateway, cn.log, utils.NewPingCheck())
 	createDHCPNode := provisioner.NewCreateNode(dhcpConfig, cn.handlers.Provisioner, cn.log)
 
 	dhcpSeqTasks := task.NewSeqTask(cn.log, checkNetworkGWNode, createDHCPNode)
@@ -282,8 +282,8 @@ func (cn *createNetworkWF) setupNetworkNameserverTasks(tasks []task.Task) []task
 		},
 	}
 
-	checkNetworkGWNode := provisioner.NewCheckNode(cn.clusterNetwork.Gateway, cn.log)
-	checkNetworkDHCPNode := provisioner.NewCheckNode(cn.clusterNetwork.Dhcp, cn.log)
+	checkNetworkGWNode := provisioner.NewCheckNode(cn.clusterNetwork.Gateway, cn.log, utils.NewPingCheck())
+	checkNetworkDHCPNode := provisioner.NewCheckNode(cn.clusterNetwork.Dhcp, cn.log, utils.NewPingCheck())
 	createDNSNode := provisioner.NewCreateNode(dnsConfig, cn.handlers.Provisioner, cn.log)
 
 	dnsSeqTasks := task.NewSeqTask(cn.log, checkNetworkGWNode, checkNetworkDHCPNode, createDNSNode)

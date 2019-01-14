@@ -197,7 +197,7 @@ func (c *createClusterWF) setupControlPlaneTasks(tasks []task.Task) []task.Task 
 		},
 	}
 
-	checkClusterNetworkNodes := provisioner.NewCheckClusterNetworkNodes(c.clusterNetwork, c.log)
+	checkClusterNetworkNodes := provisioner.NewCheckClusterNetworkNodes(c.clusterNetwork, c.log, utils.NewPingCheck())
 	createControlPlaneNode := provisioner.NewCreateNode(cpConfig, c.handlers.Provisioner, c.log)
 
 	controlPlaneSeqTasks := task.NewSeqTask(c.log, checkClusterNetworkNodes, createControlPlaneNode)
@@ -236,7 +236,7 @@ func (c *createClusterWF) setupWorkerTasks(tasks []task.Task) []task.Task {
 			},
 		}
 
-		checkClusterNetworkNodes := provisioner.NewCheckClusterNetworkNodes(c.clusterNetwork, c.log)
+		checkClusterNetworkNodes := provisioner.NewCheckClusterNetworkNodes(c.clusterNetwork, c.log, utils.NewPingCheck())
 		createWorkerNode := provisioner.NewCreateNode(wConfig, c.handlers.Provisioner, c.log)
 
 		workerSeqTasks := task.NewSeqTask(c.log, checkClusterNetworkNodes, createWorkerNode)
@@ -263,7 +263,7 @@ func (c *createClusterWF) setupAdminKubeconfigTasks(tasks []task.Task) []task.Ta
 	}
 
 	createAdminKubeconfig := provisioner.NewCreateAdminKubeconfig(c.clustername,
-		c.controlPlaneIP.String(), strconv.Itoa(config.KubernetesAPIServerPort), sConfig)
+		c.controlPlaneIP.String(), strconv.Itoa(config.KubernetesAPIServerPort), sConfig, utils.NewPingCheck())
 
 	tasks = append(tasks, createAdminKubeconfig)
 	return tasks
