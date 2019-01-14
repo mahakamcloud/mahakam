@@ -33,6 +33,7 @@ func (n *CreateNode) Run() error {
 	err := n.p.CreateNode(n.Config)
 	if err != nil {
 		n.log.Errorf("error creating node '%v': %s", n.Config, err)
+		return err
 	}
 	return nil
 }
