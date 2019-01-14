@@ -13,7 +13,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/helmcontroller/portforwarder"
 	"github.com/mahakamcloud/mahakam/pkg/kube"
 	r "github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -27,15 +27,26 @@ type CreateApp struct {
 	settings     helm_env.EnvSettings
 	kubeclient   kubernetes.Interface
 	chartValues  []string
+	log          logrus.FieldLogger
+}
+
+// NewCreateAppHandler creates new CreateApp object
+func NewCreateAppHandler(handlers Handlers) *CreateApp {
+	return &CreateApp{
+		Handlers: handlers,
+		log:      handlers.Log,
+	}
 }
 
 // Handle is handler for create-app operation
 func (h *CreateApp) Handle(params apps.CreateAppParams) middleware.Responder {
+	h.log.Infof("handling create app request: %v", params)
+
 	b := params.Body
 	cluster := r.NewResourceCluster(b.ClusterName)
 	err := h.Handlers.Store.Get(cluster)
 	if err != nil {
-		log.Errorf("error retrieving cluster info from kvstore '%v': %s\n", cluster, err)
+		h.log.Errorf("error retrieving cluster info from kvstore '%v': %s\n", cluster, err)
 		return apps.NewCreateAppDefault(405).WithPayload(&models.Error{
 			Code:    405,
 			Message: "cannot retrieve cluster info from kvstore",
@@ -44,7 +55,7 @@ func (h *CreateApp) Handle(params apps.CreateAppParams) middleware.Responder {
 
 	err = h.createHelmTillerTunnel(cluster.KubeconfigPath)
 	if err != nil {
-		log.Errorf("error creating tunnel to helm tiller: %v\n", err)
+		h.log.Errorf("error creating tunnel to helm tiller: %v\n", err)
 		return apps.NewCreateAppDefault(405).WithPayload(&models.Error{
 			Code:    405,
 			Message: "cannot create tunnel to helm tiller",
@@ -73,7 +84,7 @@ func (h *CreateApp) Handle(params apps.CreateAppParams) middleware.Responder {
 	// to ready when it's done
 	err = hc.CreateApp(req)
 	if err != nil {
-		log.Errorf("error deploying app with helm chart '%v': %v\n", req, err)
+		h.log.Errorf("error deploying app with helm chart '%v': %v\n", req, err)
 		return apps.NewCreateAppDefault(405).WithPayload(&models.Error{
 			Code:    405,
 			Message: "cannot deploy application",
@@ -83,7 +94,7 @@ func (h *CreateApp) Handle(params apps.CreateAppParams) middleware.Responder {
 	serviceFQDN, err := h.getServiceFQDN(b.ChartURL, config.HelmDefaultNamespace,
 		getReleaseName(b.Owner, swag.StringValue(b.Name)))
 	if err != nil {
-		log.Errorf("error getting service name with helm chart '%v': %v\n", req, err)
+		h.log.Errorf("error getting service name with helm chart '%v': %v\n", req, err)
 		return apps.NewCreateAppDefault(405).WithPayload(&models.Error{
 			Code:    405,
 			Message: "cannot retrieve service endpoint of application",
@@ -103,6 +114,8 @@ func (h *CreateApp) Handle(params apps.CreateAppParams) middleware.Responder {
 }
 
 func (h *CreateApp) createHelmTillerTunnel(kubeconfig string) error {
+	h.log.Debugf("create helm tiller tunnel with kubeconfig %s", kubeconfig)
+
 	h.settings.TillerNamespace = config.HelmDefaultTillerNamespace
 	h.settings.KubeConfig = kubeconfig
 	h.settings.KubeContext = config.HelmDefaultKubecontext
@@ -119,12 +132,14 @@ func (h *CreateApp) createHelmTillerTunnel(kubeconfig string) error {
 	}
 
 	h.settings.TillerHost = fmt.Sprintf("127.0.0.1:%d", tillerTunnel.Local)
-	log.Infof("created tunnel using local port: %d\n", tillerTunnel.Local)
 
+	h.log.Debugf("created helm tiller tunnel using local port %d", tillerTunnel.Local)
 	return nil
 }
 
 func (h *CreateApp) getServiceFQDN(chartURL, namespace, releaseName string) (string, error) {
+	h.log.Debugf("getting service fqdn for chart %s, namespace %s, release %s", chartURL, namespace, releaseName)
+
 	app := strings.Split(chartURL, "/")
 	if len(app) < 2 {
 		return "", fmt.Errorf("invalid chart url %s", chartURL)

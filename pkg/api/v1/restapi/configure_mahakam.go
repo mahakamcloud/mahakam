@@ -77,13 +77,13 @@ func configureAPI(api *operations.MahakamAPI) http.Handler {
 
 	api.NetworksAllocateOrReleaseFromIPPoolHandler = handlers.NewAllocateOrReleaseFromIPPool(*h)
 
-	api.AppsCreateAppHandler = &handlers.CreateApp{Handlers: *h}
+	api.AppsCreateAppHandler = handlers.NewCreateAppHandler(*h)
 
 	api.AppsGetAppsHandler = apps.GetAppsHandlerFunc(func(params apps.GetAppsParams) middleware.Responder {
 		return middleware.NotImplemented("operation apps.GetApps has not yet been implemented")
 	})
 
-	api.AppsUploadAppValuesHandler = &handlers.UploadAppValues{Handlers: *h}
+	api.AppsUploadAppValuesHandler = handlers.NewUploadAppValuesHandler(*h)
 
 	api.ServerShutdown = func() {}
 
