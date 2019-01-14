@@ -6,6 +6,10 @@ import (
 	"net"
 	"testing"
 
+	"github.com/mahakamcloud/mahakam/pkg/network"
+
+	"github.com/mahakamcloud/mahakam/pkg/utils"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/sirupsen/logrus"
@@ -19,6 +23,10 @@ import (
 var (
 	n = node.NodeCreateConfig{
 		Host: net.ParseIP("10.10.10.10"),
+	}
+
+	cn = &network.ClusterNetwork{
+		Name: "fake cluster network",
 	}
 )
 
@@ -58,6 +66,49 @@ func TestCreateNode(t *testing.T) {
 			err := cn.Run()
 
 			assert.Equal(t, test.expectError, err)
+		})
+	}
+}
+
+func TestCheckClusterNetworkNodes(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	tests := []struct {
+		name        string
+		expectError error
+		expectReady bool
+	}{
+		{
+			name:        "test check cluster network nodes where gateway is ready",
+			expectError: nil,
+			expectReady: true,
+		},
+		{
+			name:        "test check cluster network nodes where gateway is not ready",
+			expectError: fmt.Errorf("timeout waiting for cluster gateway to be up"),
+			expectReady: false,
+		},
+	}
+
+	l := nilLogger()
+	pc := utils.NewMockPingChecker(ctrl)
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			pc.EXPECT().ICMPPingNWithDelay(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+				Return(test.expectReady)
+
+			c := NewCheckClusterNetworkNodes(cn, l, pc)
+			err := c.Run()
+
+			if err != nil {
+				assert.Error(t, err, test.expectError)
+			}
+
+			if err == nil {
+				assert.NoError(t, err)
+			}
 		})
 	}
 }

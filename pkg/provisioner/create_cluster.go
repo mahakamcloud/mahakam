@@ -41,20 +41,22 @@ func (n *CreateNode) Run() error {
 type CheckClusterNetworkNodes struct {
 	clusterNetwork *network.ClusterNetwork
 	log            logrus.FieldLogger
+	pingChecker    utils.PingChecker
 }
 
-func NewCheckClusterNetworkNodes(clusterNetwork *network.ClusterNetwork, log logrus.FieldLogger) *CheckClusterNetworkNodes {
+func NewCheckClusterNetworkNodes(clusterNetwork *network.ClusterNetwork, log logrus.FieldLogger, pc utils.PingChecker) *CheckClusterNetworkNodes {
 	checkClusterNetworkNodesLog := log.WithField("task", fmt.Sprintf("check cluster network nodes in %v", clusterNetwork))
 
 	return &CheckClusterNetworkNodes{
 		clusterNetwork: clusterNetwork,
 		log:            checkClusterNetworkNodesLog,
+		pingChecker:    pc,
 	}
 }
 
 func (c *CheckClusterNetworkNodes) Run() error {
 	// Blocking check waiting for cluster gateway to be up
-	gwReady := utils.ICMPPingNWithDelay(c.clusterNetwork.Gateway.String(), config.NodePingTimeout, c.log,
+	gwReady := c.pingChecker.ICMPPingNWithDelay(c.clusterNetwork.Gateway.String(), config.NodePingTimeout, c.log,
 		config.NodePingRetry, config.NodePingDelay)
 
 	// Cluster gateway still not ready after max retry
@@ -66,22 +68,24 @@ func (c *CheckClusterNetworkNodes) Run() error {
 }
 
 type CheckNode struct {
-	ip  net.IP
-	log logrus.FieldLogger
+	ip          net.IP
+	log         logrus.FieldLogger
+	pingChecker utils.PingChecker
 }
 
-func NewCheckNode(ip net.IP, log logrus.FieldLogger) *CheckNode {
+func NewCheckNode(ip net.IP, log logrus.FieldLogger, pc utils.PingChecker) *CheckNode {
 	checkNodeLog := log.WithField("task", fmt.Sprintf("check node with address %v", ip.String()))
 
 	return &CheckNode{
-		ip:  ip,
-		log: checkNodeLog,
+		ip:          ip,
+		log:         checkNodeLog,
+		pingChecker: pc,
 	}
 }
 
 func (c *CheckNode) Run() error {
 	// Blocking check waiting for node to be up
-	nodeReady := utils.ICMPPingNWithDelay(c.ip.String(), config.NodePingTimeout, c.log,
+	nodeReady := c.pingChecker.ICMPPingNWithDelay(c.ip.String(), config.NodePingTimeout, c.log,
 		config.NodePingRetry, config.NodePingDelay)
 
 	// Cluster gateway still not ready after max retry
@@ -97,11 +101,12 @@ type CreateAdminKubeconfig struct {
 	apiServerAddress string
 	apiServerPort    string
 	utils.SCPConfig
-	log logrus.FieldLogger
+	log         logrus.FieldLogger
+	pingChecker utils.PingChecker
 }
 
 func NewCreateAdminKubeconfig(clustername, apiServerAddress, apiServerPort string,
-	config utils.SCPConfig) *CreateAdminKubeconfig {
+	config utils.SCPConfig, pc utils.PingChecker) *CreateAdminKubeconfig {
 
 	createAdminKubeconfigLog := logrus.WithField("task", fmt.Sprintf("copying kubeconfig from %s to local system", config.RemoteIPAddress))
 
@@ -111,13 +116,14 @@ func NewCreateAdminKubeconfig(clustername, apiServerAddress, apiServerPort strin
 		apiServerPort:    apiServerPort,
 		SCPConfig:        config,
 		log:              createAdminKubeconfigLog,
+		pingChecker:      pc,
 	}
 }
 
 func (k *CreateAdminKubeconfig) Run() error {
 	// Blocking check waiting control plane to be up
 	apiServer := fmt.Sprintf("%s:%s", k.apiServerAddress, k.apiServerPort)
-	ready := utils.PortPingNWithDelay(apiServer, config.NodePingTimeout, k.log,
+	ready := k.pingChecker.PortPingNWithDelay(apiServer, config.NodePingTimeout, k.log,
 		config.NodePingRetry, config.NodePingDelay)
 
 	// Control plane node still not up after max retry
