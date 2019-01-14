@@ -11,7 +11,7 @@ import (
 	errors "github.com/go-openapi/errors"
 	runtime "github.com/go-openapi/runtime"
 	middleware "github.com/go-openapi/runtime/middleware"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/apps"
@@ -38,6 +38,7 @@ func configureFlags(api *operations.MahakamAPI) {
 }
 
 func configureAPI(api *operations.MahakamAPI) http.Handler {
+	log := logrus.New().WithField("app", "mahakam")
 
 	// TODO(giri): Init of the mahakam application, must find better place
 	mahakamConfig, err := config.LoadConfig(opts.ConfigFilePath)
@@ -48,6 +49,7 @@ func configureAPI(api *operations.MahakamAPI) http.Handler {
 	h := handlers.New(
 		mahakamConfig,
 		provisioner.NewTerraformProvisioner(mahakamConfig.TerraformConfig),
+		log,
 	)
 
 	// configure the api here
@@ -57,7 +59,7 @@ func configureAPI(api *operations.MahakamAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	api.ClustersCreateClusterHandler = handlers.NewCreateClusterHandler(*h, mahakamConfig.KubernetesConfig, mahakamConfig.HostsConfig)
+	api.ClustersCreateClusterHandler = handlers.NewCreateClusterHandler(*h)
 
 	api.ClustersGetClustersHandler = clusters.GetClustersHandlerFunc(func(params clusters.GetClustersParams) middleware.Responder {
 		return middleware.NotImplemented("operation clusters.GetClusters has not yet been implemented")
