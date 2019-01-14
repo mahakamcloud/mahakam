@@ -18,31 +18,33 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/scheduler"
 	"github.com/mahakamcloud/mahakam/pkg/task"
 	"github.com/mahakamcloud/mahakam/pkg/utils"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 // CreateNetwork is handlers for create-network operation
 type CreateNetwork struct {
 	Handlers
 	hosts []config.Host
-	log   log.FieldLogger
+	log logrus.FieldLogger
 }
 
 // NewCreateNetworkHandler creates a CreateNetwork object
 func NewCreateNetworkHandler(handlers Handlers, hosts []config.Host) *CreateNetwork {
-	log := log.WithField("create", "network")
 	return &CreateNetwork{
 		Handlers: handlers,
 		hosts:    hosts,
 		log:      log,
-	}
+	
 }
+
 
 // Handle is handler for create-network operation
 func (h *CreateNetwork) Handle(params networks.CreateNetworkParams) middleware.Responder {
+	h.log.Infof("handling create network request: %v", params)
+
 	nwf, err := newCreateNetworkWF(params.Body, h)
 	if err != nil {
-		log.Errorf("error creating network workflow %s", err)
+		h.log.Errorf("error creating network workflow %s", err)
 		return networks.NewCreateNetworkDefault(405).WithPayload(&models.Error{
 			Code:    405,
 			Message: fmt.Sprintf("error creating network workflow %s", err),
@@ -53,7 +55,7 @@ func (h *CreateNetwork) Handle(params networks.CreateNetworkParams) middleware.R
 	// then async network nodes provisioning
 	err = nwf.Run()
 	if err != nil {
-		log.Errorf("error creating network components %s", err)
+		h.log.Errorf("error creating network components %s", err)
 		return networks.NewCreateNetworkDefault(405).WithPayload(&models.Error{
 			Code:    405,
 			Message: fmt.Sprintf("error creating network components %s", err),
@@ -73,7 +75,7 @@ func (h *CreateNetwork) Handle(params networks.CreateNetworkParams) middleware.R
 
 type createNetworkWF struct {
 	handlers       Handlers
-	log            log.FieldLogger
+	log            logrus.FieldLogger
 	clusterNetwork *network.ClusterNetwork
 	gateway        node.Node
 	nameserver     node.Node
@@ -89,6 +91,9 @@ type createNetworkWF struct {
 }
 
 func newCreateNetworkWF(cluster *models.Network, cHandler *CreateNetwork) (*createNetworkWF, error) {
+	nwfLog := cHandler.log.WithField("workflow", "create-network")
+	nwfLog.Debugf("init create network workflow")
+
 	clusterName := swag.StringValue(cluster.Name)
 
 	gateway := node.Node{
@@ -127,12 +132,14 @@ func newCreateNetworkWF(cluster *models.Network, cHandler *CreateNetwork) (*crea
 }
 
 func (cn *createNetworkWF) Run() error {
+	cn.log.Infof("running create network workflow: %v", cn)
+
 	n, err := cn.handlers.Network.AllocateClusterNetwork()
 	if err != nil {
-		log.Errorf("cluster network allocation failed %v: %s", cn, err)
+		cn.log.Errorf("cluster network allocation failed %v: %s", cn, err)
 		return err
 	}
-	log.Infof("cluster network has been allocated %v", n)
+	cn.log.Infof("cluster network has been allocated %v", n)
 	cn.clusterNetwork = n
 
 	tasks, err := cn.getCreateTask()
@@ -142,6 +149,7 @@ func (cn *createNetworkWF) Run() error {
 
 	go func(taskList []task.Task) {
 		for _, t := range taskList {
+			cn.log.Infof("running task %v", t)
 			if err := t.Run(); err != nil {
 				cn.log.Errorf("error running task %v: %s", t, err)
 			}
@@ -152,14 +160,18 @@ func (cn *createNetworkWF) Run() error {
 }
 
 func (cn *createNetworkWF) getCreateTask() ([]task.Task, error) {
+	cn.log.Debugf("getting create task for network %s", cn.clusterNetwork.Name)
+
 	var tasks []task.Task
-	tasks = cn.setupNetworkGateway(tasks)
-	tasks = cn.setupNetworkDHCP(tasks)
-	tasks = cn.setupNetworkNameserver(tasks)
+	tasks = cn.setupNetworkGatewayTasks(tasks)
+	tasks = cn.setupNetworkDHCPTasks(tasks)
+	tasks = cn.setupNetworkNameserverTasks(tasks)
 	return tasks, nil
 }
 
-func (cn *createNetworkWF) setupNetworkGateway(tasks []task.Task) []task.Task {
+func (cn *createNetworkWF) setupNetworkGatewayTasks(tasks []task.Task) []task.Task {
+	cn.log.Debugf("setup network gateway tasks for network %s", cn.clusterNetwork.Name)
+
 	host, err := scheduler.GetHost(cn.hosts)
 	if err != nil {
 		cn.log.Errorf("Error : %v", err)
@@ -198,7 +210,9 @@ func (cn *createNetworkWF) setupNetworkGateway(tasks []task.Task) []task.Task {
 	return tasks
 }
 
-func (cn *createNetworkWF) setupNetworkDHCP(tasks []task.Task) []task.Task {
+func (cn *createNetworkWF) setupNetworkDHCPTasks(tasks []task.Task) []task.Task {
+	cn.log.Debugf("setup network dhcp tasks for network %s", cn.clusterNetwork.Name)
+
 	netCIDR := cn.clusterNetwork.ClusterNetworkCIDR
 
 	host, err := scheduler.GetHost(cn.hosts)
@@ -239,7 +253,9 @@ func (cn *createNetworkWF) setupNetworkDHCP(tasks []task.Task) []task.Task {
 	return tasks
 }
 
-func (cn *createNetworkWF) setupNetworkNameserver(tasks []task.Task) []task.Task {
+func (cn *createNetworkWF) setupNetworkNameserverTasks(tasks []task.Task) []task.Task {
+	cn.log.Debugf("setup network nameserver tasks for network %s", cn.clusterNetwork.Name)
+
 	netCIDR := cn.clusterNetwork.ClusterNetworkCIDR
 
 	host, err := scheduler.GetHost(cn.hosts)

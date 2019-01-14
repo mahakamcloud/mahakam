@@ -19,7 +19,7 @@ import (
 	r "github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
 	"github.com/mahakamcloud/mahakam/pkg/task"
 	"github.com/mahakamcloud/mahakam/pkg/utils"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 // CreateCluster is handlers for create-cluster operation
@@ -27,27 +27,26 @@ type CreateCluster struct {
 	Handlers
 	KubernetesConfig config.KubernetesConfig
 	hosts            []config.Host
-	log              log.FieldLogger
+	log              logrus.FieldLogger
 }
 
 // NewCreateClusterHandler creates new CreateCluster object
 func NewCreateClusterHandler(handlers Handlers, config config.KubernetesConfig, hosts []config.Host) *CreateCluster {
-	log := log.WithField("create", "cluster")
 	return &CreateCluster{
 		Handlers:         handlers,
 		KubernetesConfig: config,
 		hosts:            hosts,
 		log:              log,
-	}
 }
 
 // Handle is handler for create-cluster operation
 func (h *CreateCluster) Handle(params clusters.CreateClusterParams) middleware.Responder {
+	h.log.Infof("handling create cluster request: %v", params)
 
 	// TODO(giri): must update resource status to creating and succcess accordingly
 	wf, err := newCreateClusterWF(params.Body, h)
 	if err != nil {
-		log.Errorf("error creating cluster workflow %s", err)
+		h.log.Errorf("error creating cluster workflow %s", err)
 		return clusters.NewCreateClusterDefault(405).WithPayload(&models.Error{
 			Code:    405,
 			Message: fmt.Sprintf("error creating cluster workflow %s", err),
@@ -66,7 +65,7 @@ func (h *CreateCluster) Handle(params clusters.CreateClusterParams) middleware.R
 
 type createClusterWF struct {
 	handlers       Handlers
-	log            log.FieldLogger
+	log            logrus.FieldLogger
 	owner          string
 	clustername    string
 	clusterNetwork *network.ClusterNetwork
@@ -81,16 +80,19 @@ type createClusterWF struct {
 }
 
 func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*createClusterWF, error) {
+	cwfLog := cHandler.log.WithField("workflow", "create-cluster")
+	cwfLog.Debugf("init create cluster workflow")
+
 	clusterName := swag.StringValue(cluster.Name)
 
 	clusterNetwork, err := getClusterNetwork(clusterName, cHandler.Network)
 	if err != nil {
-		log.Errorf("error getting network allocation for cluster %s: %s", clusterName, err)
+		cwfLog.Errorf("error getting network allocation for cluster %s: %s", clusterName, err)
 	}
 
 	controlPlaneNetworkConfig, err := getNetworkConfig(clusterNetwork)
 	if err != nil {
-		log.Errorf("error getting network config for control plane: %s", err)
+		cwfLog.Errorf("error getting network config for control plane: %s", err)
 		return nil, err
 	}
 
@@ -116,13 +118,13 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 
 	err = storeClusterResource(clusterName, workerNodesCount, clusterNetwork, cHandler)
 	if err != nil {
-		log.Errorf("error storing cluster resource to kvstore '%v': %s", cluster, err)
+		cwfLog.Errorf("error storing cluster resource to kvstore '%v': %s", cluster, err)
 		return nil, err
 	}
 
 	return &createClusterWF{
 		handlers:       cHandler.Handlers,
-		log:            cHandler.log,
+		log:            cwfLog,
 		owner:          cluster.Owner,
 		clustername:    clusterName,
 		clusterNetwork: clusterNetwork,
@@ -137,6 +139,8 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 }
 
 func (c *createClusterWF) Run() error {
+	c.log.Infof("running create cluster workflow: %v", c)
+
 	tasks, err := c.getCreateTask()
 	if err != nil {
 		return err
@@ -144,7 +148,7 @@ func (c *createClusterWF) Run() error {
 
 	for i := range tasks {
 		go func(t task.Task) {
-			c.log.Infof("Running task %v", t)
+			c.log.Infof("running task %v", t)
 			if err := t.Run(); err != nil {
 				c.log.Errorf("error running task %v: %s", t, err)
 			}
@@ -154,19 +158,23 @@ func (c *createClusterWF) Run() error {
 }
 
 func (c *createClusterWF) getCreateTask() ([]task.Task, error) {
+	c.log.Debugf("getting create task for cluster %s", c.clustername)
+
 	var tasks []task.Task
-	tasks = c.setupControlPlaneSteps(tasks)
-	tasks = c.setupWorkerSteps(tasks)
-	tasks = c.setupAdminKubeconfigSteps(tasks)
+	tasks = c.setupControlPlaneTasks(tasks)
+	tasks = c.setupWorkerTasks(tasks)
+	tasks = c.setupAdminKubeconfigTasks(tasks)
 	return tasks, nil
 }
 
-func (c *createClusterWF) setupControlPlaneSteps(tasks []task.Task) []task.Task {
-	host, err := scheduler.GetHost(c.hosts)
-	if err != nil {
-		c.log.Errorf("Error : %v", err)
-		return nil
-	}
+func (c *createClusterWF) setupControlPlaneTasks(tasks []task.Task) []task.Task {
+	c.log.Debugf("setup control plane tasks for cluster %s", c.clustername)
+
+host, err := scheduler.GetHost(c.hosts)
+if err != nil {
+	c.log.Errorf("Error : %v", err)
+	return nil
+}
 
 	cpConfig := node.NodeCreateConfig{
 		Host: host,
@@ -197,7 +205,9 @@ func (c *createClusterWF) setupControlPlaneSteps(tasks []task.Task) []task.Task 
 	return tasks
 }
 
-func (c *createClusterWF) setupWorkerSteps(tasks []task.Task) []task.Task {
+func (c *createClusterWF) setupWorkerTasks(tasks []task.Task) []task.Task {
+	c.log.Debugf("setup worker steps for cluster %s", c.clustername)
+
 	for _, worker := range c.workers {
 		host, err := scheduler.GetHost(c.hosts)
 		if err != nil {
@@ -236,7 +246,9 @@ func (c *createClusterWF) setupWorkerSteps(tasks []task.Task) []task.Task {
 	return tasks
 }
 
-func (c *createClusterWF) setupAdminKubeconfigSteps(tasks []task.Task) []task.Task {
+func (c *createClusterWF) setupAdminKubeconfigTasks(tasks []task.Task) []task.Task {
+	c.log.Debugf("setup admin kubeconfig steps for cluster %s", c.clustername)
+
 	sConfig := utils.SCPConfig{
 		Username:        config.KubernetesNodeUsername,
 		RemoteIPAddress: c.controlPlaneIP.String(),
@@ -265,7 +277,6 @@ func storeClusterResource(clusterName string, numNodes int, clusternet *network.
 
 	_, err := cHandler.Handlers.Store.Add(c)
 	if err != nil {
-		log.Errorf("error adding cluster resource into kv store '%v': %s", c, err)
 		return fmt.Errorf("error adding cluster resource into kv store '%v': %s", c, err)
 	}
 	return nil
