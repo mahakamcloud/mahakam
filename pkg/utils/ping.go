@@ -5,7 +5,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/sparrc/go-ping"
+	ping "github.com/sparrc/go-ping"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -14,9 +14,22 @@ const (
 	ICMPDefaultPingCount = 1
 )
 
-// PortPing is used to check whether specific port in a network
+type PingChecker interface {
+	PortPingNWithDelay(addressWithPort string, timeout time.Duration, log log.FieldLogger,
+		count int, delay time.Duration) bool
+	ICMPPingNWithDelay(address string, timeout time.Duration, log log.FieldLogger,
+		count int, delay time.Duration) bool
+}
+
+type PingCheck struct{}
+
+func NewPingCheck() PingChecker {
+	return &PingCheck{}
+}
+
+// portPing is used to check whether specific port in a network
 // is opened or not. Nil means success.
-func PortPing(addressWithPort string, timeout time.Duration, log log.FieldLogger) error {
+func (p PingCheck) portPing(addressWithPort string, timeout time.Duration, log log.FieldLogger) error {
 	log.Infof("pinging telnet node %s", addressWithPort)
 
 	const network = "tcp"
@@ -28,11 +41,11 @@ func PortPing(addressWithPort string, timeout time.Duration, log log.FieldLogger
 }
 
 // PortPingNWithDelay calls PortPing N number of times with delay in between
-func PortPingNWithDelay(addressWithPort string, timeout time.Duration, log log.FieldLogger,
+func (p PingCheck) PortPingNWithDelay(addressWithPort string, timeout time.Duration, log log.FieldLogger,
 	count int, delay time.Duration) bool {
 
 	for i := 0; i < count; i++ {
-		if err := PortPing(addressWithPort, timeout, log); err == nil {
+		if err := p.portPing(addressWithPort, timeout, log); err == nil {
 			log.Infof("pinging telnet node %s successful", addressWithPort)
 			return true
 		}
@@ -42,8 +55,8 @@ func PortPingNWithDelay(addressWithPort string, timeout time.Duration, log log.F
 	return false
 }
 
-// ICMPPing is used to check if node is pinging
-func ICMPPing(address string, timeout time.Duration, log log.FieldLogger) error {
+// icmpPing is used to check if node is pinging
+func (p PingCheck) icmpPing(address string, timeout time.Duration, log log.FieldLogger) error {
 	log.Infof("pinging icmp node %s", address)
 
 	pinger, err := ping.NewPinger(address)
@@ -66,11 +79,11 @@ func ICMPPing(address string, timeout time.Duration, log log.FieldLogger) error 
 }
 
 // ICMPPingNWithDelay calls ICMPPing N number of times with delay in between
-func ICMPPingNWithDelay(address string, timeout time.Duration, log log.FieldLogger,
+func (p PingCheck) ICMPPingNWithDelay(address string, timeout time.Duration, log log.FieldLogger,
 	count int, delay time.Duration) bool {
 
 	for i := 0; i < count; i++ {
-		if err := ICMPPing(address, timeout, log); err == nil {
+		if err := p.icmpPing(address, timeout, log); err == nil {
 			log.Infof("pinging icmp node %s successful", address)
 			return true
 		}
