@@ -10,16 +10,16 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/network"
 	"github.com/mahakamcloud/mahakam/pkg/node"
 	"github.com/mahakamcloud/mahakam/pkg/utils"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 type CreateNode struct {
 	Config node.NodeCreateConfig
 	p      Provisioner
-	log    log.FieldLogger
+	log    logrus.FieldLogger
 }
 
-func NewCreateNode(config node.NodeCreateConfig, p Provisioner, log log.FieldLogger) *CreateNode {
+func NewCreateNode(config node.NodeCreateConfig, p Provisioner, log logrus.FieldLogger) *CreateNode {
 	createNodeLog := log.WithField("task", fmt.Sprintf("create node in %s", config.Host))
 
 	return &CreateNode{
@@ -32,17 +32,17 @@ func NewCreateNode(config node.NodeCreateConfig, p Provisioner, log log.FieldLog
 func (n *CreateNode) Run() error {
 	err := n.p.CreateNode(n.Config)
 	if err != nil {
-		log.Errorf("error creating node '%v': %s", n.Config, err)
+		n.log.Errorf("error creating node '%v': %s", n.Config, err)
 	}
 	return nil
 }
 
 type CheckClusterNetworkNodes struct {
 	clusterNetwork *network.ClusterNetwork
-	log            log.FieldLogger
+	log            logrus.FieldLogger
 }
 
-func NewCheckClusterNetworkNodes(clusterNetwork *network.ClusterNetwork, log log.FieldLogger) *CheckClusterNetworkNodes {
+func NewCheckClusterNetworkNodes(clusterNetwork *network.ClusterNetwork, log logrus.FieldLogger) *CheckClusterNetworkNodes {
 	checkClusterNetworkNodesLog := log.WithField("task", fmt.Sprintf("check cluster network nodes in %v", clusterNetwork))
 
 	return &CheckClusterNetworkNodes{
@@ -66,10 +66,10 @@ func (c *CheckClusterNetworkNodes) Run() error {
 
 type CheckNode struct {
 	ip  net.IP
-	log log.FieldLogger
+	log logrus.FieldLogger
 }
 
-func NewCheckNode(ip net.IP, log log.FieldLogger) *CheckNode {
+func NewCheckNode(ip net.IP, log logrus.FieldLogger) *CheckNode {
 	checkNodeLog := log.WithField("task", fmt.Sprintf("check node with address %v", ip.String()))
 
 	return &CheckNode{
@@ -96,13 +96,13 @@ type CreateAdminKubeconfig struct {
 	apiServerAddress string
 	apiServerPort    string
 	utils.SCPConfig
-	log log.FieldLogger
+	log logrus.FieldLogger
 }
 
 func NewCreateAdminKubeconfig(clustername, apiServerAddress, apiServerPort string,
 	config utils.SCPConfig) *CreateAdminKubeconfig {
 
-	createAdminKubeconfigLog := log.WithField("task", fmt.Sprintf("copying kubeconfig from %s to local system", config.RemoteIPAddress))
+	createAdminKubeconfigLog := logrus.WithField("task", fmt.Sprintf("copying kubeconfig from %s to local system", config.RemoteIPAddress))
 
 	return &CreateAdminKubeconfig{
 		clustername:      clustername,

@@ -33,10 +33,12 @@ func PortPingNWithDelay(addressWithPort string, timeout time.Duration, log log.F
 
 	for i := 0; i < count; i++ {
 		if err := PortPing(addressWithPort, timeout, log); err == nil {
+			log.Infof("pinging telnet node %s successful", addressWithPort)
 			return true
 		}
 		time.Sleep(delay)
 	}
+	log.Errorf("pinging telnet node %s timeout", addressWithPort)
 	return false
 }
 
@@ -69,9 +71,11 @@ func ICMPPingNWithDelay(address string, timeout time.Duration, log log.FieldLogg
 
 	for i := 0; i < count; i++ {
 		if err := ICMPPing(address, timeout, log); err == nil {
+			log.Infof("pinging icmp node %s successful", address)
 			return true
 		}
 		time.Sleep(delay)
 	}
+	log.Errorf("pinging icmp node %s timeout", address)
 	return false
 }
