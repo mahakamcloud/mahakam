@@ -25,18 +25,17 @@ import (
 type CreateNetwork struct {
 	Handlers
 	hosts []config.Host
-	log logrus.FieldLogger
+	log   logrus.FieldLogger
 }
 
 // NewCreateNetworkHandler creates a CreateNetwork object
-func NewCreateNetworkHandler(handlers Handlers, hosts []config.Host) *CreateNetwork {
+func NewCreateNetworkHandler(handlers Handlers) *CreateNetwork {
 	return &CreateNetwork{
 		Handlers: handlers,
-		hosts:    hosts,
-		log:      log,
-	
+		hosts:    handlers.AppConfig.HostsConfig,
+		log:      handlers.Log,
+	}
 }
-
 
 // Handle is handler for create-network operation
 func (h *CreateNetwork) Handle(params networks.CreateNetworkParams) middleware.Responder {
@@ -174,7 +173,7 @@ func (cn *createNetworkWF) setupNetworkGatewayTasks(tasks []task.Task) []task.Ta
 
 	host, err := scheduler.GetHost(cn.hosts)
 	if err != nil {
-		cn.log.Errorf("Error : %v", err)
+		cn.log.Errorf("error getting scheduled a host to provision network gateway for %s: %v", cn.clusterNetwork.Name, err)
 		return nil
 	}
 
@@ -217,7 +216,7 @@ func (cn *createNetworkWF) setupNetworkDHCPTasks(tasks []task.Task) []task.Task 
 
 	host, err := scheduler.GetHost(cn.hosts)
 	if err != nil {
-		cn.log.Errorf("Error : %v", err)
+		cn.log.Errorf("error getting scheduled a host to provision network dhcp for %s: %v", cn.clusterNetwork.Name, err)
 		return nil
 	}
 
@@ -260,7 +259,7 @@ func (cn *createNetworkWF) setupNetworkNameserverTasks(tasks []task.Task) []task
 
 	host, err := scheduler.GetHost(cn.hosts)
 	if err != nil {
-		cn.log.Errorf("Error : %v", err)
+		cn.log.Errorf("error getting scheduled a host to provision network nameserver for %s: %v", cn.clusterNetwork.Name, err)
 		return nil
 	}
 

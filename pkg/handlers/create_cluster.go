@@ -31,12 +31,13 @@ type CreateCluster struct {
 }
 
 // NewCreateClusterHandler creates new CreateCluster object
-func NewCreateClusterHandler(handlers Handlers, config config.KubernetesConfig, hosts []config.Host) *CreateCluster {
+func NewCreateClusterHandler(handlers Handlers) *CreateCluster {
 	return &CreateCluster{
 		Handlers:         handlers,
-		KubernetesConfig: config,
-		hosts:            hosts,
-		log:              log,
+		KubernetesConfig: handlers.AppConfig.KubernetesConfig,
+		hosts:            handlers.AppConfig.HostsConfig,
+		log:              handlers.Log,
+	}
 }
 
 // Handle is handler for create-cluster operation
@@ -170,11 +171,11 @@ func (c *createClusterWF) getCreateTask() ([]task.Task, error) {
 func (c *createClusterWF) setupControlPlaneTasks(tasks []task.Task) []task.Task {
 	c.log.Debugf("setup control plane tasks for cluster %s", c.clustername)
 
-host, err := scheduler.GetHost(c.hosts)
-if err != nil {
-	c.log.Errorf("Error : %v", err)
-	return nil
-}
+	host, err := scheduler.GetHost(c.hosts)
+	if err != nil {
+		c.log.Errorf("Error : %v", err)
+		return nil
+	}
 
 	cpConfig := node.NodeCreateConfig{
 		Host: host,
