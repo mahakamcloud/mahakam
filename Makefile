@@ -13,7 +13,7 @@ help:  ## Display this help
 
 .PHONY: mahakam-cli
 mahakam-cli: fmt vet ## Build mahakam cli binary
-	./hack/build-bin.sh mahakam cmd/mahakam
+	./hack/build-cli.sh mahakam cmd/mahakam
 
 .PHONY: fmt
 fmt: ## Run go fmt against code
