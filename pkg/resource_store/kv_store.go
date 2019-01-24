@@ -74,8 +74,10 @@ func (kvr *kvResourceStore) Get(r resource.Resource) error {
 	return nil
 }
 
-func (kvr *kvResourceStore) List(owner string, resources interface{}) error {
+func (kvr *kvResourceStore) List(owner string, resources []resource.Resource) error {
 	fmt.Println("libkvResourceStore List method not implemented")
+	// owner is optional, if not specified perform global list.
+	// TODO(giri): list specific owner owned resources
 	return nil
 }
 
