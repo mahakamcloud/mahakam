@@ -133,13 +133,18 @@ func newCreateNetworkWF(cluster *models.Network, cHandler *CreateNetwork) (*crea
 func (cn *createNetworkWF) Run() error {
 	cn.log.Infof("running create network workflow: %v", cn)
 
-	n, err := cn.handlers.Network.AllocateClusterNetwork()
+	pretasks, err := cn.getPreCreateTask()
 	if err != nil {
-		cn.log.Errorf("cluster network allocation failed %v: %s", cn, err)
 		return err
 	}
-	cn.log.Infof("cluster network has been allocated %v", n)
-	cn.clusterNetwork = n
+
+	// blocking pre-create tasks
+	for _, t := range pretasks {
+		cn.log.Infof("running pre-create task %v", t)
+		if err := t.Run(); err != nil {
+			cn.log.Errorf("error running pre-create task %v: %s", t, err)
+		}
+	}
 
 	tasks, err := cn.getCreateTask()
 	if err != nil {
@@ -156,6 +161,38 @@ func (cn *createNetworkWF) Run() error {
 	}(tasks)
 
 	return nil
+}
+
+func (cn *createNetworkWF) getPreCreateTask() ([]task.Task, error) {
+	cn.log.Debugf("getting pre-create task for network workflow")
+
+	n, err := cn.handlers.Network.AllocateClusterNetwork()
+	if err != nil {
+		cn.log.Errorf("cluster network allocation failed %v: %s", cn, err)
+		return nil, err
+	}
+	cn.log.Infof("cluster network has been allocated %v", n)
+	cn.clusterNetwork = n
+
+	var tasks []task.Task
+	tasks = cn.setupNetworkPreCreateTasks(tasks)
+	return tasks, nil
+}
+
+func (cn *createNetworkWF) setupNetworkPreCreateTasks(tasks []task.Task) []task.Task {
+	cn.log.Debugf("setup network pre-create tasks for network %s", cn.clusterNetwork.Name)
+
+	mahakamServerIP := cn.clusterNetwork.MahakamServer
+	mahakamServerMask := cn.clusterNetwork.ClusterNetworkCIDR.Mask
+	mahakamNetIf := config.MahakamDefaultNetworkInterface
+
+	// This is required to allow reachability from mahakam server to cluster network by assigning
+	// mahakam server with secondary IP from cluster network as per current flat network topology. Depending
+	// on network topology, when mahakam server can reach cluster network via DC routing or alike at infra level,
+	// this will go away.
+	networkReachability := provisioner.NewClusterNetworkReachability(utils.NewIPUtil(), mahakamServerIP, mahakamServerMask, mahakamNetIf)
+	tasks = append(tasks, networkReachability)
+	return tasks
 }
 
 func (cn *createNetworkWF) getCreateTask() ([]task.Task, error) {

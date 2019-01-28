@@ -27,9 +27,10 @@ const (
 	HelmControllerDefaultWaitTimeout = 300
 	HelmDefaultChartValuesDirectory  = "/opt/mahakamcloud/chartvalues/"
 
-	// Default mahakam config path to store multiple kubeconfig files
-	MahakamMultiKubeconfigPath = "/opt/mahakamcloud/clusters"
-	MahakamSSHPrivateKeyPath   = "/root/.ssh/id_rsa"
+	// Default mahakam config
+	MahakamMultiKubeconfigPath     = "/opt/mahakamcloud/clusters"
+	MahakamSSHPrivateKeyPath       = "/root/.ssh/id_rsa"
+	MahakamDefaultNetworkInterface = "ens3"
 
 	// Default terraform config
 	TerraformDefaultDirectory = "/opt/mahakamcloud/terraform/"

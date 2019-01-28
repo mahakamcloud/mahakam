@@ -140,6 +140,7 @@ type ClusterNetwork struct {
 	Gateway            net.IP
 	Nameserver         net.IP
 	Dhcp               net.IP
+	MahakamServer      net.IP
 }
 
 // NewClusterNetwork returns a new ClusterNetwork
@@ -148,6 +149,7 @@ func NewClusterNetwork(cidr net.IPNet, nm *NetworkManager) *ClusterNetwork {
 	gatewayIP := getGatewayIP(cidr)
 	nameserverIP := getNameserverIP(cidr)
 	dhcpIP := getDHCPIP(cidr)
+	mahakamServerIP := getMahakamServerIP(cidr)
 
 	return &ClusterNetwork{
 		NetworkManager:     nm,
@@ -156,6 +158,7 @@ func NewClusterNetwork(cidr net.IPNet, nm *NetworkManager) *ClusterNetwork {
 		Gateway:            gatewayIP,
 		Nameserver:         nameserverIP,
 		Dhcp:               dhcpIP,
+		MahakamServer:      mahakamServerIP,
 	}
 }
 
@@ -230,4 +233,13 @@ func getDHCPIP(cidr net.IPNet) net.IP {
 	// Reserved IPs for main network components in cluster network
 	dhcp[3] = byte(2)
 	return dhcp
+}
+
+func getMahakamServerIP(cidr net.IPNet) net.IP {
+	mahakam := make(net.IP, len(cidr.IP))
+	copy(mahakam, cidr.IP)
+
+	// Reserved IPs for main network components in cluster network
+	mahakam[3] = byte(5)
+	return mahakam
 }
