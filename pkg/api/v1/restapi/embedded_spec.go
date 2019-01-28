@@ -463,6 +463,20 @@ func init() {
         "ipPoolRangeStart": {
           "type": "string"
         },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        },
         "reservedIPPools": {
           "type": "array",
           "items": {
@@ -949,6 +963,20 @@ func init() {
         },
         "ipPoolRangeStart": {
           "type": "string"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          }
         },
         "reservedIPPools": {
           "type": "array",
