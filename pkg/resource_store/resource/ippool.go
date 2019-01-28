@@ -47,10 +47,9 @@ func (l *ResourceIPPoolList) Resource() Resource {
 	return &ResourceIPPool{}
 }
 
-func (l *ResourceIPPoolList) WithItems(items []Resource) *ResourceIPPoolList {
+func (l *ResourceIPPoolList) WithItems(items []Resource) {
 	for _, i := range items {
 		ipPool := i.(*ResourceIPPool)
 		l.Items = append(l.Items, ipPool)
 	}
-	return l
 }

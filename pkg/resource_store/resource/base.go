@@ -43,12 +43,13 @@ type Resource interface {
 	BuildKey(optKeys ...string) string
 	BuildChildKey(parentKey, key string) string
 	PreCheck() error
+	GetLabels() Labels
 }
 
 // ResourceList represents list of resources
 type ResourceList interface {
 	Resource() Resource
-	WithItems(items []Resource) ResourceList
+	WithItems(items []Resource)
 }
 
 // BaseResource is the base struct for all stored resources or objects
@@ -104,4 +105,8 @@ func (br *BaseResource) BuildKey(optKeys ...string) string {
 
 func (br *BaseResource) BuildChildKey(parentKey string, key string) string {
 	return fmt.Sprintf("%s/%s/", parentKey, key)
+}
+
+func (br *BaseResource) GetLabels() Labels {
+	return br.Labels
 }

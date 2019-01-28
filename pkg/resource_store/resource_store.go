@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/mahakamcloud/mahakam/pkg/config"
-	"github.com/mahakamcloud/mahakam/pkg/resource_store/filter"
 	"github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
 )
 
@@ -35,7 +34,7 @@ type ResourceStore interface {
 	// Quick helper hack for interacting with kvstore by given path
 	AddFromPath(path string, resource resource.Resource) (id string, err error)
 	GetFromPath(path string, resource resource.Resource) error
-	ListFromPath(path string, filter filter.Filter, resources resource.ResourceList) error
+	ListFromPath(path string, filter Filter, resources resource.ResourceList) error
 	ListKeysFromPath(path string) (keys []string, err error)
 	UpdateFromPath(path string, resource resource.Resource) (revision int64, err error)
 	DeleteFromPath(path string) error

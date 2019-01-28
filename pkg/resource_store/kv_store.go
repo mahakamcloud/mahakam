@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/docker/libkv/store"
-	"github.com/mahakamcloud/mahakam/pkg/resource_store/filter"
 	"github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
 )
 
@@ -140,7 +139,7 @@ func (kvr *kvResourceStore) GetFromPath(path string, r resource.Resource) error 
 }
 
 // ListFromPath is quick hack to retrieve list keys from given path
-func (kvr *kvResourceStore) ListFromPath(path string, filter filter.Filter, resources resource.ResourceList) error {
+func (kvr *kvResourceStore) ListFromPath(path string, filter Filter, resources resource.ResourceList) error {
 	kvpairs, err := kvr.store.List(path)
 	if err != nil && err != store.ErrKeyNotFound {
 		return fmt.Errorf("Error getting list of kvpairs from path: %s", err)
@@ -149,9 +148,19 @@ func (kvr *kvResourceStore) ListFromPath(path string, filter filter.Filter, reso
 	var items []resource.Resource
 	for _, kvpair := range kvpairs {
 		r := resources.Resource()
-		err = json.Unmarshal(kvpair.Value, r)
+		err := json.Unmarshal(kvpair.Value, r)
 		if err != nil {
 			return fmt.Errorf("Error unmarshalling resource: %s", err)
+		}
+
+		if filter != nil {
+			ok := ApplyFilter(filter, r)
+			if err != nil {
+				return fmt.Errorf("Error filtering resources: %s", err)
+			}
+			if !ok {
+				continue
+			}
 		}
 
 		items = append(items, r)
