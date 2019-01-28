@@ -9,7 +9,7 @@ import (
 
 // ResourceIPPool represents stored ip pool kind
 type ResourceIPPool struct {
-	BaseResource
+	*BaseResource
 	Subnet           string   `json:"subnet"`
 	SubnetLen        string   `json:"subnet_len"`
 	IPPoolRangeStart string   `json:"ip_pool_range_start"`
@@ -20,12 +20,31 @@ type ResourceIPPool struct {
 
 func NewResourceIPPool(cidr net.IPNet) *ResourceIPPool {
 	return &ResourceIPPool{
-		BaseResource: BaseResource{
+		BaseResource: &BaseResource{
 			Name:  utils.CidrToKeyString(cidr),
 			Kind:  string(KindIPPool),
 			Owner: config.ResourceOwnerMahakam,
 		},
 		Subnet:    cidr.String(),
 		SubnetLen: cidr.Mask.String(),
+	}
+}
+
+type ResourceIPPoolList struct {
+	Items []*ResourceIPPool
+}
+
+func NewResourceIPPoolList() *ResourceIPPoolList {
+	return &ResourceIPPoolList{}
+}
+
+func (l *ResourceIPPoolList) Resource() Resource {
+	return &ResourceIPPool{}
+}
+
+func (l *ResourceIPPoolList) SetItems(items []Resource) {
+	for _, i := range items {
+		ipPool := i.(*ResourceIPPool)
+		l.Items = append(l.Items, ipPool)
 	}
 }
