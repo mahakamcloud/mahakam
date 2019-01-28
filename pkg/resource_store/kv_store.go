@@ -156,7 +156,7 @@ func (kvr *kvResourceStore) ListFromPath(path string, filter filter.Filter, reso
 
 		items = append(items, r)
 	}
-	resources.SetItems(items)
+	resources.WithItems(items)
 	return nil
 }
 

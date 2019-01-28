@@ -16,7 +16,12 @@ type Status string
 type ResourceKind string
 
 // Labels represents filterable keypairs metadata
-type Labels map[string]string
+type Labels []Label
+
+type Label struct {
+	Key   string
+	Value string
+}
 
 const (
 	StatusPending  Status = "Pending"
@@ -43,7 +48,7 @@ type Resource interface {
 // ResourceList represents list of resources
 type ResourceList interface {
 	Resource() Resource
-	SetItems(items []Resource)
+	WithItems(items []Resource) ResourceList
 }
 
 // BaseResource is the base struct for all stored resources or objects

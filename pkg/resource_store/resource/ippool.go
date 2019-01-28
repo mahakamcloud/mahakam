@@ -30,6 +30,11 @@ func NewResourceIPPool(cidr net.IPNet) *ResourceIPPool {
 	}
 }
 
+func (p *ResourceIPPool) WithLabels(labels []Label) *ResourceIPPool {
+	p.Labels = labels
+	return p
+}
+
 type ResourceIPPoolList struct {
 	Items []*ResourceIPPool
 }
@@ -42,9 +47,10 @@ func (l *ResourceIPPoolList) Resource() Resource {
 	return &ResourceIPPool{}
 }
 
-func (l *ResourceIPPoolList) SetItems(items []Resource) {
+func (l *ResourceIPPoolList) WithItems(items []Resource) *ResourceIPPoolList {
 	for _, i := range items {
 		ipPool := i.(*ResourceIPPool)
 		l.Items = append(l.Items, ipPool)
 	}
+	return l
 }
