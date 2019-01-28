@@ -149,3 +149,31 @@ func (k *CreateAdminKubeconfig) Run() error {
 	k.log.Infof("admin kubeconfig has been copied over successfully '%v'", k)
 	return nil
 }
+
+type ClusterNetworkReachability struct {
+	ipAssigner        utils.IPAssigner
+	mahakamServerIP   net.IP
+	mahakamServerMask net.IPMask
+	mahakamNetif      string
+	log               logrus.FieldLogger
+}
+
+func NewClusterNetworkReachability(ipAssigner utils.IPAssigner, mahakamServerIP net.IP, mahakamServerMask net.IPMask, mahakamNetif string) *ClusterNetworkReachability {
+	networkReachbilityLog := logrus.WithField("task", fmt.Sprintf("configure reachability from server to cluster network with %s and mask %s on %s", mahakamServerIP, mahakamServerMask, mahakamNetif))
+
+	return &ClusterNetworkReachability{
+		ipAssigner:        ipAssigner,
+		mahakamServerIP:   mahakamServerIP,
+		mahakamServerMask: mahakamServerMask,
+		mahakamNetif:      mahakamNetif,
+		log:               networkReachbilityLog,
+	}
+}
+
+func (c *ClusterNetworkReachability) Run() error {
+	_, err := c.ipAssigner.Assign(c.mahakamServerIP, c.mahakamServerMask, c.mahakamNetif)
+	if err != nil {
+		return fmt.Errorf("error assigning cluster network IP to mahakam server: %s", err)
+	}
+	return nil
+}
