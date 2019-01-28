@@ -58,7 +58,15 @@ func (h *CreateIPPool) Handle(params networks.CreateIPPoolParams) middleware.Res
 
 func (h *CreateIPPool) storeIPPoolResource(ipnet net.IPNet, params networks.CreateIPPoolParams) (string, error) {
 
-	ipPool := r.NewResourceIPPool(ipnet)
+	var labels r.Labels
+	for _, l := range params.IPPool.Labels {
+		labels = append(labels, r.Label{
+			Key:   l.Key,
+			Value: l.Value,
+		})
+	}
+
+	ipPool := r.NewResourceIPPool(ipnet).WithLabels(labels)
 	ipPool.Subnet = ipnet.IP.String()
 	ipPool.SubnetLen = ipnet.Mask.String()
 	ipPool.IPPoolRangeStart = params.IPPool.IPPoolRangeStart

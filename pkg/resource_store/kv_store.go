@@ -76,6 +76,8 @@ func (kvr *kvResourceStore) Get(r resource.Resource) error {
 
 func (kvr *kvResourceStore) List(owner string, resources interface{}) error {
 	fmt.Println("libkvResourceStore List method not implemented")
+	// owner is optional, if not specified perform global list.
+	// TODO(giri): list specific owner owned resources
 	return nil
 }
 
@@ -137,8 +139,33 @@ func (kvr *kvResourceStore) GetFromPath(path string, r resource.Resource) error 
 }
 
 // ListFromPath is quick hack to retrieve list keys from given path
-func (kvr *kvResourceStore) ListFromPath(path string, resources interface{}) error {
-	fmt.Println("libkvResourceStore ListFromPath method not implemented")
+func (kvr *kvResourceStore) ListFromPath(path string, filter Filter, resources resource.ResourceList) error {
+	kvpairs, err := kvr.store.List(path)
+	if err != nil && err != store.ErrKeyNotFound {
+		return fmt.Errorf("Error getting list of kvpairs from path: %s", err)
+	}
+
+	var items []resource.Resource
+	for _, kvpair := range kvpairs {
+		r := resources.Resource()
+		err := json.Unmarshal(kvpair.Value, r)
+		if err != nil {
+			return fmt.Errorf("Error unmarshalling resource: %s", err)
+		}
+
+		if filter != nil {
+			ok := ApplyFilter(filter, r)
+			if err != nil {
+				return fmt.Errorf("Error filtering resources: %s", err)
+			}
+			if !ok {
+				continue
+			}
+		}
+
+		items = append(items, r)
+	}
+	resources.WithItems(items)
 	return nil
 }
 

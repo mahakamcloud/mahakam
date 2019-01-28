@@ -15,6 +15,14 @@ type Status string
 // ResourceKind represents stored resource kind
 type ResourceKind string
 
+// Labels represents filterable keypairs metadata
+type Labels []Label
+
+type Label struct {
+	Key   string
+	Value string
+}
+
 const (
 	StatusPending  Status = "Pending"
 	StatusCreating Status = "Creating"
@@ -35,6 +43,13 @@ type Resource interface {
 	BuildKey(optKeys ...string) string
 	BuildChildKey(parentKey, key string) string
 	PreCheck() error
+	GetLabels() Labels
+}
+
+// ResourceList represents list of resources
+type ResourceList interface {
+	Resource() Resource
+	WithItems(items []Resource)
 }
 
 // BaseResource is the base struct for all stored resources or objects
@@ -47,6 +62,7 @@ type BaseResource struct {
 	ModifiedTime time.Time `json:"modifiedTime,omitempty"`
 	Revision     uint64    `json:"revision"`
 	Status       Status    `json:"status"`
+	Labels       Labels    `json:"labels"`
 }
 
 func (br *BaseResource) GetResource() *BaseResource {
@@ -89,4 +105,8 @@ func (br *BaseResource) BuildKey(optKeys ...string) string {
 
 func (br *BaseResource) BuildChildKey(parentKey string, key string) string {
 	return fmt.Sprintf("%s/%s/", parentKey, key)
+}
+
+func (br *BaseResource) GetLabels() Labels {
+	return br.Labels
 }

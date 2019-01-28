@@ -274,6 +274,15 @@ definitions:
         type: array
         items:
           type: string
+      labels:
+        type: array
+        items:
+          type: object
+          properties:
+            key:
+              type: string
+            value:
+              type: string
   allocatedIpPool:
     type: object
     properties:
