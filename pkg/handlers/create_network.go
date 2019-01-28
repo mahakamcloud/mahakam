@@ -164,7 +164,7 @@ func (cn *createNetworkWF) Run() error {
 }
 
 func (cn *createNetworkWF) getPreCreateTask() ([]task.Task, error) {
-	cn.log.Debugf("getting pre-create task for network %s", cn.clusterNetwork.Name)
+	cn.log.Debugf("getting pre-create task for network workflow")
 
 	n, err := cn.handlers.Network.AllocateClusterNetwork()
 	if err != nil {
