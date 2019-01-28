@@ -186,6 +186,10 @@ func (cn *createNetworkWF) setupNetworkPreCreateTasks(tasks []task.Task) []task.
 	mahakamServerMask := cn.clusterNetwork.ClusterNetworkCIDR.Mask
 	mahakamNetIf := config.MahakamDefaultNetworkInterface
 
+	// This is required to allow reachability from mahakam server to cluster network by assigning
+	// mahakam server with secondary IP from cluster network as per current flat network topology. Depending
+	// on network topology, when mahakam server can reach cluster network via DC routing or alike at infra level,
+	// this will go away.
 	networkReachability := provisioner.NewClusterNetworkReachability(utils.NewIPUtil(), mahakamServerIP, mahakamServerMask, mahakamNetIf)
 	tasks = append(tasks, networkReachability)
 	return tasks
