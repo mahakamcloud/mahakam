@@ -41,23 +41,40 @@ func (v *ValidateCluster) Handle(params clusters.ValidateClusterParams) middlewa
 		})
 	}
 
-	podFailures, err := validation.ValidatePods(kubeclient)
+	nodeFailures, err := validation.ValidateNodes(kubeclient)
 	if err != nil {
-		v.log.Errorf("error running cluster validation for %s: %s", clusterName, err)
+		v.log.Errorf("error validating cluster nodes for %s: %s", clusterName, err)
 		return clusters.NewValidateClusterDefault(http.StatusInternalServerError).WithPayload(&models.Error{
-			Message: "cannot run cluster validation",
+			Message: "fail validating cluster nodes",
 		})
 	}
 
-	var failures []string
+	podFailures, err := validation.ValidatePods(kubeclient)
+	if err != nil {
+		v.log.Errorf("error validating kube-system pods for %s: %s", clusterName, err)
+		return clusters.NewValidateClusterDefault(http.StatusInternalServerError).WithPayload(&models.Error{
+			Message: "fail validating kube-system pods",
+		})
+	}
+
+	res := validationResult(clusterName, owner, nodeFailures, podFailures)
+	return clusters.NewValidateClusterCreated().WithPayload(res)
+}
+
+func validationResult(clusterName, owner string, nodeFailures, podFailures []*validation.ValidationError) *models.Cluster {
+	var nfailures, pfailures []string
+	for _, nf := range nodeFailures {
+		nfailures = append(nfailures, nf.Message)
+	}
 	for _, pf := range podFailures {
-		failures = append(failures, pf.Message)
+		pfailures = append(pfailures, pf.Message)
 	}
 
 	res := &models.Cluster{
-		Name:     params.Body.Name,
-		Owner:    params.Body.Owner,
-		Failures: failures,
+		Name:         swag.String(clusterName),
+		Owner:        owner,
+		NodeFailures: nfailures,
+		PodFailures:  pfailures,
 	}
-	return clusters.NewValidateClusterCreated().WithPayload(res)
+	return res
 }

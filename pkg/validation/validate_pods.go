@@ -11,11 +11,6 @@ import (
 
 const namespace = "kube-system"
 
-type ValidationError struct {
-	Name    string
-	Message string
-}
-
 func ValidatePods(kubeclient kubernetes.Interface) ([]*ValidationError, error) {
 	pods, err := getPods(kubeclient.CoreV1(), namespace)
 	if err != nil {
