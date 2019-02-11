@@ -9,32 +9,38 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/mahakamcloud/mahakam/pkg/network"
 	"github.com/mahakamcloud/mahakam/pkg/node"
+	store "github.com/mahakamcloud/mahakam/pkg/resource_store"
+	"github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
 	"github.com/mahakamcloud/mahakam/pkg/utils"
 	"github.com/sirupsen/logrus"
 )
 
-type CreateNode struct {
-	Config node.NodeCreateConfig
-	p      Provisioner
-	log    logrus.FieldLogger
+type PreCreateCheck struct {
+	clusterName    string
+	clusterKeyPath string
+	log            logrus.FieldLogger
+	store          store.ResourceStore
 }
 
-func NewCreateNode(config node.NodeCreateConfig, p Provisioner, log logrus.FieldLogger) *CreateNode {
-	createNodeLog := log.WithField("task", fmt.Sprintf("create node in %s", config.Host))
+func NewPreCreateCheck(clusterName string, log logrus.FieldLogger, store store.ResourceStore) *PreCreateCheck {
+	preCreateCheckLog := log.WithField("task", fmt.Sprintf("pre-create cluster check for %s", clusterName))
 
-	return &CreateNode{
-		Config: config,
-		p:      p,
-		log:    createNodeLog,
+	clusterKeyPath := resource.NewResourceCluster(clusterName).BuildKey()
+
+	return &PreCreateCheck{
+		clusterName:    clusterName,
+		clusterKeyPath: clusterKeyPath,
+		log:            preCreateCheckLog,
+		store:          store,
 	}
 }
 
-func (n *CreateNode) Run() error {
-	err := n.p.CreateNode(n.Config)
-	if err != nil {
-		n.log.Errorf("error creating node '%v': %s", n.Config, err)
-		return err
+func (p *PreCreateCheck) Run() error {
+	clusterExists := p.store.KeyExists(p.clusterKeyPath)
+	if clusterExists {
+		return fmt.Errorf("cluster %s already exists", p.clusterName)
 	}
+
 	return nil
 }
 
@@ -93,6 +99,31 @@ func (c *CheckNode) Run() error {
 		return fmt.Errorf("timeout waiting for node to be up '%v'", c.ip)
 	}
 
+	return nil
+}
+
+type CreateNode struct {
+	Config node.NodeCreateConfig
+	p      Provisioner
+	log    logrus.FieldLogger
+}
+
+func NewCreateNode(config node.NodeCreateConfig, p Provisioner, log logrus.FieldLogger) *CreateNode {
+	createNodeLog := log.WithField("task", fmt.Sprintf("create node in %s", config.Host))
+
+	return &CreateNode{
+		Config: config,
+		p:      p,
+		log:    createNodeLog,
+	}
+}
+
+func (n *CreateNode) Run() error {
+	err := n.p.CreateNode(n.Config)
+	if err != nil {
+		n.log.Errorf("error creating node '%v': %s", n.Config, err)
+		return err
+	}
 	return nil
 }
 

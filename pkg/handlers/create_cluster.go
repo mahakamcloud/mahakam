@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net"
+	"net/http"
 	"strconv"
 
 	"github.com/mahakamcloud/mahakam/pkg/scheduler"
@@ -44,12 +45,27 @@ func NewCreateClusterHandler(handlers Handlers) *CreateCluster {
 func (h *CreateCluster) Handle(params clusters.CreateClusterParams) middleware.Responder {
 	h.log.Infof("handling create cluster request: %v", params)
 
+	pwf, err := newPreCreateClusterWF(params.Body, h)
+	if err != nil {
+		h.log.Errorf("error creating pre-create cluster workflow %s", err)
+		return clusters.NewCreateClusterDefault(http.StatusInternalServerError).WithPayload(&models.Error{
+			Message: fmt.Sprintf("error creating pre-check workflow %s", err),
+		})
+	}
+	// blocking pre-check run
+	err = pwf.Run()
+	if err != nil {
+		return clusters.NewCreateClusterDefault(http.StatusBadRequest).WithPayload(&models.Error{
+			Message: fmt.Sprintf("error running pre-create cluster workflow %s", err),
+		})
+	}
+	h.log.Debugf("pre-create cluster workflow completes successfully: %v", params.Body)
+
 	// TODO(giri): must update resource status to creating and succcess accordingly
 	wf, err := newCreateClusterWF(params.Body, h)
 	if err != nil {
 		h.log.Errorf("error creating cluster workflow %s", err)
-		return clusters.NewCreateClusterDefault(405).WithPayload(&models.Error{
-			Code:    405,
+		return clusters.NewCreateClusterDefault(http.StatusBadRequest).WithPayload(&models.Error{
 			Message: fmt.Sprintf("error creating cluster workflow %s", err),
 		})
 	}
@@ -62,6 +78,62 @@ func (h *CreateCluster) Handle(params clusters.CreateClusterParams) middleware.R
 		Status:      string(r.StatusPending),
 	}
 	return clusters.NewCreateClusterCreated().WithPayload(cres)
+}
+
+type preCreateClusterWF struct {
+	handlers    Handlers
+	log         logrus.FieldLogger
+	owner       string
+	clustername string
+}
+
+func newPreCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*preCreateClusterWF, error) {
+	pwfLog := cHandler.log.WithField("workflow", "pre-check")
+	pwfLog.Debugf("init pre-check workflow")
+
+	clusterName := swag.StringValue(cluster.Name)
+
+	return &preCreateClusterWF{
+		handlers:    cHandler.Handlers,
+		log:         pwfLog,
+		owner:       cluster.Owner,
+		clustername: clusterName,
+	}, nil
+}
+
+func (p *preCreateClusterWF) Run() error {
+	p.log.Infof("running pre-create cluster workflow: %v", p)
+
+	tasks, err := p.getPreCreateTask()
+	if err != nil {
+		return err
+	}
+
+	for _, t := range tasks {
+		p.log.Infof("running task %v", t)
+		if err := t.Run(); err != nil {
+			p.log.Errorf("error running task %v: %s", t, err)
+			return fmt.Errorf("error pre-create cluster workflow %s", err)
+		}
+	}
+	return nil
+}
+
+func (p *preCreateClusterWF) getPreCreateTask() ([]task.Task, error) {
+	p.log.Debugf("getting pre-create task for cluster %s", p.clustername)
+
+	var tasks []task.Task
+	tasks = p.setupPreCheckTasks(tasks)
+	return tasks, nil
+}
+
+func (p *preCreateClusterWF) setupPreCheckTasks(tasks []task.Task) []task.Task {
+	p.log.Debugf("setup pre-check tasks for cluster %s", p.clustername)
+
+	preCreateCheck := provisioner.NewPreCreateCheck(p.clustername, p.log, p.handlers.Store)
+
+	tasks = append(tasks, preCreateCheck)
+	return tasks
 }
 
 type createClusterWF struct {
