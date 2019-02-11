@@ -9,7 +9,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/clusters"
 	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/mahakamcloud/mahakam/pkg/kube"
-	"github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
+	"github.com/mahakamcloud/mahakam/pkg/utils"
 	"github.com/mahakamcloud/mahakam/pkg/validation"
 	"github.com/sirupsen/logrus"
 )
@@ -30,8 +30,9 @@ func (v *ValidateCluster) Handle(params clusters.ValidateClusterParams) middlewa
 	v.log.Infof("handling validate cluster request: %v", params)
 
 	clusterName := swag.StringValue(params.Body.Name)
+	owner := params.Body.Owner
+	kubeconfig := utils.GenerateKubeconfigPath(config.MahakamMultiKubeconfigPath, owner, clusterName)
 
-	kubeconfig := resource.NewResourceCluster(clusterName).BuildKey()
 	_, kubeclient, err := kube.GetKubeClient(config.HelmDefaultKubecontext, kubeconfig)
 	if err != nil {
 		v.log.Errorf("error getting kubernetes client for %s: %s", clusterName, err)
