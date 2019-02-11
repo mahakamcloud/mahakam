@@ -254,7 +254,15 @@ definitions:
         type: integer
         minimum: 1
         maximum: 10
-      failures:
+      nodeFailures:
+        type: array
+        items:
+          type: string
+      componentFailures:
+        type: array
+        items:
+          type: string
+      podFailures:
         type: array
         items:
           type: string

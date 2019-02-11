@@ -20,8 +20,8 @@ type Cluster struct {
 	// cluster plan
 	ClusterPlan string `json:"clusterPlan,omitempty"`
 
-	// failures
-	Failures []string `json:"failures"`
+	// component failures
+	ComponentFailures []string `json:"componentFailures"`
 
 	// id
 	// Read Only: true
@@ -32,6 +32,9 @@ type Cluster struct {
 	// Min Length: 1
 	Name *string `json:"name"`
 
+	// node failures
+	NodeFailures []string `json:"nodeFailures"`
+
 	// num nodes
 	// Maximum: 10
 	// Minimum: 1
@@ -40,6 +43,9 @@ type Cluster struct {
 	// owner
 	// Min Length: 1
 	Owner string `json:"owner,omitempty"`
+
+	// pod failures
+	PodFailures []string `json:"podFailures"`
 
 	// status
 	Status string `json:"status,omitempty"`

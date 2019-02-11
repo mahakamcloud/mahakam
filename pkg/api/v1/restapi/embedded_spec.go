@@ -443,7 +443,7 @@ func init() {
         "clusterPlan": {
           "type": "string"
         },
-        "failures": {
+        "componentFailures": {
           "type": "array",
           "items": {
             "type": "string"
@@ -458,6 +458,12 @@ func init() {
           "type": "string",
           "minLength": 1
         },
+        "nodeFailures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "numNodes": {
           "type": "integer",
           "maximum": 10,
@@ -466,6 +472,12 @@ func init() {
         "owner": {
           "type": "string",
           "minLength": 1
+        },
+        "podFailures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "status": {
           "type": "string"
@@ -981,7 +993,7 @@ func init() {
         "clusterPlan": {
           "type": "string"
         },
-        "failures": {
+        "componentFailures": {
           "type": "array",
           "items": {
             "type": "string"
@@ -996,6 +1008,12 @@ func init() {
           "type": "string",
           "minLength": 1
         },
+        "nodeFailures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "numNodes": {
           "type": "integer",
           "maximum": 10,
@@ -1004,6 +1022,12 @@ func init() {
         "owner": {
           "type": "string",
           "minLength": 1
+        },
+        "podFailures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "status": {
           "type": "string"
