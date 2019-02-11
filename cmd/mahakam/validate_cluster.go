@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/go-openapi/swag"
 	"github.com/golang/glog"
 
 	"github.com/mahakamcloud/mahakam/pkg/api/v1"
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/clusters"
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/mahakamcloud/mahakam/pkg/handlers"
 	"github.com/spf13/cobra"
@@ -37,27 +40,41 @@ var validateClusterCmd = &cobra.Command{
 
 		vco.ClusterAPI = handlers.GetMahakamClusterClient(os.Getenv("MAHAKAM_API_SERVER_HOST"))
 
-		err := RunValidateCluster(vco)
+		res, err := RunValidateCluster(vco)
 		if err != nil {
 			glog.Exit(err)
 		}
 
 		// TODO(giri): print out validation result
 		fmt.Println("Validating kubernetes cluster...")
+		if len(res.Failures) == 0 {
+			fmt.Println("Your cluster is ready")
+		} else {
+			fmt.Println("Validation failed")
+		}
 	},
 }
 
-func RunValidateCluster(vco *ValidateClusterOptions) error {
-	// TODO(giri): call validate cluster service
-	return nil
+func RunValidateCluster(vco *ValidateClusterOptions) (*models.Cluster, error) {
+	req := &models.Cluster{
+		Name:  swag.String(vco.Name),
+		Owner: vco.Owner,
+	}
+
+	res, err := vco.ClusterAPI.ValidateCluster(clusters.NewValidateClusterParams().WithBody(req))
+	if err != nil {
+		return nil, fmt.Errorf("error validating cluster %s: %s", vco.Name, err)
+	}
+
+	return res.Payload, nil
 }
 
 func init() {
 	// Required flags
-	validateClusterCmd.Flags().StringVarP(&cco.Name, "cluster-name", "c", "", "Name for your kubernetes cluster")
+	validateClusterCmd.Flags().StringVarP(&vco.Name, "cluster-name", "c", "", "Name for your kubernetes cluster")
 
 	// Optional flags
-	validateClusterCmd.Flags().StringVarP(&cco.Owner, "owner", "o", "", "Owner of your kubernetes cluster")
+	validateClusterCmd.Flags().StringVarP(&vco.Owner, "owner", "o", "", "Owner of your kubernetes cluster")
 
-	createCmd.AddCommand(validateClusterCmd)
+	validateCmd.AddCommand(validateClusterCmd)
 }
