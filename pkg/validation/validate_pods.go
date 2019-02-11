@@ -12,8 +12,8 @@ import (
 const namespace = "kube-system"
 
 type ValidationError struct {
-	name    string
-	message string
+	Name    string
+	Message string
 }
 
 func ValidatePods(kubeclient kubernetes.Interface) ([]*ValidationError, error) {
@@ -52,8 +52,8 @@ func validatePods(pods *v1.PodList, namespace string) ([]*ValidationError, error
 			pod.Status.Phase == v1.PodFailed ||
 			pod.Status.Phase == v1.PodUnknown {
 			failures = append(failures, &ValidationError{
-				name:    fmt.Sprintf("%q/%q", pod.Namespace, pod.Name),
-				message: fmt.Sprintf("Pod %q in namespace %q is %s", pod.Name, pod.Namespace, pod.Status.Phase),
+				Name:    fmt.Sprintf("%q/%q", pod.Namespace, pod.Name),
+				Message: fmt.Sprintf("Pod %q in namespace %q is %s", pod.Name, pod.Namespace, pod.Status.Phase),
 			})
 			continue
 		}
@@ -66,8 +66,8 @@ func validatePods(pods *v1.PodList, namespace string) ([]*ValidationError, error
 		}
 		if len(notready) != 0 {
 			failures = append(failures, &ValidationError{
-				name:    fmt.Sprintf("%q/%q", pod.Namespace, pod.Name),
-				message: fmt.Sprintf("Pod %q in namespace", pod.Namespace),
+				Name:    fmt.Sprintf("%q/%q", pod.Namespace, pod.Name),
+				Message: fmt.Sprintf("Pod %q in namespace", pod.Namespace),
 			})
 		}
 	}
