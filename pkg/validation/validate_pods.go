@@ -67,7 +67,7 @@ func validatePods(pods *v1.PodList, namespace string) ([]*ValidationError, error
 		if len(notready) != 0 {
 			failures = append(failures, &ValidationError{
 				name:    fmt.Sprintf("%q/%q", pod.Namespace, pod.Name),
-				message: fmt.Sprintf("Pod %q in namespace"),
+				message: fmt.Sprintf("Pod %q in namespace", pod.Namespace),
 			})
 		}
 	}
