@@ -34,7 +34,7 @@ var createClusterCmd = &cobra.Command{
 			exitWithHelp(cmd, "Please provide name for your cluster.")
 		}
 
-		if cao.Owner == "" {
+		if cco.Owner == "" {
 			// Hack since we don't have login mechanism yet
 			cco.Owner = config.ResourceOwnerGojek
 		}
