@@ -16,7 +16,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 	helm_env "k8s.io/helm/pkg/helm/environment"
 )
 
@@ -120,7 +119,7 @@ func (h *CreateApp) createHelmTillerTunnel(kubeconfig string) error {
 	h.settings.KubeConfig = kubeconfig
 	h.settings.KubeContext = config.HelmDefaultKubecontext
 
-	config, client, err := getKubeClient(h.settings.KubeContext, h.settings.KubeConfig)
+	config, client, err := kube.GetKubeClient(h.settings.KubeContext, h.settings.KubeConfig)
 	if err != nil {
 		return fmt.Errorf("could not get kubernetes client for context %q: %s", h.settings.KubeContext, err)
 	}
@@ -154,26 +153,6 @@ func (h *CreateApp) getServiceFQDN(chartURL, namespace, releaseName string) (str
 
 	serviceFQDN := fmt.Sprintf("%s.%s.svc.cluster.local", serviceName, namespace)
 	return serviceFQDN, nil
-}
-
-func configForContext(context string, kubeconfig string) (*rest.Config, error) {
-	config, err := kube.GetConfig(context, kubeconfig).ClientConfig()
-	if err != nil {
-		return nil, fmt.Errorf("could not get kubernetes config for context %q: %s", context, err)
-	}
-	return config, nil
-}
-
-func getKubeClient(context string, kubeconfig string) (*rest.Config, kubernetes.Interface, error) {
-	config, err := configForContext(context, kubeconfig)
-	if err != nil {
-		return nil, nil, err
-	}
-	client, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		return nil, nil, fmt.Errorf("could not get kubernetes client: %s", err)
-	}
-	return config, client, nil
 }
 
 func getChartValues(value string) []string {
