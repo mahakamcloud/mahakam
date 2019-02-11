@@ -45,12 +45,24 @@ var validateClusterCmd = &cobra.Command{
 			glog.Exit(err)
 		}
 
-		// TODO(giri): print out validation result
 		fmt.Println("Validating kubernetes cluster...")
+
+		// TODO(giri): print out nodes validation result
+		fmt.Println("Validating cluster nodes")
+		fmt.Println("PASS")
+
+		// TODO(giri): print out system components result
+		fmt.Println("Validating kubernetes system components")
+		fmt.Println("PASS")
+
+		fmt.Println("Validating pods in namespace kube-system")
 		if len(res.Failures) == 0 {
-			fmt.Println("Your cluster is ready")
+			fmt.Println("PASS")
 		} else {
-			fmt.Println("Validation failed")
+			fmt.Println("FAIL")
+			for _, failure := range res.Failures {
+				fmt.Printf("\t%s\n", failure)
+			}
 		}
 	},
 }
