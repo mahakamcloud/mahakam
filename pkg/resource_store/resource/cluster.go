@@ -33,3 +33,20 @@ func NewResourceCluster(name string) *ResourceCluster {
 		Plan: ClusterPlanDefault,
 	}
 }
+
+type ResourceClusterList struct {
+	Items []*ResourceCluster
+}
+
+// Resource returns a empty ResourceCluster
+func (l *ResourceClusterList) Resource() Resource {
+	return &ResourceCluster{}
+}
+
+// WithItems returns list of ResourceCluster
+func (l *ResourceClusterList) WithItems(items []Resource) {
+	for _, i := range items {
+		cluster := i.(*ResourceCluster)
+		l.Items = append(l.Items, cluster)
+	}
+}

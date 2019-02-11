@@ -29,9 +29,11 @@ const (
 	StatusReady    Status = "Ready"
 
 	KindCluster          ResourceKind = "cluster"
+	KindTerraform        ResourceKind = "terraform"
 	KindTerraformBackend ResourceKind = "terraform backend"
 	KindTask             ResourceKind = "task"
 	KindNetwork          ResourceKind = "network"
+	KindNode             ResourceKind = "node"
 	KindIPPool           ResourceKind = "ippool"
 )
 
@@ -103,10 +105,42 @@ func (br *BaseResource) BuildKey(optKeys ...string) string {
 	return fmt.Sprintf("%s/%s/%s/%s", br.Kind, br.Owner, br.Name, keys)
 }
 
+// BuildChildKey returns stringified key from parent key
 func (br *BaseResource) BuildChildKey(parentKey string, key string) string {
 	return fmt.Sprintf("%s/%s/", parentKey, key)
 }
 
+// GetLabels is getter for Labels attribute
 func (br *BaseResource) GetLabels() Labels {
 	return br.Labels
+}
+
+// NewResourceFromKind returns empty resource of that type
+func NewResourceFromKind(resKind ResourceKind) (Resource, error) {
+	switch resKind {
+	case KindCluster:
+		return &ResourceCluster{}, nil
+	case KindIPPool:
+		return &ResourceIPPool{}, nil
+	case KindNetwork:
+		return &ResourceNetwork{}, nil
+	case KindNode:
+		return &ResourceNode{}, nil
+	case KindTerraform:
+		return &ResourceTerraform{}, nil
+	default:
+		return nil, fmt.Errorf("invalid resourceKind : %s", resKind)
+	}
+}
+
+// NewResourceListFromKind returns empty resource of that type
+func NewResourceListFromKind(resKind ResourceKind) (ResourceList, error) {
+	switch resKind {
+	case KindCluster:
+		return &ResourceClusterList{}, nil
+	case KindIPPool:
+		return &ResourceIPPoolList{}, nil
+	default:
+		return nil, fmt.Errorf("invalid resourceKind : %s", resKind)
+	}
 }

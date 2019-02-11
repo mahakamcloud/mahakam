@@ -57,7 +57,7 @@ func (h *AllocateOrReleaseFromIPPool) Handle(params networks.AllocateOrReleaseFr
 		if err != nil {
 			return networks.NewAllocateOrReleaseFromIPPoolDefault(405).WithPayload(&models.Error{
 				Code:    405,
-				Message: fmt.Sprintf("error releaseing ip %s from ip pool: %s", releasedIP, err),
+				Message: fmt.Sprintf("error releasing ip %s from ip pool: %s", releasedIP, err),
 			})
 		}
 
@@ -81,7 +81,7 @@ func (h *AllocateOrReleaseFromIPPool) allocateIP() (string, error) {
 	}
 
 	if len(p.AvailableIPPools) == 0 {
-		return "", fmt.Errorf("running out of available ip pools %v", p)
+		return "", fmt.Errorf("ran out of available ip pools %v", p)
 	}
 
 	ipPools := p.AvailableIPPools

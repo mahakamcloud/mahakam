@@ -9,7 +9,6 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
 	models "github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 )
 
