@@ -13,12 +13,9 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Cluster cluster
-// swagger:model cluster
-type Cluster struct {
-
-	// cluster plan
-	ClusterPlan string `json:"clusterPlan,omitempty"`
+// ValidateCluster validate cluster
+// swagger:model validateCluster
+type ValidateCluster struct {
 
 	// failures
 	Failures []string `json:"failures"`
@@ -32,28 +29,16 @@ type Cluster struct {
 	// Min Length: 1
 	Name *string `json:"name"`
 
-	// num nodes
-	// Maximum: 10
-	// Minimum: 1
-	NumNodes int64 `json:"numNodes,omitempty"`
-
 	// owner
 	// Min Length: 1
 	Owner string `json:"owner,omitempty"`
-
-	// status
-	Status string `json:"status,omitempty"`
 }
 
-// Validate validates this cluster
-func (m *Cluster) Validate(formats strfmt.Registry) error {
+// Validate validates this validate cluster
+func (m *ValidateCluster) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateName(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateNumNodes(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -67,7 +52,7 @@ func (m *Cluster) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Cluster) validateName(formats strfmt.Registry) error {
+func (m *ValidateCluster) validateName(formats strfmt.Registry) error {
 
 	if err := validate.Required("name", "body", m.Name); err != nil {
 		return err
@@ -80,24 +65,7 @@ func (m *Cluster) validateName(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Cluster) validateNumNodes(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.NumNodes) { // not required
-		return nil
-	}
-
-	if err := validate.MinimumInt("numNodes", "body", int64(m.NumNodes), 1, false); err != nil {
-		return err
-	}
-
-	if err := validate.MaximumInt("numNodes", "body", int64(m.NumNodes), 10, false); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *Cluster) validateOwner(formats strfmt.Registry) error {
+func (m *ValidateCluster) validateOwner(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Owner) { // not required
 		return nil
@@ -111,7 +79,7 @@ func (m *Cluster) validateOwner(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (m *Cluster) MarshalBinary() ([]byte, error) {
+func (m *ValidateCluster) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -119,8 +87,8 @@ func (m *Cluster) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *Cluster) UnmarshalBinary(b []byte) error {
-	var res Cluster
+func (m *ValidateCluster) UnmarshalBinary(b []byte) error {
+	var res ValidateCluster
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

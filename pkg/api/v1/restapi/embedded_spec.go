@@ -221,6 +221,37 @@ func init() {
         }
       }
     },
+    "/clusters/validate": {
+      "post": {
+        "tags": [
+          "clusters"
+        ],
+        "operationId": "validateCluster",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/cluster"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Validated",
+            "schema": {
+              "$ref": "#/definitions/cluster"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/networks": {
       "get": {
         "tags": [
@@ -411,6 +442,12 @@ func init() {
       "properties": {
         "clusterPlan": {
           "type": "string"
+        },
+        "failures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "id": {
           "type": "integer",
@@ -722,6 +759,37 @@ func init() {
         }
       }
     },
+    "/clusters/validate": {
+      "post": {
+        "tags": [
+          "clusters"
+        ],
+        "operationId": "validateCluster",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/cluster"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Validated",
+            "schema": {
+              "$ref": "#/definitions/cluster"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/networks": {
       "get": {
         "tags": [
@@ -912,6 +980,12 @@ func init() {
       "properties": {
         "clusterPlan": {
           "type": "string"
+        },
+        "failures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "id": {
           "type": "integer",

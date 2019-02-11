@@ -79,6 +79,21 @@ func (mr *MockClusterAPIMockRecorder) GetClusters(arg0 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetClusters", reflect.TypeOf((*MockClusterAPI)(nil).GetClusters), arg0)
 }
 
+// ValidateCluster mocks base method
+func (m *MockClusterAPI) ValidateCluster(arg0 *clusters.ValidateClusterParams) (*clusters.ValidateClusterCreated, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ValidateCluster", arg0)
+	ret0, _ := ret[0].(*clusters.ValidateClusterCreated)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ValidateCluster indicates an expected call of ValidateCluster
+func (mr *MockClusterAPIMockRecorder) ValidateCluster(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidateCluster", reflect.TypeOf((*MockClusterAPI)(nil).ValidateCluster), arg0)
+}
+
 // MockAppAPI is a mock of AppAPI interface
 type MockAppAPI struct {
 	ctrl     *gomock.Controller
