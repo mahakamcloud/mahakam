@@ -47,21 +47,33 @@ var validateClusterCmd = &cobra.Command{
 
 		fmt.Println("Validating kubernetes cluster...")
 
-		// TODO(giri): print out nodes validation result
 		fmt.Println("Validating cluster nodes")
-		fmt.Println("PASS")
-
-		// TODO(giri): print out system components result
-		fmt.Println("Validating kubernetes system components")
-		fmt.Println("PASS")
-
-		fmt.Println("Validating pods in namespace kube-system")
-		if len(res.Failures) == 0 {
+		if len(res.NodeFailures) == 0 {
 			fmt.Println("PASS")
 		} else {
 			fmt.Println("FAIL")
-			for _, failure := range res.Failures {
-				fmt.Printf("\t%s\n", failure)
+			for _, nf := range res.NodeFailures {
+				fmt.Printf("\t%s\n", nf)
+			}
+		}
+
+		fmt.Println("Validating kubernetes system components")
+		if len(res.ComponentFailures) == 0 {
+			fmt.Println("PASS")
+		} else {
+			fmt.Println("FAIL")
+			for _, cf := range res.ComponentFailures {
+				fmt.Printf("\t%s\n", cf)
+			}
+		}
+
+		fmt.Println("Validating pods in namespace kube-system")
+		if len(res.PodFailures) == 0 {
+			fmt.Println("PASS")
+		} else {
+			fmt.Println("FAIL")
+			for _, pf := range res.PodFailures {
+				fmt.Printf("\t%s\n", pf)
 			}
 		}
 	},

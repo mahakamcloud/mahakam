@@ -49,6 +49,14 @@ func (v *ValidateCluster) Handle(params clusters.ValidateClusterParams) middlewa
 		})
 	}
 
+	componentFailures, err := validation.ValidateComponents(kubeclient)
+	if err != nil {
+		v.log.Errorf("error validating cluster components for %s: %s", clusterName, err)
+		return clusters.NewValidateClusterDefault(http.StatusInternalServerError).WithPayload(&models.Error{
+			Message: "fail validating cluster components",
+		})
+	}
+
 	podFailures, err := validation.ValidatePods(kubeclient)
 	if err != nil {
 		v.log.Errorf("error validating kube-system pods for %s: %s", clusterName, err)
@@ -57,24 +65,28 @@ func (v *ValidateCluster) Handle(params clusters.ValidateClusterParams) middlewa
 		})
 	}
 
-	res := validationResult(clusterName, owner, nodeFailures, podFailures)
+	res := validationResult(clusterName, owner, nodeFailures, componentFailures, podFailures)
 	return clusters.NewValidateClusterCreated().WithPayload(res)
 }
 
-func validationResult(clusterName, owner string, nodeFailures, podFailures []*validation.ValidationError) *models.Cluster {
-	var nfailures, pfailures []string
+func validationResult(clusterName, owner string, nodeFailures, componentFailures, podFailures []*validation.ValidationError) *models.Cluster {
+	var nfailures, cfailures, pfailures []string
 	for _, nf := range nodeFailures {
 		nfailures = append(nfailures, nf.Message)
+	}
+	for _, cf := range componentFailures {
+		cfailures = append(cfailures, cf.Message)
 	}
 	for _, pf := range podFailures {
 		pfailures = append(pfailures, pf.Message)
 	}
 
 	res := &models.Cluster{
-		Name:         swag.String(clusterName),
-		Owner:        owner,
-		NodeFailures: nfailures,
-		PodFailures:  pfailures,
+		Name:              swag.String(clusterName),
+		Owner:             owner,
+		NodeFailures:      nfailures,
+		ComponentFailures: cfailures,
+		PodFailures:       pfailures,
 	}
 	return res
 }
