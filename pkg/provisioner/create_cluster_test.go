@@ -16,6 +16,7 @@ import (
 
 	"github.com/mahakamcloud/mahakam/pkg/node"
 	. "github.com/mahakamcloud/mahakam/pkg/provisioner"
+	store "github.com/mahakamcloud/mahakam/pkg/resource_store"
 
 	gomock "github.com/golang/mock/gomock"
 )
@@ -28,6 +29,8 @@ var (
 	cn = &network.ClusterNetwork{
 		Name: "fake cluster network",
 	}
+
+	clusterName = "fake-cluster-name"
 )
 
 func nilLogger() *logrus.Logger {
@@ -35,6 +38,42 @@ func nilLogger() *logrus.Logger {
 	l.Out = ioutil.Discard
 
 	return l
+}
+
+func TestPreCreateCheck(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	l := nilLogger()
+	s := store.NewMockResourceStore(ctrl)
+
+	tests := []struct {
+		name               string
+		expectClusterExist bool
+		expectError        error
+	}{
+		{
+			name:               "test should return error if cluster exists",
+			expectClusterExist: true,
+			expectError:        fmt.Errorf("cluster %s already exists", clusterName),
+		},
+		{
+			name:               "test should not return error if cluster doesn't exist",
+			expectClusterExist: false,
+			expectError:        nil,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			s.EXPECT().KeyExists(gomock.Any()).Return(test.expectClusterExist)
+
+			pc := NewPreCreateCheck(clusterName, l, s)
+			err := pc.Run()
+
+			assert.Equal(t, test.expectError, err)
+		})
+	}
 }
 
 func TestCreateNode(t *testing.T) {
