@@ -30,7 +30,7 @@ func NewClusterValidator(client *client.Mahakam) Validator {
 	}
 }
 
-func (v *ClusterValidator) validate(owner, clustername string) (bool, error) {
+func (v *ClusterValidator) validate(owner, clustername string, log logrus.FieldLogger) (bool, error) {
 	req := &models.Cluster{
 		Owner: owner,
 		Name:  swag.String(clustername),
@@ -39,6 +39,7 @@ func (v *ClusterValidator) validate(owner, clustername string) (bool, error) {
 	if err != nil {
 		return false, fmt.Errorf("error validating cluster %s: %s", clustername, err)
 	}
+	log.Debugf("cluster validation result: %v", res)
 
 	if len(res.Payload.NodeFailures) > 0 ||
 		len(res.Payload.ComponentFailures) > 0 ||
@@ -51,11 +52,12 @@ func (v *ClusterValidator) validate(owner, clustername string) (bool, error) {
 func (v *ClusterValidator) ValidateNWithDelay(owner, clustername string, timeout time.Duration, log logrus.FieldLogger,
 	count int, delay time.Duration) bool {
 	for i := 0; i < count; i++ {
-		ready, err := v.validate(owner, clustername)
+		ready, err := v.validate(owner, clustername, log)
 		if err != nil && ready {
 			log.Infof("cluster %s is ready", clustername)
 			return true
 		}
+		log.Warnf("cluster %s is not ready, retrying after %d seconds", clustername, delay.Seconds())
 		time.Sleep(delay)
 	}
 	log.Errorf("validating cluster %s timeout", clustername)
