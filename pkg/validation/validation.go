@@ -57,7 +57,7 @@ func (v *ClusterValidator) ValidateNWithDelay(owner, clustername string, timeout
 			log.Infof("cluster %s is ready", clustername)
 			return true
 		}
-		log.Warnf("cluster %s is not ready, retrying after %d seconds", clustername, delay.Seconds())
+		log.Warnf("cluster %s is not ready, retrying after %f seconds", clustername, delay.Seconds())
 		time.Sleep(delay)
 	}
 	log.Errorf("validating cluster %s timeout", clustername)

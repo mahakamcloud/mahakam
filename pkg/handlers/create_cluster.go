@@ -350,7 +350,7 @@ func (c *createClusterWF) setupClusterValidationTasks(tasks []task.Task) []task.
 	// TODO(giri): get local host and local port from config.yaml
 	client := mahakamclient.GetMahakamClient(":" + strconv.Itoa(config.MahakamAPIDefaultPort))
 
-	clusterValidation := provisioner.NewClusterValidation(c.owner, c.clustername, validation.NewClusterValidator(client), c.handlers.Store)
+	clusterValidation := provisioner.NewClusterValidation(c.owner, c.clustername, validation.NewClusterValidator(client), c.handlers.Store, c.log)
 
 	tasks = append(tasks, clusterValidation)
 	return tasks

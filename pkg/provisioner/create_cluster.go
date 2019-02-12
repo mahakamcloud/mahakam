@@ -218,8 +218,8 @@ type ClusterValidation struct {
 	log              logrus.FieldLogger
 }
 
-func NewClusterValidation(owner, clustername string, cv validation.Validator, s store.ResourceStore) *ClusterValidation {
-	clusterValidationLog := logrus.WithField("cluster", clustername).
+func NewClusterValidation(owner, clustername string, cv validation.Validator, s store.ResourceStore, log logrus.FieldLogger) *ClusterValidation {
+	clusterValidationLog := log.WithField("cluster", clustername).
 		WithField("task", fmt.Sprintf("validate cluster is ready and healthy"))
 
 	return &ClusterValidation{
