@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"net"
 
@@ -59,6 +60,10 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("Error validating gate configuration: %s", err)
 	}
 
+	if len(c.HostsConfig) < 1 {
+		return fmt.Errorf("Error validating hosts configuration: %s", errors.New("empty hosts list"))
+	}
+
 	for _, host := range c.HostsConfig {
 		if err := host.Validate(); err != nil {
 			return fmt.Errorf("Error validating hosts configuration: %s", err)
@@ -79,6 +84,10 @@ type StorageBackendConfig struct {
 
 // Validate validates storage backend configuration
 func (sbc *StorageBackendConfig) Validate() error {
+	if sbc.BackendType == "" {
+		return fmt.Errorf("Must provide non-empty Backend type")
+	}
+
 	if sbc.Address == "" {
 		return fmt.Errorf("Must provide non-empty storage backend address")
 	}
@@ -195,10 +204,6 @@ func (tc *TerraformConfig) Validate() error {
 type Host struct {
 	Name      string `yaml:"name"`
 	IPAddress string `yaml:"ip_address"`
-}
-
-type HostsConfig struct {
-	Hosts []Host `yaml:"hosts"`
 }
 
 func (h *Host) Validate() error {
