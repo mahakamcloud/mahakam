@@ -211,17 +211,19 @@ func (c *ClusterNetworkReachability) Run() error {
 }
 
 type ClusterValidation struct {
+	owner            string
 	clustername      string
 	clusterValidator validation.Validator
 	store            store.ResourceStore
 	log              logrus.FieldLogger
 }
 
-func NewClusterValidation(clustername string, cv validation.Validator, s store.ResourceStore) *ClusterValidation {
+func NewClusterValidation(owner, clustername string, cv validation.Validator, s store.ResourceStore) *ClusterValidation {
 	clusterValidationLog := logrus.WithField("cluster", clustername).
 		WithField("task", fmt.Sprintf("validate cluster is ready and healthy"))
 
 	return &ClusterValidation{
+		owner:            owner,
 		clustername:      clustername,
 		clusterValidator: cv,
 		store:            s,
@@ -231,7 +233,7 @@ func NewClusterValidation(clustername string, cv validation.Validator, s store.R
 
 func (v *ClusterValidation) Run() error {
 	// Blocking waiting cluster to be healthy
-	ready := v.clusterValidator.ValidateNWithDelay(v.clustername, config.NodePingTimeout, v.log,
+	ready := v.clusterValidator.ValidateNWithDelay(v.owner, v.clustername, config.NodePingTimeout, v.log,
 		config.NodePingRetry, config.NodePingDelay)
 	if !ready {
 		return fmt.Errorf("timeout waiting for cluster %s to be ready", v.clustername)

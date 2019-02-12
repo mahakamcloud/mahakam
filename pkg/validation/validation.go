@@ -17,7 +17,7 @@ type ValidationError struct {
 }
 
 type Validator interface {
-	ValidateNWithDelay(clustername string, timeout time.Duration, log logrus.FieldLogger, count int, delay time.Duration) bool
+	ValidateNWithDelay(owner, clustername string, timeout time.Duration, log logrus.FieldLogger, count int, delay time.Duration) bool
 }
 
 type ClusterValidator struct {
@@ -30,9 +30,10 @@ func NewClusterValidator(client *client.Mahakam) Validator {
 	}
 }
 
-func (v *ClusterValidator) validate(clustername string) (bool, error) {
+func (v *ClusterValidator) validate(owner, clustername string) (bool, error) {
 	req := &models.Cluster{
-		Name: swag.String(clustername),
+		Owner: owner,
+		Name:  swag.String(clustername),
 	}
 	res, err := v.client.Clusters.ValidateCluster(clusters.NewValidateClusterParams().WithBody(req))
 	if err != nil {
@@ -47,10 +48,10 @@ func (v *ClusterValidator) validate(clustername string) (bool, error) {
 	return true, nil
 }
 
-func (v *ClusterValidator) ValidateNWithDelay(clustername string, timeout time.Duration, log logrus.FieldLogger,
+func (v *ClusterValidator) ValidateNWithDelay(owner, clustername string, timeout time.Duration, log logrus.FieldLogger,
 	count int, delay time.Duration) bool {
 	for i := 0; i < count; i++ {
-		ready, err := v.validate(clustername)
+		ready, err := v.validate(owner, clustername)
 		if err != nil && ready {
 			log.Infof("cluster %s is ready", clustername)
 			return true
