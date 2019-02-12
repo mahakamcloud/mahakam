@@ -16,6 +16,11 @@ paths:
       tags:
         - clusters
       operationId: getClusters
+      parameters:
+        - in: query
+          type: string
+          name: owner
+          description: Owner of clusters
       responses:
         200:
           description: list available clusters
