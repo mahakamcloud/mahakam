@@ -11,6 +11,7 @@ import (
 	netclient "github.com/mahakamcloud/mahakam/pkg/api/v1/client/networks"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/networks"
+	mahakamclient "github.com/mahakamcloud/mahakam/pkg/client"
 	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/mahakamcloud/mahakam/pkg/network"
 	"github.com/mahakamcloud/mahakam/pkg/node"
@@ -331,7 +332,7 @@ func (cn *createNetworkWF) setupNetworkNameserverTasks(tasks []task.Task) []task
 }
 
 func getPublicIP() (net.IP, error) {
-	client := GetMahakamClient(":" + strconv.Itoa(config.MahakamAPIDefaultPort))
+	client := mahakamclient.GetMahakamClient(":" + strconv.Itoa(config.MahakamAPIDefaultPort))
 	res, err := client.Networks.AllocateOrReleaseFromIPPool(netclient.NewAllocateOrReleaseFromIPPoolParams().
 		WithAction(swag.String(config.IPPoolActionAllocate)))
 	if err != nil {

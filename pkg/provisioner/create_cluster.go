@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/client"
 	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/mahakamcloud/mahakam/pkg/network"
 	"github.com/mahakamcloud/mahakam/pkg/node"
@@ -16,19 +17,20 @@ import (
 )
 
 type PreCreateCheck struct {
-	clusterName    string
+	clustername    string
 	clusterKeyPath string
 	log            logrus.FieldLogger
 	store          store.ResourceStore
 }
 
-func NewPreCreateCheck(clusterName string, log logrus.FieldLogger, store store.ResourceStore) *PreCreateCheck {
-	preCreateCheckLog := log.WithField("task", fmt.Sprintf("pre-create cluster check for %s", clusterName))
+func NewPreCreateCheck(clustername string, log logrus.FieldLogger, store store.ResourceStore) *PreCreateCheck {
+	preCreateCheckLog := log.WithField("cluster", clustername).
+		WithField("task", fmt.Sprintf("pre-create cluster check"))
 
-	clusterKeyPath := resource.NewResourceCluster(clusterName).BuildKey()
+	clusterKeyPath := resource.NewResourceCluster(clustername).BuildKey()
 
 	return &PreCreateCheck{
-		clusterName:    clusterName,
+		clustername:    clustername,
 		clusterKeyPath: clusterKeyPath,
 		log:            preCreateCheckLog,
 		store:          store,
@@ -38,7 +40,7 @@ func NewPreCreateCheck(clusterName string, log logrus.FieldLogger, store store.R
 func (p *PreCreateCheck) Run() error {
 	clusterExists := p.store.KeyExists(p.clusterKeyPath)
 	if clusterExists {
-		return fmt.Errorf("cluster %s already exists", p.clusterName)
+		return fmt.Errorf("cluster %s already exists", p.clustername)
 	}
 
 	return nil
@@ -139,7 +141,8 @@ type CreateAdminKubeconfig struct {
 func NewCreateAdminKubeconfig(clustername, apiServerAddress, apiServerPort string,
 	config utils.SCPConfig, pc utils.PingChecker) *CreateAdminKubeconfig {
 
-	createAdminKubeconfigLog := logrus.WithField("task", fmt.Sprintf("copying kubeconfig from %s to local system", config.RemoteIPAddress))
+	createAdminKubeconfigLog := logrus.WithField("cluster", clustername).
+		WithField("task", fmt.Sprintf("copying kubeconfig from %s to local system", config.RemoteIPAddress))
 
 	return &CreateAdminKubeconfig{
 		clustername:      clustername,
@@ -206,5 +209,25 @@ func (c *ClusterNetworkReachability) Run() error {
 	if err != nil {
 		return fmt.Errorf("error assigning cluster network IP to mahakam server: %s", err)
 	}
+	return nil
+}
+
+type ClusterValidation struct {
+	clustername string
+	client      *client.Mahakam
+	log         logrus.FieldLogger
+}
+
+func NewClusterValidation(clustername string) *ClusterValidation {
+	clusterValidationLog := logrus.WithField("cluster", clustername).
+		WithField("task", fmt.Sprintf("validate cluster is ready and healthy"))
+
+	return &ClusterValidation{
+		clustername: clustername,
+		log:         clusterValidationLog,
+	}
+}
+
+func (v *ClusterValidation) Run() error {
 	return nil
 }

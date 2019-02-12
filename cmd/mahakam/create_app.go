@@ -10,8 +10,8 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/api/v1"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/apps"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
+	mahakamclient "github.com/mahakamcloud/mahakam/pkg/client"
 	"github.com/mahakamcloud/mahakam/pkg/config"
-	"github.com/mahakamcloud/mahakam/pkg/handlers"
 	"github.com/spf13/cobra"
 )
 
@@ -49,7 +49,7 @@ var createAppCmd = &cobra.Command{
 			cao.Owner = config.ResourceOwnerGojek
 		}
 
-		cao.AppAPI = handlers.GetMahakamAppClient(os.Getenv("MAHAKAM_API_SERVER_HOST"))
+		cao.AppAPI = mahakamclient.GetMahakamAppClient(os.Getenv("MAHAKAM_API_SERVER_HOST"))
 
 		res, err := RunCreateApp(cao)
 		if err != nil {
