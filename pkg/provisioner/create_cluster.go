@@ -6,7 +6,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/mahakamcloud/mahakam/pkg/api/v1/client"
 	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/mahakamcloud/mahakam/pkg/network"
 	"github.com/mahakamcloud/mahakam/pkg/node"
@@ -213,21 +212,20 @@ func (c *ClusterNetworkReachability) Run() error {
 
 type ClusterValidation struct {
 	clustername      string
-	client           *client.Mahakam
 	clusterValidator validation.Validator
 	store            store.ResourceStore
 	log              logrus.FieldLogger
 }
 
-func NewClusterValidation(clustername string, c *client.Mahakam, s store.ResourceStore) *ClusterValidation {
+func NewClusterValidation(clustername string, cv validation.Validator, s store.ResourceStore) *ClusterValidation {
 	clusterValidationLog := logrus.WithField("cluster", clustername).
 		WithField("task", fmt.Sprintf("validate cluster is ready and healthy"))
 
 	return &ClusterValidation{
-		clustername: clustername,
-		client:      c,
-		store:       s,
-		log:         clusterValidationLog,
+		clustername:      clustername,
+		clusterValidator: cv,
+		store:            s,
+		log:              clusterValidationLog,
 	}
 }
 

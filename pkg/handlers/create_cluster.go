@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/mahakamcloud/mahakam/pkg/scheduler"
+	"github.com/mahakamcloud/mahakam/pkg/validation"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
@@ -349,7 +350,7 @@ func (c *createClusterWF) setupClusterValidationTasks(tasks []task.Task) []task.
 	// TODO(giri): get local host and local port from config.yaml
 	client := mahakamclient.GetMahakamClient(":" + strconv.Itoa(config.MahakamAPIDefaultPort))
 
-	clusterValidation := provisioner.NewClusterValidation(c.clustername, client, c.handlers.Store)
+	clusterValidation := provisioner.NewClusterValidation(c.clustername, validation.NewClusterValidator(client), c.handlers.Store)
 
 	tasks = append(tasks, clusterValidation)
 	return tasks
