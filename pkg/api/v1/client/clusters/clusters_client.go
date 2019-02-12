@@ -108,6 +108,34 @@ func (a *Client) GetClusters(params *GetClustersParams) (*GetClustersOK, error) 
 
 }
 
+/*
+ValidateCluster validate cluster API
+*/
+func (a *Client) ValidateCluster(params *ValidateClusterParams) (*ValidateClusterCreated, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewValidateClusterParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "validateCluster",
+		Method:             "POST",
+		PathPattern:        "/clusters/validate",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http"},
+		Params:             params,
+		Reader:             &ValidateClusterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ValidateClusterCreated), nil
+
+}
+
 // SetTransport changes the transport on the client
 func (a *Client) SetTransport(transport runtime.ClientTransport) {
 	a.transport = transport

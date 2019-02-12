@@ -72,6 +72,9 @@ func NewMahakamAPI(spec *loads.Document) *MahakamAPI {
 		AppsUploadAppValuesHandler: apps.UploadAppValuesHandlerFunc(func(params apps.UploadAppValuesParams) middleware.Responder {
 			return middleware.NotImplemented("operation AppsUploadAppValues has not yet been implemented")
 		}),
+		ClustersValidateClusterHandler: clusters.ValidateClusterHandlerFunc(func(params clusters.ValidateClusterParams) middleware.Responder {
+			return middleware.NotImplemented("operation ClustersValidateCluster has not yet been implemented")
+		}),
 	}
 }
 
@@ -125,6 +128,8 @@ type MahakamAPI struct {
 	NetworksGetNetworksHandler networks.GetNetworksHandler
 	// AppsUploadAppValuesHandler sets the operation handler for the upload app values operation
 	AppsUploadAppValuesHandler apps.UploadAppValuesHandler
+	// ClustersValidateClusterHandler sets the operation handler for the validate cluster operation
+	ClustersValidateClusterHandler clusters.ValidateClusterHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -230,6 +235,10 @@ func (o *MahakamAPI) Validate() error {
 
 	if o.AppsUploadAppValuesHandler == nil {
 		unregistered = append(unregistered, "apps.UploadAppValuesHandler")
+	}
+
+	if o.ClustersValidateClusterHandler == nil {
+		unregistered = append(unregistered, "clusters.ValidateClusterHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -382,6 +391,11 @@ func (o *MahakamAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/apps/values"] = apps.NewUploadAppValues(o.context, o.AppsUploadAppValuesHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/clusters/validate"] = clusters.NewValidateCluster(o.context, o.ClustersValidateClusterHandler)
 
 }
 

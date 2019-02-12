@@ -221,6 +221,37 @@ func init() {
         }
       }
     },
+    "/clusters/validate": {
+      "post": {
+        "tags": [
+          "clusters"
+        ],
+        "operationId": "validateCluster",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/cluster"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Validated",
+            "schema": {
+              "$ref": "#/definitions/cluster"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/networks": {
       "get": {
         "tags": [
@@ -412,6 +443,12 @@ func init() {
         "clusterPlan": {
           "type": "string"
         },
+        "componentFailures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "id": {
           "type": "integer",
           "format": "int64",
@@ -421,6 +458,12 @@ func init() {
           "type": "string",
           "minLength": 1
         },
+        "nodeFailures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "numNodes": {
           "type": "integer",
           "maximum": 10,
@@ -429,6 +472,12 @@ func init() {
         "owner": {
           "type": "string",
           "minLength": 1
+        },
+        "podFailures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "status": {
           "type": "string"
@@ -722,6 +771,37 @@ func init() {
         }
       }
     },
+    "/clusters/validate": {
+      "post": {
+        "tags": [
+          "clusters"
+        ],
+        "operationId": "validateCluster",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/cluster"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Validated",
+            "schema": {
+              "$ref": "#/definitions/cluster"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/networks": {
       "get": {
         "tags": [
@@ -913,6 +993,12 @@ func init() {
         "clusterPlan": {
           "type": "string"
         },
+        "componentFailures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "id": {
           "type": "integer",
           "format": "int64",
@@ -922,6 +1008,12 @@ func init() {
           "type": "string",
           "minLength": 1
         },
+        "nodeFailures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "numNodes": {
           "type": "integer",
           "maximum": 10,
@@ -930,6 +1022,12 @@ func init() {
         "owner": {
           "type": "string",
           "minLength": 1
+        },
+        "podFailures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "status": {
           "type": "string"

@@ -6,7 +6,9 @@ import (
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/client-go/kubernetes"
 	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
+	"k8s.io/client-go/rest"
 )
 
 // GetServiceName retrieves the name of service in given namespace and labels
@@ -32,4 +34,24 @@ func getFirstService(client corev1.ServicesGetter, namespace string, selector la
 		return &s, nil
 	}
 	return nil, fmt.Errorf("could not find service")
+}
+
+func GetKubeClient(context string, kubeconfig string) (*rest.Config, kubernetes.Interface, error) {
+	config, err := configForContext(context, kubeconfig)
+	if err != nil {
+		return nil, nil, err
+	}
+	client, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return nil, nil, fmt.Errorf("could not get kubernetes client: %s", err)
+	}
+	return config, client, nil
+}
+
+func configForContext(context string, kubeconfig string) (*rest.Config, error) {
+	config, err := GetConfig(context, kubeconfig).ClientConfig()
+	if err != nil {
+		return nil, fmt.Errorf("could not get kubernetes config for context %q: %s", context, err)
+	}
+	return config, nil
 }

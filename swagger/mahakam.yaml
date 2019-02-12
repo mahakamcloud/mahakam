@@ -64,6 +64,25 @@ paths:
           description: generic error response
           schema:
             $ref: "#/definitions/error"
+  /clusters/validate:
+    post:
+      tags:
+        - clusters
+      operationId: validateCluster
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: "#/definitions/cluster"
+      responses:
+        201:
+          description: Validated
+          schema:
+            $ref: "#/definitions/cluster"
+        default:
+          description: error
+          schema:
+            $ref: "#/definitions/error"
   /apps:
     get:
       tags:
@@ -235,6 +254,18 @@ definitions:
         type: integer
         minimum: 1
         maximum: 10
+      nodeFailures:
+        type: array
+        items:
+          type: string
+      componentFailures:
+        type: array
+        items:
+          type: string
+      podFailures:
+        type: array
+        items:
+          type: string
       status:
         type: string
   network:

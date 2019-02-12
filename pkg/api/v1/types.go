@@ -9,6 +9,7 @@ type ClusterAPI interface {
 	CreateCluster(*clusters.CreateClusterParams) (*clusters.CreateClusterCreated, error)
 	DescribeClusters(*clusters.DescribeClustersParams) (*clusters.DescribeClustersOK, error)
 	GetClusters(*clusters.GetClustersParams) (*clusters.GetClustersOK, error)
+	ValidateCluster(*clusters.ValidateClusterParams) (*clusters.ValidateClusterCreated, error)
 }
 
 type AppAPI interface {

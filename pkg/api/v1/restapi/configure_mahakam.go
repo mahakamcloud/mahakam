@@ -67,6 +67,8 @@ func configureAPI(api *operations.MahakamAPI) http.Handler {
 
 	api.ClustersDescribeClustersHandler = &handlers.DescribeCluster{Handlers: *h}
 
+	api.ClustersValidateClusterHandler = handlers.NewValidateClusterHandler(*h)
+
 	api.NetworksCreateNetworkHandler = handlers.NewCreateNetworkHandler(*h)
 
 	api.NetworksGetNetworksHandler = networks.GetNetworksHandlerFunc(func(params networks.GetNetworksParams) middleware.Responder {
