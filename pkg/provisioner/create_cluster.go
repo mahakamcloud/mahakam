@@ -13,6 +13,7 @@ import (
 	store "github.com/mahakamcloud/mahakam/pkg/resource_store"
 	"github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
 	"github.com/mahakamcloud/mahakam/pkg/utils"
+	"github.com/mahakamcloud/mahakam/pkg/validation"
 	"github.com/sirupsen/logrus"
 )
 
@@ -159,8 +160,6 @@ func (k *CreateAdminKubeconfig) Run() error {
 	apiServer := fmt.Sprintf("%s:%s", k.apiServerAddress, k.apiServerPort)
 	ready := k.pingChecker.PortPingNWithDelay(apiServer, config.NodePingTimeout, k.log,
 		config.NodePingRetry, config.NodePingDelay)
-
-	// Control plane node still not up after max retry
 	if !ready {
 		return fmt.Errorf("timeout waiting for control plane to be up '%v'", k)
 	}
@@ -213,21 +212,50 @@ func (c *ClusterNetworkReachability) Run() error {
 }
 
 type ClusterValidation struct {
-	clustername string
-	client      *client.Mahakam
-	log         logrus.FieldLogger
+	clustername      string
+	client           *client.Mahakam
+	clusterValidator validation.Validator
+	store            store.ResourceStore
+	log              logrus.FieldLogger
 }
 
-func NewClusterValidation(clustername string) *ClusterValidation {
+func NewClusterValidation(clustername string, c *client.Mahakam, s store.ResourceStore) *ClusterValidation {
 	clusterValidationLog := logrus.WithField("cluster", clustername).
 		WithField("task", fmt.Sprintf("validate cluster is ready and healthy"))
 
 	return &ClusterValidation{
 		clustername: clustername,
+		client:      c,
+		store:       s,
 		log:         clusterValidationLog,
 	}
 }
 
 func (v *ClusterValidation) Run() error {
+	// Blocking waiting cluster to be healthy
+	ready := v.clusterValidator.ValidateNWithDelay(v.clustername, config.NodePingTimeout, v.log,
+		config.NodePingRetry, config.NodePingDelay)
+	if !ready {
+		return fmt.Errorf("timeout waiting for cluster %s to be ready", v.clustername)
+	}
+
+	if err := v.updateClusterResource(v.clustername); err != nil {
+		return fmt.Errorf("error updating cluster resource with ready status: %s", err)
+	}
+
+	return nil
+}
+
+func (v *ClusterValidation) updateClusterResource(clustername string) error {
+	c := resource.NewResourceCluster(clustername)
+	if err := v.store.Get(c); err != nil {
+		return fmt.Errorf("error adding cluster resource into kv store '%v': %s", c, err)
+	}
+
+	c.Status = resource.StatusReady
+	if _, err := v.store.Update(c); err != nil {
+		return fmt.Errorf("error updating cluster resource into kv store '%v': %s", c, err)
+	}
+
 	return nil
 }
