@@ -53,7 +53,7 @@ func (v *ClusterValidator) ValidateNWithDelay(owner, clustername string, timeout
 	count int, delay time.Duration) bool {
 	for i := 0; i < count; i++ {
 		ready, err := v.validate(owner, clustername, log)
-		if err != nil && ready {
+		if err == nil && ready {
 			log.Infof("cluster %s is ready", clustername)
 			return true
 		}
