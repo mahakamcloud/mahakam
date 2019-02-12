@@ -9,6 +9,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/network"
 
 	"github.com/mahakamcloud/mahakam/pkg/utils"
+	"github.com/mahakamcloud/mahakam/pkg/validation"
 
 	"github.com/stretchr/testify/assert"
 
@@ -191,6 +192,48 @@ func TestCheckNode(t *testing.T) {
 				assert.Error(t, err, test.expectError)
 			}
 
+			if err == nil {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestClusterValidation(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	tests := []struct {
+		name        string
+		expectError error
+		expectReady bool
+	}{
+		{
+			name:        "test cluster validation where cluster is ready",
+			expectError: nil,
+			expectReady: true,
+		},
+	}
+
+	l := nilLogger()
+	cv := validation.NewMockValidator(ctrl)
+	s := store.NewMockResourceStore(ctrl)
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			cv.EXPECT().ValidateNWithDelay(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+				Return(test.expectReady)
+			s.EXPECT().Get(gomock.Any()).
+				Return(nil)
+			s.EXPECT().Update(gomock.Any()).
+				Return(int64(0), nil)
+
+			v := NewClusterValidation("fake-owner", "fake-cluster", cv, s, l)
+			err := v.Run()
+
+			if err != nil {
+				assert.Error(t, err, test.expectError)
+			}
 			if err == nil {
 				assert.NoError(t, err)
 			}

@@ -10,8 +10,8 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/api/v1"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/clusters"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
+	mahakamclient "github.com/mahakamcloud/mahakam/pkg/client"
 	"github.com/mahakamcloud/mahakam/pkg/config"
-	"github.com/mahakamcloud/mahakam/pkg/handlers"
 	"github.com/spf13/cobra"
 )
 
@@ -38,7 +38,7 @@ var validateClusterCmd = &cobra.Command{
 			vco.Owner = config.ResourceOwnerGojek
 		}
 
-		vco.ClusterAPI = handlers.GetMahakamClusterClient(os.Getenv("MAHAKAM_API_SERVER_HOST"))
+		vco.ClusterAPI = mahakamclient.GetMahakamClusterClient(os.Getenv("MAHAKAM_API_SERVER_HOST"))
 
 		res, err := RunValidateCluster(vco)
 		if err != nil {

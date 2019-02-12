@@ -9,8 +9,8 @@ import (
 	v1 "github.com/mahakamcloud/mahakam/pkg/api/v1"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/clusters"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
+	mahakamclient "github.com/mahakamcloud/mahakam/pkg/client"
 	"github.com/mahakamcloud/mahakam/pkg/config"
-	"github.com/mahakamcloud/mahakam/pkg/handlers"
 	"github.com/spf13/cobra"
 )
 
@@ -32,7 +32,7 @@ var getClustersCmd = &cobra.Command{
 			gclo.Owner = config.ResourceOwnerGojek
 		}
 
-		gclo.ClusterAPI = handlers.GetMahakamClusterClient(os.Getenv("MAHAKAM_API_SERVER_HOST"))
+		gclo.ClusterAPI = mahakamclient.GetMahakamClusterClient(os.Getenv("MAHAKAM_API_SERVER_HOST"))
 		clusters, err := RunGetClusters(gclo)
 		if err != nil {
 			glog.Exit(err)

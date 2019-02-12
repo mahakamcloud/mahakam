@@ -98,8 +98,30 @@ func (kvr *kvResourceStore) List(owner string, kind resource.ResourceKind, list 
 }
 
 func (kvr *kvResourceStore) Update(resource resource.Resource) (revision int64, err error) {
-	fmt.Println("libkvResourceStore Update method not implemented")
-	return 0, nil
+	if err := resource.PreCheck(); err != nil {
+		return -1, fmt.Errorf("KV resource precheck failed: %s", err)
+	}
+	resource.UpdateResource()
+
+	value, err := json.Marshal(resource)
+	if err != nil {
+		return -1, fmt.Errorf("Add KV resource serialization error: %s", err)
+	}
+
+	prev := &store.KVPair{
+		Key:       resource.BuildKey(),
+		LastIndex: resource.GetResource().Revision,
+	}
+	opts := &store.WriteOptions{
+		IsDir: false,
+	}
+	_, res, err := kvr.store.AtomicPut(resource.BuildKey(), value, prev, opts)
+	if err != nil {
+		return -1, fmt.Errorf("Add KV resource atomic put error: %s", err)
+	}
+
+	resource.GetResource().Revision = res.LastIndex
+	return int64(res.LastIndex), nil
 }
 
 func (kvr *kvResourceStore) Delete(owner string, id string, resource resource.Resource) error {

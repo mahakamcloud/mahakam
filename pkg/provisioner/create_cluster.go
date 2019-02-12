@@ -12,23 +12,25 @@ import (
 	store "github.com/mahakamcloud/mahakam/pkg/resource_store"
 	"github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
 	"github.com/mahakamcloud/mahakam/pkg/utils"
+	"github.com/mahakamcloud/mahakam/pkg/validation"
 	"github.com/sirupsen/logrus"
 )
 
 type PreCreateCheck struct {
-	clusterName    string
+	clustername    string
 	clusterKeyPath string
 	log            logrus.FieldLogger
 	store          store.ResourceStore
 }
 
-func NewPreCreateCheck(clusterName string, log logrus.FieldLogger, store store.ResourceStore) *PreCreateCheck {
-	preCreateCheckLog := log.WithField("task", fmt.Sprintf("pre-create cluster check for %s", clusterName))
+func NewPreCreateCheck(clustername string, log logrus.FieldLogger, store store.ResourceStore) *PreCreateCheck {
+	preCreateCheckLog := log.WithField("cluster", clustername).
+		WithField("task", fmt.Sprintf("pre-create cluster check"))
 
-	clusterKeyPath := resource.NewResourceCluster(clusterName).BuildKey()
+	clusterKeyPath := resource.NewResourceCluster(clustername).BuildKey()
 
 	return &PreCreateCheck{
-		clusterName:    clusterName,
+		clustername:    clustername,
 		clusterKeyPath: clusterKeyPath,
 		log:            preCreateCheckLog,
 		store:          store,
@@ -38,7 +40,7 @@ func NewPreCreateCheck(clusterName string, log logrus.FieldLogger, store store.R
 func (p *PreCreateCheck) Run() error {
 	clusterExists := p.store.KeyExists(p.clusterKeyPath)
 	if clusterExists {
-		return fmt.Errorf("cluster %s already exists", p.clusterName)
+		return fmt.Errorf("cluster %s already exists", p.clustername)
 	}
 
 	return nil
@@ -139,7 +141,8 @@ type CreateAdminKubeconfig struct {
 func NewCreateAdminKubeconfig(clustername, apiServerAddress, apiServerPort string,
 	config utils.SCPConfig, pc utils.PingChecker) *CreateAdminKubeconfig {
 
-	createAdminKubeconfigLog := logrus.WithField("task", fmt.Sprintf("copying kubeconfig from %s to local system", config.RemoteIPAddress))
+	createAdminKubeconfigLog := logrus.WithField("cluster", clustername).
+		WithField("task", fmt.Sprintf("copying kubeconfig from %s to local system", config.RemoteIPAddress))
 
 	return &CreateAdminKubeconfig{
 		clustername:      clustername,
@@ -156,8 +159,6 @@ func (k *CreateAdminKubeconfig) Run() error {
 	apiServer := fmt.Sprintf("%s:%s", k.apiServerAddress, k.apiServerPort)
 	ready := k.pingChecker.PortPingNWithDelay(apiServer, config.NodePingTimeout, k.log,
 		config.NodePingRetry, config.NodePingDelay)
-
-	// Control plane node still not up after max retry
 	if !ready {
 		return fmt.Errorf("timeout waiting for control plane to be up '%v'", k)
 	}
@@ -206,5 +207,55 @@ func (c *ClusterNetworkReachability) Run() error {
 	if err != nil {
 		return fmt.Errorf("error assigning cluster network IP to mahakam server: %s", err)
 	}
+	return nil
+}
+
+type ClusterValidation struct {
+	owner            string
+	clustername      string
+	clusterValidator validation.Validator
+	store            store.ResourceStore
+	log              logrus.FieldLogger
+}
+
+func NewClusterValidation(owner, clustername string, cv validation.Validator, s store.ResourceStore, log logrus.FieldLogger) *ClusterValidation {
+	clusterValidationLog := log.WithField("cluster", clustername).
+		WithField("task", fmt.Sprintf("validate cluster is ready and healthy"))
+
+	return &ClusterValidation{
+		owner:            owner,
+		clustername:      clustername,
+		clusterValidator: cv,
+		store:            s,
+		log:              clusterValidationLog,
+	}
+}
+
+func (v *ClusterValidation) Run() error {
+	// Blocking waiting cluster to be healthy
+	ready := v.clusterValidator.ValidateNWithDelay(v.owner, v.clustername, config.NodePingTimeout, v.log,
+		config.NodePingRetry, config.NodePingDelay)
+	if !ready {
+		return fmt.Errorf("timeout waiting for cluster %s to be ready", v.clustername)
+	}
+
+	if err := v.updateClusterResource(v.clustername); err != nil {
+		return fmt.Errorf("error updating cluster resource with ready status: %s", err)
+	}
+
+	return nil
+}
+
+func (v *ClusterValidation) updateClusterResource(clustername string) error {
+	c := resource.NewResourceCluster(clustername)
+	if err := v.store.Get(c); err != nil {
+		return fmt.Errorf("error adding cluster resource into kv store '%v': %s", c, err)
+	}
+
+	c.Status = resource.StatusReady
+	if _, err := v.store.Update(c); err != nil {
+		return fmt.Errorf("error updating cluster resource into kv store '%v': %s", c, err)
+	}
+
 	return nil
 }

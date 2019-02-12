@@ -8,7 +8,7 @@ import (
 	"github.com/golang/glog"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/clusters"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
-	"github.com/mahakamcloud/mahakam/pkg/handlers"
+	mahakamclient "github.com/mahakamcloud/mahakam/pkg/client"
 	"github.com/spf13/cobra"
 )
 
@@ -41,7 +41,7 @@ var describeClusterCmd = &cobra.Command{
 }
 
 func RunDescribeCluster(dco *DescribeClusterOptions) (*models.Cluster, error) {
-	c := handlers.GetMahakamClient(os.Getenv("MAHAKAM_API_SERVER_HOST"))
+	c := mahakamclient.GetMahakamClient(os.Getenv("MAHAKAM_API_SERVER_HOST"))
 
 	req := clusters.NewDescribeClustersParams()
 	req.Name = swag.String(dco.Name)

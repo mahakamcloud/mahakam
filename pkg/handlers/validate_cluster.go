@@ -35,7 +35,7 @@ func (v *ValidateCluster) Handle(params clusters.ValidateClusterParams) middlewa
 
 	_, kubeclient, err := kube.GetKubeClient(config.HelmDefaultKubecontext, kubeconfig)
 	if err != nil {
-		v.log.Errorf("error getting kubernetes client for %s: %s", clusterName, err)
+		v.log.Warnf("error getting kubernetes client for %s: %s", clusterName, err)
 		return clusters.NewValidateClusterDefault(http.StatusInternalServerError).WithPayload(&models.Error{
 			Message: "cannot initialize kubernetes client",
 		})
