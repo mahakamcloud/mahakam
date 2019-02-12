@@ -28,7 +28,7 @@ func getComponents(c corev1.ComponentStatusesGetter) (*v1.ComponentStatusList, e
 
 func validateComponents(components *v1.ComponentStatusList) ([]*ValidationError, error) {
 	if len(components.Items) == 0 {
-		return nil, fmt.Errorf("kube-system components do not exist")
+		return nil, fmt.Errorf("cluster components do not exist")
 	}
 
 	var failures []*ValidationError
