@@ -13,6 +13,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/networks"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/clusters"
+	mahakamclient "github.com/mahakamcloud/mahakam/pkg/client"
 	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/mahakamcloud/mahakam/pkg/network"
 	"github.com/mahakamcloud/mahakam/pkg/node"
@@ -237,6 +238,7 @@ func (c *createClusterWF) getCreateTask() ([]task.Task, error) {
 	tasks = c.setupControlPlaneTasks(tasks)
 	tasks = c.setupWorkerTasks(tasks)
 	tasks = c.setupAdminKubeconfigTasks(tasks)
+	tasks = c.setupClusterValidationTasks(tasks)
 	return tasks, nil
 }
 
@@ -341,6 +343,18 @@ func (c *createClusterWF) setupAdminKubeconfigTasks(tasks []task.Task) []task.Ta
 	return tasks
 }
 
+func (c *createClusterWF) setupClusterValidationTasks(tasks []task.Task) []task.Task {
+	c.log.Debugf("setup cluster validator steps for cluster %s", c.clustername)
+
+	// TODO(giri): get local host and local port from config.yaml
+	client := mahakamclient.GetMahakamClient(":" + strconv.Itoa(config.MahakamAPIDefaultPort))
+
+	clusterValidation := provisioner.NewClusterValidation(c.clustername, client, c.handlers.Store)
+
+	tasks = append(tasks, clusterValidation)
+	return tasks
+}
+
 func storeClusterResource(clusterName string, numNodes int, clusternet *network.ClusterNetwork, cHandler *CreateCluster) error {
 	c := r.NewResourceCluster(clusterName)
 	c.NumNodes = numNodes
@@ -357,7 +371,7 @@ func storeClusterResource(clusterName string, numNodes int, clusternet *network.
 
 func getClusterNetwork(clusterName string, netmanager *network.NetworkManager) (*network.ClusterNetwork, error) {
 	// TODO(giri): get local host and local port from config.yaml
-	client := GetMahakamClient(":" + strconv.Itoa(config.MahakamAPIDefaultPort))
+	client := mahakamclient.GetMahakamClient(":" + strconv.Itoa(config.MahakamAPIDefaultPort))
 	req := &models.Network{
 		Name: swag.String(clusterName),
 	}
