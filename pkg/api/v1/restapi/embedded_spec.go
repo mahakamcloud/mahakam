@@ -143,6 +143,14 @@ func init() {
           "clusters"
         ],
         "operationId": "getClusters",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Owner of clusters",
+            "name": "owner",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "list available clusters",
@@ -693,6 +701,14 @@ func init() {
           "clusters"
         ],
         "operationId": "getClusters",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Owner of clusters",
+            "name": "owner",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "list available clusters",

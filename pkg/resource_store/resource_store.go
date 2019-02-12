@@ -27,7 +27,7 @@ func buildKey(rk resource.ResourceKind, owner string, id ...string) string {
 type ResourceStore interface {
 	Add(resource resource.Resource) (id string, err error)
 	Get(resource resource.Resource) error
-	List(owner string, resources interface{}) error
+	List(owner string, kind resource.ResourceKind, list resource.ResourceList) error
 	Update(resource resource.Resource) (revision int64, err error)
 	Delete(owner string, id string, resource resource.Resource) error
 

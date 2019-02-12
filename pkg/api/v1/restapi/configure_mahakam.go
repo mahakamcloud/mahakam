@@ -15,7 +15,6 @@ import (
 
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/apps"
-	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/clusters"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/networks"
 	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/mahakamcloud/mahakam/pkg/handlers"
@@ -61,9 +60,7 @@ func configureAPI(api *operations.MahakamAPI) http.Handler {
 
 	api.ClustersCreateClusterHandler = handlers.NewCreateClusterHandler(*h)
 
-	api.ClustersGetClustersHandler = clusters.GetClustersHandlerFunc(func(params clusters.GetClustersParams) middleware.Responder {
-		return middleware.NotImplemented("operation clusters.GetClusters has not yet been implemented")
-	})
+	api.ClustersGetClustersHandler = handlers.NewGetClusterHandler(*h)
 
 	api.ClustersDescribeClustersHandler = &handlers.DescribeCluster{Handlers: *h}
 

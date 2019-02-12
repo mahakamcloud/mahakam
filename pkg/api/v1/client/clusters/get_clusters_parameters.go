@@ -20,7 +20,7 @@ import (
 // NewGetClustersParams creates a new GetClustersParams object
 // with the default values initialized.
 func NewGetClustersParams() *GetClustersParams {
-
+	var ()
 	return &GetClustersParams{
 
 		timeout: cr.DefaultTimeout,
@@ -30,7 +30,7 @@ func NewGetClustersParams() *GetClustersParams {
 // NewGetClustersParamsWithTimeout creates a new GetClustersParams object
 // with the default values initialized, and the ability to set a timeout on a request
 func NewGetClustersParamsWithTimeout(timeout time.Duration) *GetClustersParams {
-
+	var ()
 	return &GetClustersParams{
 
 		timeout: timeout,
@@ -40,7 +40,7 @@ func NewGetClustersParamsWithTimeout(timeout time.Duration) *GetClustersParams {
 // NewGetClustersParamsWithContext creates a new GetClustersParams object
 // with the default values initialized, and the ability to set a context for a request
 func NewGetClustersParamsWithContext(ctx context.Context) *GetClustersParams {
-
+	var ()
 	return &GetClustersParams{
 
 		Context: ctx,
@@ -50,7 +50,7 @@ func NewGetClustersParamsWithContext(ctx context.Context) *GetClustersParams {
 // NewGetClustersParamsWithHTTPClient creates a new GetClustersParams object
 // with the default values initialized, and the ability to set a custom HTTPClient for a request
 func NewGetClustersParamsWithHTTPClient(client *http.Client) *GetClustersParams {
-
+	var ()
 	return &GetClustersParams{
 		HTTPClient: client,
 	}
@@ -60,6 +60,13 @@ func NewGetClustersParamsWithHTTPClient(client *http.Client) *GetClustersParams 
 for the get clusters operation typically these are written to a http.Request
 */
 type GetClustersParams struct {
+
+	/*Owner
+	  Owner of clusters
+
+	*/
+	Owner *string
+
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
@@ -98,6 +105,17 @@ func (o *GetClustersParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithOwner adds the owner to the get clusters params
+func (o *GetClustersParams) WithOwner(owner *string) *GetClustersParams {
+	o.SetOwner(owner)
+	return o
+}
+
+// SetOwner adds the owner to the get clusters params
+func (o *GetClustersParams) SetOwner(owner *string) {
+	o.Owner = owner
+}
+
 // WriteToRequest writes these params to a swagger request
 func (o *GetClustersParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
@@ -105,6 +123,22 @@ func (o *GetClustersParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.R
 		return err
 	}
 	var res []error
+
+	if o.Owner != nil {
+
+		// query param owner
+		var qrOwner string
+		if o.Owner != nil {
+			qrOwner = *o.Owner
+		}
+		qOwner := qrOwner
+		if qOwner != "" {
+			if err := r.SetQueryParam("owner", qOwner); err != nil {
+				return err
+			}
+		}
+
+	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

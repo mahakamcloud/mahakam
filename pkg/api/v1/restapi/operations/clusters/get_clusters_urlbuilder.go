@@ -13,7 +13,11 @@ import (
 
 // GetClustersURL generates an URL for the get clusters operation
 type GetClustersURL struct {
+	Owner *string
+
 	_basePath string
+	// avoid unkeyed usage
+	_ struct{}
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
@@ -42,6 +46,18 @@ func (o *GetClustersURL) Build() (*url.URL, error) {
 		_basePath = "/v1"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
+
+	qs := make(url.Values)
+
+	var owner string
+	if o.Owner != nil {
+		owner = *o.Owner
+	}
+	if owner != "" {
+		qs.Set("owner", owner)
+	}
+
+	_result.RawQuery = qs.Encode()
 
 	return &_result, nil
 }

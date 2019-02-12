@@ -74,10 +74,26 @@ func (kvr *kvResourceStore) Get(r resource.Resource) error {
 	return nil
 }
 
-func (kvr *kvResourceStore) List(owner string, resources interface{}) error {
-	fmt.Println("libkvResourceStore List method not implemented")
-	// owner is optional, if not specified perform global list.
-	// TODO(giri): list specific owner owned resources
+func (kvr *kvResourceStore) List(owner string, kind resource.ResourceKind, list resource.ResourceList) error {
+	var resources []resource.Resource
+
+	kvpairs, err := kvr.store.List(string(kind) + "/" + owner + "/")
+	if err != nil && err != store.ErrKeyNotFound {
+		return fmt.Errorf("Error getting list of kvpairs from path: %s", err)
+	}
+
+	for _, kv := range kvpairs {
+		r := list.Resource()
+
+		err = json.Unmarshal(kv.Value, r)
+		if err != nil {
+			return fmt.Errorf("Error unmarshalling resources: %s", err)
+		}
+
+		resources = append(resources, r)
+	}
+
+	list.WithItems(resources)
 	return nil
 }
 
