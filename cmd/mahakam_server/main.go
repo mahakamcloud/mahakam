@@ -35,6 +35,15 @@ func main() {
 		log.Fatalf("error loading config file for mahakam server: %s\n", err)
 	}
 
+	pingCheck := utils.NewPingCheck()
+
+	storageBackendCheck := config.NewCheckStorageBackendConnection(mahakamConfig.KVStoreConfig, log, pingCheck)
+
+	err = storageBackendCheck.ValidateAvailability()
+	if err != nil {
+		log.Fatalf("Error connecting to backend server: %s\n", err)
+	}
+
 	swaggerSpec, err := loads.Embedded(restapi.SwaggerJSON, restapi.FlatSwaggerJSON)
 	if err != nil {
 		log.Fatalln(err)

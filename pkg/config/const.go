@@ -46,6 +46,11 @@ const (
 	NodePingRetry   = 20
 	NodePingDelay   = 60 * time.Second
 
+	// Storage Backend Health check config
+	StorageBackendPingTimeout = 3 * time.Second
+	StorageBackendPingRetry   = 5
+	StorageBackendPingDelay   = 5 * time.Second
+
 	// Various keys for storing metadata in map
 	KeyControlPlaneIP     = "key-control-plane-ip"
 	KeyPodNetworkCidr     = "key-pod-network-cidr"

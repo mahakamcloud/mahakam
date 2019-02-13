@@ -6,6 +6,7 @@ import (
 	"net"
 
 	"github.com/mahakamcloud/mahakam/pkg/utils"
+	log "github.com/sirupsen/logrus"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -46,7 +47,7 @@ func LoadConfig(configFilePath string) (*Config, error) {
 // Validate validates mahakam configuration
 func (c *Config) Validate() error {
 	if err := c.MahakamServerConfig.Validate(); err != nil {
-		return fmt.Errorf("Error validating KV store configuration: %s", err)
+		return fmt.Errorf("Error validating mahakam server configuration: %s", err)
 	}
 
 	if err := c.KVStoreConfig.Validate(); err != nil {
@@ -84,6 +85,7 @@ type MahakamServerConfig struct {
 	Port    int    `yaml:"port"`
 }
 
+// Validate checks mahakam server configuration
 func (m *MahakamServerConfig) Validate() error {
 	if m.Port == 0 {
 		return fmt.Errorf("Must provide non-empty port")
@@ -109,6 +111,36 @@ func (sbc *StorageBackendConfig) Validate() error {
 
 	if sbc.Address == "" {
 		return fmt.Errorf("Must provide non-empty storage backend address")
+	}
+
+	return nil
+}
+
+// CheckStorageBackendConnection defines connect check on StorageBackendConfig
+type CheckStorageBackendConnection struct {
+	StorageBackendConfig
+	log         log.FieldLogger
+	pingChecker utils.PingChecker
+}
+
+// NewCheckStorageBackendConnection return new CheckStorageBackendConnection
+func NewCheckStorageBackendConnection(s StorageBackendConfig, log log.FieldLogger, pingChecker utils.PingChecker) *CheckStorageBackendConnection {
+	return &CheckStorageBackendConnection{
+		StorageBackendConfig: s,
+		log:                  log,
+		pingChecker:          pingChecker,
+	}
+}
+
+// ValidateAvailability validates storage backend reachability
+func (c *CheckStorageBackendConnection) ValidateAvailability() error {
+	pingCheck := utils.NewPingCheck()
+
+	backendReady := pingCheck.PortPingNWithDelay(c.Address, StorageBackendPingTimeout, c.log, StorageBackendPingRetry, StorageBackendPingDelay)
+
+	// Storage backend still not ready after max retry
+	if !backendReady {
+		return fmt.Errorf("timeout waiting for storage backend to be up '%v'", c.Address)
 	}
 
 	return nil
