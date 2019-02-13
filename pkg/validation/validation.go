@@ -39,7 +39,7 @@ func (v *ClusterValidator) validate(owner, clustername string, log logrus.FieldL
 	if err != nil {
 		return false, fmt.Errorf("error validating cluster %s: %s", clustername, err)
 	}
-	log.Infof("cluster validation result: %v", res)
+	log.Debugf("cluster validation result: %v", res)
 
 	if len(res.Payload.NodeFailures) > 0 ||
 		len(res.Payload.ComponentFailures) > 0 ||
