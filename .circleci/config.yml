@@ -11,3 +11,7 @@ jobs:
           name: Run unit tests
           command: ./hack/test.sh
           no_output_timeout: 30m
+          
+      - run:
+          name: Submit coverage results
+          command: bash <(curl -s https://codecov.io/bash)
