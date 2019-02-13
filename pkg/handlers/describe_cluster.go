@@ -27,10 +27,9 @@ func (h *DescribeCluster) Handle(params clusters.DescribeClustersParams) middlew
 	}
 
 	return clusters.NewDescribeClustersOK().WithPayload(&models.Cluster{
-		Name:        swag.String(c.Name),
-		Owner:       c.Owner,
-		ClusterPlan: string(c.Plan),
-		NumNodes:    int64(c.NumNodes),
-		Status:      string(c.Status),
+		Name:     swag.String(c.Name),
+		Owner:    c.Owner,
+		NumNodes: int64(c.NumNodes),
+		Status:   string(c.Status),
 	})
 }

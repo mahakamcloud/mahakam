@@ -74,10 +74,9 @@ func (h *CreateCluster) Handle(params clusters.CreateClusterParams) middleware.R
 	wf.Run()
 
 	cres := &models.Cluster{
-		Name:        params.Body.Name,
-		ClusterPlan: params.Body.ClusterPlan,
-		NumNodes:    params.Body.NumNodes,
-		Status:      string(r.StatusPending),
+		Name:     params.Body.Name,
+		NumNodes: params.Body.NumNodes,
+		Status:   string(r.StatusPending),
 	}
 	return clusters.NewCreateClusterCreated().WithPayload(cres)
 }

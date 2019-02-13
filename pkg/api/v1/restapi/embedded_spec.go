@@ -448,9 +448,6 @@ func init() {
         "name"
       ],
       "properties": {
-        "clusterPlan": {
-          "type": "string"
-        },
         "componentFailures": {
           "type": "array",
           "items": {
@@ -471,6 +468,10 @@ func init() {
           "items": {
             "type": "string"
           }
+        },
+        "nodeSize": {
+          "type": "string",
+          "default": "xs"
         },
         "numNodes": {
           "type": "integer",
@@ -1006,9 +1007,6 @@ func init() {
         "name"
       ],
       "properties": {
-        "clusterPlan": {
-          "type": "string"
-        },
         "componentFailures": {
           "type": "array",
           "items": {
@@ -1029,6 +1027,10 @@ func init() {
           "items": {
             "type": "string"
           }
+        },
+        "nodeSize": {
+          "type": "string",
+          "default": "xs"
         },
         "numNodes": {
           "type": "integer",

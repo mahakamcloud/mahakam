@@ -47,11 +47,10 @@ func (h *GetCluster) Handle(params clusters.GetClustersParams) middleware.Respon
 	c := []*models.Cluster{}
 	for _, v := range res {
 		clusterModel := &models.Cluster{
-			ClusterPlan: string(v.Plan),
-			Name:        &v.Name,
-			NumNodes:    int64(v.NumNodes),
-			Owner:       v.Owner,
-			Status:      string(v.Status),
+			Name:     &v.Name,
+			NumNodes: int64(v.NumNodes),
+			Owner:    v.Owner,
+			Status:   string(v.Status),
 		}
 
 		c = append(c, clusterModel)

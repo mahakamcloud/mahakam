@@ -246,8 +246,9 @@ definitions:
         type: integer
         format: int64
         readOnly: true
-      clusterPlan:
+      nodeSize:
         type: string
+        default: "xs"
       name:
         type: string
         minLength: 1

@@ -17,9 +17,6 @@ import (
 // swagger:model cluster
 type Cluster struct {
 
-	// cluster plan
-	ClusterPlan string `json:"clusterPlan,omitempty"`
-
 	// component failures
 	ComponentFailures []string `json:"componentFailures"`
 
@@ -34,6 +31,9 @@ type Cluster struct {
 
 	// node failures
 	NodeFailures []string `json:"nodeFailures"`
+
+	// node size
+	NodeSize *string `json:"nodeSize,omitempty"`
 
 	// num nodes
 	// Maximum: 10
