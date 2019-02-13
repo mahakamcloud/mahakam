@@ -4,89 +4,18 @@ package restapi
 
 import (
 	"crypto/tls"
-	"log"
 	"net/http"
 
-	"github.com/go-openapi/swag"
-
-	errors "github.com/go-openapi/errors"
-	runtime "github.com/go-openapi/runtime"
-	middleware "github.com/go-openapi/runtime/middleware"
-	"github.com/sirupsen/logrus"
-
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations"
-	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/apps"
-	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/networks"
-	"github.com/mahakamcloud/mahakam/pkg/config"
-	"github.com/mahakamcloud/mahakam/pkg/handlers"
-	"github.com/mahakamcloud/mahakam/pkg/provisioner"
 )
-
-var opts struct {
-	ConfigFilePath string `short:"c" long:"config" description:"Mahakam server config file"`
-}
 
 //go:generate swagger generate server --target .. --name Mahakam --spec ../../../../swagger/mahakam.yaml --client-package mahakam
 
 func configureFlags(api *operations.MahakamAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
-	api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{
-		swag.CommandLineOptionsGroup{
-			Options: &opts,
-		},
-	}
 }
 
 func configureAPI(api *operations.MahakamAPI) http.Handler {
-	log := logrus.New().WithField("app", "mahakam")
-
-	// TODO(giri): Init of the mahakam application, must find better place
-	mahakamConfig, err := config.LoadConfig(opts.ConfigFilePath)
-	if err != nil {
-		log.Fatalf("Error loading configuration file for mahakam server: %s\n", err)
-	}
-
-	h := handlers.New(
-		mahakamConfig,
-		provisioner.NewTerraformProvisioner(mahakamConfig.TerraformConfig),
-		log,
-	)
-
-	// configure the api here
-	api.ServeError = errors.ServeError
-
-	api.JSONConsumer = runtime.JSONConsumer()
-
-	api.JSONProducer = runtime.JSONProducer()
-
-	api.ClustersCreateClusterHandler = handlers.NewCreateClusterHandler(*h)
-
-	api.ClustersGetClustersHandler = handlers.NewGetClusterHandler(*h)
-
-	api.ClustersDescribeClustersHandler = &handlers.DescribeCluster{Handlers: *h}
-
-	api.ClustersValidateClusterHandler = handlers.NewValidateClusterHandler(*h)
-
-	api.NetworksCreateNetworkHandler = handlers.NewCreateNetworkHandler(*h)
-
-	api.NetworksGetNetworksHandler = networks.GetNetworksHandlerFunc(func(params networks.GetNetworksParams) middleware.Responder {
-		return middleware.NotImplemented("operation apps.GetNetworks has not yet been implemented")
-	})
-
-	api.NetworksCreateIPPoolHandler = handlers.NewCreateIPPoolHandler(*h)
-
-	api.NetworksAllocateOrReleaseFromIPPoolHandler = handlers.NewAllocateOrReleaseFromIPPool(*h)
-
-	api.AppsCreateAppHandler = handlers.NewCreateAppHandler(*h)
-
-	api.AppsGetAppsHandler = apps.GetAppsHandlerFunc(func(params apps.GetAppsParams) middleware.Responder {
-		return middleware.NotImplemented("operation apps.GetApps has not yet been implemented")
-	})
-
-	api.AppsUploadAppValuesHandler = handlers.NewUploadAppValuesHandler(*h)
-
-	api.ServerShutdown = func() {}
-
 	return setupGlobalMiddleware(api.Serve(setupMiddlewares))
 }
 
@@ -100,10 +29,7 @@ func configureTLS(tlsConfig *tls.Config) {
 // This function can be called multiple times, depending on the number of serving schemes.
 // scheme value will be set accordingly: "http", "https" or "unix"
 func configureServer(s *http.Server, scheme, addr string) {
-	_, err := config.LoadConfig(opts.ConfigFilePath)
-	if err != nil {
-		log.Fatalf("Error loading configuration file for mahakam server: %s\n", err)
-	}
+	// Make all necessary changes to the server configuration here.
 }
 
 // The middleware configuration is for the handler executors. These do not apply to the swagger.json document.
