@@ -49,7 +49,7 @@ const (
 	// Storage Backend Health check config
 	StorageBackendPingTimeout = 3 * time.Second
 	StorageBackendPingRetry   = 5
-	StorageBackendPingDelay   = 5 * time.Second
+	StorageBackendPingDelay   = 2 * time.Second
 
 	// Various keys for storing metadata in map
 	KeyControlPlaneIP     = "key-control-plane-ip"

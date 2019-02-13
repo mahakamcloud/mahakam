@@ -31,7 +31,7 @@ test: ## run tests
 .PHONY: dev-server
 dev-server: ## run dev server
 	@echo running dev server...
-	$(GO) run $(BASE)/cmd/mahakam_server/main.go --host 0.0.0.0 --port 9000 --config ./config.dev.yaml
+	$(GO) run $(BASE)/cmd/mahakam_server/main.go --config ./config.dev.yaml
 
 .PHONY: dev-store
 dev-store: ## run dev store with consul backend

@@ -16,6 +16,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/mahakamcloud/mahakam/pkg/handlers"
 	"github.com/mahakamcloud/mahakam/pkg/provisioner"
+	utils "github.com/mahakamcloud/mahakam/pkg/utils"
 )
 
 type mahakamServerOpts struct {
@@ -37,7 +38,7 @@ func main() {
 
 	pingCheck := utils.NewPingCheck()
 
-	storageBackendCheck := config.NewCheckStorageBackendConnection(mahakamConfig.KVStoreConfig, log, pingCheck)
+	storageBackendCheck := config.NewCheckStorageBackendConnection(conf.KVStoreConfig, log, pingCheck)
 
 	err = storageBackendCheck.ValidateAvailability()
 	if err != nil {
