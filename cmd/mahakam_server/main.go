@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strings"
+
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 
@@ -35,6 +37,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("error loading config file for mahakam server: %s\n", err)
 	}
+
+	setLogLevel(conf.LogLevel, log)
 
 	pingCheck := utils.NewPingCheck()
 
@@ -117,4 +121,20 @@ func registerHandlers(app *handlers.Handlers, api *operations.MahakamAPI, opts *
 func configureServer(s *restapi.Server, host string, port int) {
 	s.Host = host
 	s.Port = port
+}
+
+var logLevels = map[string]logrus.Level{
+	"DEBUG": logrus.DebugLevel,
+	"INFO":  logrus.InfoLevel,
+	"WARN":  logrus.WarnLevel,
+	"ERROR": logrus.ErrorLevel,
+	"FATAL": logrus.FatalLevel,
+}
+
+func setLogLevel(logLevel string, log *logrus.Entry) {
+	l, ok := logLevels[strings.ToUpper(logLevel)]
+	if !ok {
+		log.Fatalf("Log level '%s' is invalid", logLevel)
+	}
+	log.Level = l
 }

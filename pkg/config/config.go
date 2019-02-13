@@ -6,13 +6,14 @@ import (
 	"net"
 
 	"github.com/mahakamcloud/mahakam/pkg/utils"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	yaml "gopkg.in/yaml.v2"
 )
 
 // Config represents mahakam configuration
 type Config struct {
 	MahakamServerConfig MahakamServerConfig  `yaml:"server"`
+	LogLevel            string               `yaml:"log_level"`
 	KVStoreConfig       StorageBackendConfig `yaml:"storage_backend"`
 	NetworkConfig       NetworkConfig        `yaml:"network"`
 	KubernetesConfig    KubernetesConfig     `yaml:"kubernetes"`
@@ -46,6 +47,10 @@ func LoadConfig(configFilePath string) (*Config, error) {
 
 // Validate validates mahakam configuration
 func (c *Config) Validate() error {
+	if c.LogLevel == "" {
+		return fmt.Errorf("Must provide non-empty log level")
+	}
+
 	if err := c.MahakamServerConfig.Validate(); err != nil {
 		return fmt.Errorf("Error validating mahakam server configuration: %s", err)
 	}
@@ -119,12 +124,12 @@ func (sbc *StorageBackendConfig) Validate() error {
 // CheckStorageBackendConnection defines connect check on StorageBackendConfig
 type CheckStorageBackendConnection struct {
 	StorageBackendConfig
-	log         log.FieldLogger
+	log         logrus.FieldLogger
 	pingChecker utils.PingChecker
 }
 
 // NewCheckStorageBackendConnection return new CheckStorageBackendConnection
-func NewCheckStorageBackendConnection(s StorageBackendConfig, log log.FieldLogger, pingChecker utils.PingChecker) *CheckStorageBackendConnection {
+func NewCheckStorageBackendConnection(s StorageBackendConfig, log logrus.FieldLogger, pingChecker utils.PingChecker) *CheckStorageBackendConnection {
 	return &CheckStorageBackendConnection{
 		StorageBackendConfig: s,
 		log:                  log,
