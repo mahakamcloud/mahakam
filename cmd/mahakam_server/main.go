@@ -1,16 +1,39 @@
 package main
 
 import (
-	"log"
-	"os"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/pflag"
 
-	loads "github.com/go-openapi/loads"
-	flags "github.com/jessevdk/go-flags"
+	errors "github.com/go-openapi/errors"
+	"github.com/go-openapi/loads"
+	runtime "github.com/go-openapi/runtime"
+	middleware "github.com/go-openapi/runtime/middleware"
+
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations"
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/apps"
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/networks"
+	"github.com/mahakamcloud/mahakam/pkg/config"
+	"github.com/mahakamcloud/mahakam/pkg/handlers"
+	"github.com/mahakamcloud/mahakam/pkg/provisioner"
 )
 
+type mahakamServerOpts struct {
+	configFilePath string
+}
+
 func main() {
+	log := logrus.New().WithField("app", "mahakam")
+	log.Println("initializing...")
+	defer log.Println("exiting...")
+
+	opts := registerFlags()
+	pflag.Parse()
+
+	conf, err := config.LoadConfig(opts.configFilePath)
+	if err != nil {
+		log.Fatalf("error loading config file for mahakam server: %s\n", err)
+	}
 
 	swaggerSpec, err := loads.Embedded(restapi.SwaggerJSON, restapi.FlatSwaggerJSON)
 	if err != nil {
@@ -18,35 +41,70 @@ func main() {
 	}
 
 	api := operations.NewMahakamAPI(swaggerSpec)
+	api.Logger = log.Printf
+
 	server := restapi.NewServer(api)
 	defer server.Shutdown()
 
-	parser := flags.NewParser(server, flags.Default)
-	parser.ShortDescription = "Mahakam API"
-	parser.LongDescription = "API definitions for Mahakam Cloud Platform"
+	app := handlers.New(
+		conf,
+		provisioner.NewTerraformProvisioner(conf.TerraformConfig),
+		log,
+	)
+	registerHandlers(app, api, opts)
 
-	server.ConfigureFlags()
-	for _, optsGroup := range api.CommandLineOptionsGroups {
-		_, err := parser.AddGroup(optsGroup.ShortDescription, optsGroup.LongDescription, optsGroup.Options)
-		if err != nil {
-			log.Fatalln(err)
-		}
-	}
-
-	if _, err := parser.Parse(); err != nil {
-		code := 1
-		if fe, ok := err.(*flags.Error); ok {
-			if fe.Type == flags.ErrHelp {
-				code = 0
-			}
-		}
-		os.Exit(code)
-	}
-
-	server.ConfigureAPI()
-
+	configureServer(server, conf.MahakamServerConfig.Address, conf.MahakamServerConfig.Port)
 	if err := server.Serve(); err != nil {
 		log.Fatalln(err)
 	}
+}
 
+func registerFlags() *mahakamServerOpts {
+	opts := &mahakamServerOpts{}
+	fs := pflag.NewFlagSet("mahakam-server-opts", pflag.ExitOnError)
+	pflag.StringVarP(&opts.configFilePath, "config", "c", "", "mahakam server config file")
+	pflag.CommandLine.AddFlagSet(fs)
+	return opts
+}
+
+func registerHandlers(app *handlers.Handlers, api *operations.MahakamAPI, opts *mahakamServerOpts) {
+	// configure the api here
+	api.ServeError = errors.ServeError
+
+	api.JSONConsumer = runtime.JSONConsumer()
+
+	api.JSONProducer = runtime.JSONProducer()
+
+	api.ClustersCreateClusterHandler = handlers.NewCreateClusterHandler(*app)
+
+	api.ClustersGetClustersHandler = handlers.NewGetClusterHandler(*app)
+
+	api.ClustersDescribeClustersHandler = &handlers.DescribeCluster{Handlers: *app}
+
+	api.ClustersValidateClusterHandler = handlers.NewValidateClusterHandler(*app)
+
+	api.NetworksCreateNetworkHandler = handlers.NewCreateNetworkHandler(*app)
+
+	api.NetworksGetNetworksHandler = networks.GetNetworksHandlerFunc(func(params networks.GetNetworksParams) middleware.Responder {
+		return middleware.NotImplemented("operation apps.GetNetworks has not yet been implemented")
+	})
+
+	api.NetworksCreateIPPoolHandler = handlers.NewCreateIPPoolHandler(*app)
+
+	api.NetworksAllocateOrReleaseFromIPPoolHandler = handlers.NewAllocateOrReleaseFromIPPool(*app)
+
+	api.AppsCreateAppHandler = handlers.NewCreateAppHandler(*app)
+
+	api.AppsGetAppsHandler = apps.GetAppsHandlerFunc(func(params apps.GetAppsParams) middleware.Responder {
+		return middleware.NotImplemented("operation apps.GetApps has not yet been implemented")
+	})
+
+	api.AppsUploadAppValuesHandler = handlers.NewUploadAppValuesHandler(*app)
+
+	api.ServerShutdown = func() {}
+}
+
+func configureServer(s *restapi.Server, host string, port int) {
+	s.Host = host
+	s.Port = port
 }

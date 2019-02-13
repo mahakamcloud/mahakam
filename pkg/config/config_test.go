@@ -12,6 +12,10 @@ import (
 
 var (
 	validConfig = Config{
+		MahakamServerConfig: MahakamServerConfig{
+			Address: "fake-server-address",
+			Port:    1234,
+		},
 		KVStoreConfig: StorageBackendConfig{
 			BackendType: "fake-storage-backend-type",
 			Address:     "fake-storage-backend-address",

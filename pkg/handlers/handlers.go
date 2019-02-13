@@ -1,11 +1,16 @@
 package handlers
 
 import (
+	"strconv"
+
+	"github.com/sirupsen/logrus"
+
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/client"
+	mahakamclient "github.com/mahakamcloud/mahakam/pkg/client"
 	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/mahakamcloud/mahakam/pkg/network"
 	"github.com/mahakamcloud/mahakam/pkg/provisioner"
 	store "github.com/mahakamcloud/mahakam/pkg/resource_store"
-	"github.com/sirupsen/logrus"
 )
 
 // Handlers holds common modules that each handler needs
@@ -14,6 +19,7 @@ type Handlers struct {
 	Store       store.ResourceStore
 	Network     *network.NetworkManager
 	Provisioner provisioner.Provisioner
+	Client      *client.Mahakam
 	Log         logrus.FieldLogger
 }
 
@@ -31,11 +37,14 @@ func New(config *config.Config, provisioner provisioner.Provisioner, log logrus.
 		return nil
 	}
 
+	mc := mahakamclient.GetMahakamClient(":" + strconv.Itoa(config.MahakamServerConfig.Port))
+
 	return &Handlers{
 		AppConfig:   config,
 		Store:       rs,
 		Network:     n,
 		Provisioner: provisioner,
+		Client:      mc,
 		Log:         log,
 	}
 }

@@ -11,10 +11,10 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/client"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/networks"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/clusters"
-	mahakamclient "github.com/mahakamcloud/mahakam/pkg/client"
 	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/mahakamcloud/mahakam/pkg/network"
 	"github.com/mahakamcloud/mahakam/pkg/node"
@@ -160,7 +160,7 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 
 	clusterName := swag.StringValue(cluster.Name)
 
-	clusterNetwork, err := getClusterNetwork(clusterName, cHandler.Network)
+	clusterNetwork, err := getClusterNetwork(clusterName, cHandler.Network, cHandler.Client)
 	if err != nil {
 		cwfLog.Errorf("error getting network allocation for cluster %s: %s", clusterName, err)
 	}
@@ -347,10 +347,7 @@ func (c *createClusterWF) setupAdminKubeconfigTasks(tasks []task.Task) []task.Ta
 func (c *createClusterWF) setupClusterValidationTasks(tasks []task.Task) []task.Task {
 	c.log.Debugf("setup cluster validator steps for cluster %s", c.clustername)
 
-	// TODO(giri): get local host and local port from config.yaml
-	client := mahakamclient.GetMahakamClient(":" + strconv.Itoa(config.MahakamAPIDefaultPort))
-
-	clusterValidation := provisioner.NewClusterValidation(c.owner, c.clustername, validation.NewClusterValidator(client), c.handlers.Store, c.log)
+	clusterValidation := provisioner.NewClusterValidation(c.owner, c.clustername, validation.NewClusterValidator(c.handlers.Client), c.handlers.Store, c.log)
 
 	tasks = append(tasks, clusterValidation)
 	return tasks
@@ -370,14 +367,12 @@ func storeClusterResource(clusterName string, numNodes int, clusternet *network.
 	return nil
 }
 
-func getClusterNetwork(clusterName string, netmanager *network.NetworkManager) (*network.ClusterNetwork, error) {
-	// TODO(giri): get local host and local port from config.yaml
-	client := mahakamclient.GetMahakamClient(":" + strconv.Itoa(config.MahakamAPIDefaultPort))
+func getClusterNetwork(clusterName string, netmanager *network.NetworkManager, c *client.Mahakam) (*network.ClusterNetwork, error) {
 	req := &models.Network{
 		Name: swag.String(clusterName),
 	}
 
-	res, err := client.Networks.CreateNetwork(networks.NewCreateNetworkParams().WithBody(req))
+	res, err := c.Networks.CreateNetwork(networks.NewCreateNetworkParams().WithBody(req))
 	if err != nil {
 		return nil, err
 	}

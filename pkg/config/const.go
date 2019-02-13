@@ -11,8 +11,7 @@ const (
 	ResourceOwnerMahakam = "mahakam"
 
 	// Mahakam API server config
-	MahakamAPIBasePath    = "/v1"
-	MahakamAPIDefaultPort = 9000
+	MahakamAPIBasePath = "/v1"
 
 	// Custom path for storing resource in kvstore
 	KeyPathMahakam       = "mahakamcloud/"
