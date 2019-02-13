@@ -26,7 +26,7 @@ type Config struct {
 func LoadConfig(configFilePath string) (*Config, error) {
 	var config *Config
 	if configFilePath == "" {
-		return config, fmt.Errorf("Must provide non-empty configuration file path")
+		return config, fmt.Errorf("must provide non-empty configuration file path")
 	}
 
 	bytes, err := utils.ReadFile(configFilePath)
@@ -35,11 +35,11 @@ func LoadConfig(configFilePath string) (*Config, error) {
 	}
 
 	if err = yaml.Unmarshal(bytes, &config); err != nil {
-		return config, fmt.Errorf("Error unmarshaling configuration file: %s", err)
+		return config, fmt.Errorf("error unmarshaling configuration file: %s", err)
 	}
 
 	if err = config.Validate(); err != nil {
-		return config, fmt.Errorf("Error validating configuration file: %s", err)
+		return config, fmt.Errorf("error validating configuration file: %s", err)
 	}
 
 	return config, nil
@@ -48,36 +48,36 @@ func LoadConfig(configFilePath string) (*Config, error) {
 // Validate validates mahakam configuration
 func (c *Config) Validate() error {
 	if c.LogLevel == "" {
-		return fmt.Errorf("Must provide non-empty log level")
+		return fmt.Errorf("must provide non-empty log level")
 	}
 
 	if err := c.MahakamServerConfig.Validate(); err != nil {
-		return fmt.Errorf("Error validating mahakam server configuration: %s", err)
+		return fmt.Errorf("error validating mahakam server configuration: %s", err)
 	}
 
 	if err := c.KVStoreConfig.Validate(); err != nil {
-		return fmt.Errorf("Error validating KV store configuration: %s", err)
+		return fmt.Errorf("error validating KV store configuration: %s", err)
 	}
 
 	if err := c.NetworkConfig.Validate(); err != nil {
-		return fmt.Errorf("Error validating network configuration: %s", err)
+		return fmt.Errorf("error validating network configuration: %s", err)
 	}
 
 	if err := c.TerraformConfig.Validate(); err != nil {
-		return fmt.Errorf("Error validating terraform configuration: %s", err)
+		return fmt.Errorf("error validating terraform configuration: %s", err)
 	}
 
 	if err := c.GateConfig.Validate(); err != nil {
-		return fmt.Errorf("Error validating gate configuration: %s", err)
+		return fmt.Errorf("error validating gate configuration: %s", err)
 	}
 
 	if len(c.HostsConfig) < 1 {
-		return fmt.Errorf("Error validating hosts configuration: %s", errors.New("empty hosts list"))
+		return fmt.Errorf("error validating hosts configuration: %s", errors.New("empty hosts list"))
 	}
 
 	for _, host := range c.HostsConfig {
 		if err := host.Validate(); err != nil {
-			return fmt.Errorf("Error validating hosts configuration: %s", err)
+			return fmt.Errorf("error validating hosts configuration: %s", err)
 		}
 	}
 
@@ -93,7 +93,7 @@ type MahakamServerConfig struct {
 // Validate checks mahakam server configuration
 func (m *MahakamServerConfig) Validate() error {
 	if m.Port == 0 {
-		return fmt.Errorf("Must provide non-empty port")
+		return fmt.Errorf("must provide non-empty port")
 	}
 
 	return nil
@@ -111,11 +111,11 @@ type StorageBackendConfig struct {
 // Validate validates storage backend configuration
 func (sbc *StorageBackendConfig) Validate() error {
 	if sbc.BackendType == "" {
-		return fmt.Errorf("Must provide non-empty Backend type")
+		return fmt.Errorf("must provide non-empty Backend type")
 	}
 
 	if sbc.Address == "" {
-		return fmt.Errorf("Must provide non-empty storage backend address")
+		return fmt.Errorf("must provide non-empty storage backend address")
 	}
 
 	return nil
@@ -166,35 +166,35 @@ type NetworkConfig struct {
 // Validate validates storage backend configuration
 func (nc *NetworkConfig) Validate() error {
 	if nc.CIDR == "" {
-		return fmt.Errorf("Must provide non-empty network CIDR")
+		return fmt.Errorf("must provide non-empty network CIDR")
 	}
 
 	if nc.ClusterNetmask == 0 {
-		return fmt.Errorf("Must provide non-empty cluster netmask")
+		return fmt.Errorf("must provide non-empty cluster netmask")
 	}
 
 	if _, _, err := net.ParseCIDR(nc.CIDR); err != nil {
-		return fmt.Errorf("Must provide valid CIDR format for cluster network")
+		return fmt.Errorf("must provide valid CIDR format for cluster network")
 	}
 
 	if nc.ClusterNetmask > 32 || nc.ClusterNetmask < 1 {
-		return fmt.Errorf("Must provide valid cluster netmask between 0 and 32")
+		return fmt.Errorf("must provide valid cluster netmask between 0 and 32")
 	}
 
 	if nc.DatacenterGatewayCIDR == "" {
-		return fmt.Errorf("Must provide non-empty datacenter gateway CIDR")
+		return fmt.Errorf("must provide non-empty datacenter gateway CIDR")
 	}
 
 	if _, _, err := net.ParseCIDR(nc.DatacenterGatewayCIDR); err != nil {
-		return fmt.Errorf("Must provide valid CIDR format for datacenter gateway")
+		return fmt.Errorf("must provide valid CIDR format for datacenter gateway")
 	}
 
 	if nc.DatacenterNameserver == "" {
-		return fmt.Errorf("Must provide non-empty datacenter nameserver")
+		return fmt.Errorf("must provide non-empty datacenter nameserver")
 	}
 
 	if validIP := net.ParseIP(nc.DatacenterNameserver); validIP == nil {
-		return fmt.Errorf("Must provide valid IP format for datacenter nameserver")
+		return fmt.Errorf("must provide valid IP format for datacenter nameserver")
 	}
 
 	return nil
@@ -213,15 +213,15 @@ type KubernetesConfig struct {
 // Validate validates storage backend configuration
 func (kc *KubernetesConfig) Validate() error {
 	if kc.PodNetworkCidr == "" {
-		return fmt.Errorf("Must provide non-empty pod network CIDR")
+		return fmt.Errorf("must provide non-empty pod network CIDR")
 	}
 
 	if kc.KubeadmToken == "" {
-		return fmt.Errorf("Must provide non-empty kubeadm token")
+		return fmt.Errorf("must provide non-empty kubeadm token")
 	}
 
 	if kc.SSHPublicKey == "" {
-		return fmt.Errorf("Must provide non-empty SSH public key")
+		return fmt.Errorf("must provide non-empty SSH public key")
 	}
 
 	return nil
@@ -233,7 +233,7 @@ type GateConfig struct {
 
 func (gc *GateConfig) Validate() error {
 	if gc.GateNSSApiKey == "" {
-		return fmt.Errorf("Must provide non-empty Gate NSS API key")
+		return fmt.Errorf("must provide non-empty Gate NSS API key")
 	}
 	return nil
 }
@@ -246,13 +246,13 @@ type TerraformConfig struct {
 
 func (tc *TerraformConfig) Validate() error {
 	if tc.LibvirtModulePath == "" {
-		return fmt.Errorf("Must provide non-empty libvirt module path")
+		return fmt.Errorf("must provide non-empty libvirt module path")
 	}
 	if tc.PublicLibvirtModulePath == "" {
-		return fmt.Errorf("Must provide non-empty public libvirt module path")
+		return fmt.Errorf("must provide non-empty public libvirt module path")
 	}
 	if tc.ImageSourcePath == "" {
-		return fmt.Errorf("Must provide non-empty image source path")
+		return fmt.Errorf("must provide non-empty image source path")
 	}
 	return nil
 }
@@ -264,11 +264,11 @@ type Host struct {
 
 func (h *Host) Validate() error {
 	if h.Name == "" {
-		return fmt.Errorf("Must provide non-empty host name for Host: [%s]", h)
+		return fmt.Errorf("must provide non-empty host name for host: [%s]", h)
 	}
 
 	if validIP := net.ParseIP(h.IPAddress); validIP == nil {
-		return fmt.Errorf("Must provide valid IP format for Host: [%s]", h)
+		return fmt.Errorf("must provide valid IP format for host: [%s]", h)
 	}
 	return nil
 }

@@ -90,12 +90,12 @@ func (br *BaseResource) UpdateResource() Resource {
 
 func (br *BaseResource) PreCheck() error {
 	if br.Owner == "" {
-		return fmt.Errorf("BaseResource owner attribute cannot be empty")
+		return fmt.Errorf("resource owner attribute cannot be empty")
 	}
 
 	var validName = regexp.MustCompile(`[\w.-]`)
 	if !validName.MatchString(br.Name) {
-		return fmt.Errorf("BaseResource name %s is invalid", br.Name)
+		return fmt.Errorf("resource name %s is invalid", br.Name)
 	}
 	return nil
 }
@@ -141,6 +141,6 @@ func NewResourceListFromKind(resKind ResourceKind) (ResourceList, error) {
 	case KindIPPool:
 		return &ResourceIPPoolList{}, nil
 	default:
-		return nil, fmt.Errorf("invalid resourceKind : %s", resKind)
+		return nil, fmt.Errorf("invalid resource kind: %s", resKind)
 	}
 }

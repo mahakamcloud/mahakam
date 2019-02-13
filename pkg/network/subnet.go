@@ -52,7 +52,7 @@ func subnetManagerConfig(networkCIDR *net.IPNet) *ipam.Config {
 func (sm *SubnetManager) CreateSubnet(mask int, reserved []net.IPNet) (net.IPNet, error) {
 	network, err := sm.subnet.CreateSubnet(sm.ctx, net.CIDRMask(mask, subnetMaskBits), "", reserved)
 	if err != nil {
-		return net.IPNet{}, fmt.Errorf("Error creating new subnet: %s", err)
+		return net.IPNet{}, fmt.Errorf("error creating new subnet: %s", err)
 	}
 	return network, nil
 }
@@ -61,7 +61,7 @@ func (sm *SubnetManager) CreateSubnet(mask int, reserved []net.IPNet) (net.IPNet
 func (sm *SubnetManager) DeleteSubnet(subnet net.IPNet) error {
 	err := sm.subnet.DeleteSubnet(sm.ctx, subnet)
 	if err != nil {
-		return fmt.Errorf("Error creating new subnet: %s", err)
+		return fmt.Errorf("error creating new subnet: %s", err)
 	}
 	return nil
 }
