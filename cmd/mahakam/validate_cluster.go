@@ -29,9 +29,10 @@ var validateClusterCmd = &cobra.Command{
 	Short: "Validate kubernetes cluster",
 	Long:  `Validate a kubernetes cluster with one command`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if vco.Name == "" {
+		if len(args) == 0 {
 			exitWithHelp(cmd, "Please provide name for your cluster.")
 		}
+		vco.Name = args[0]
 
 		if vco.Owner == "" {
 			// Hack since we don't have login mechanism yet
@@ -94,9 +95,6 @@ func RunValidateCluster(vco *ValidateClusterOptions) (*models.Cluster, error) {
 }
 
 func init() {
-	// Required flags
-	validateClusterCmd.Flags().StringVarP(&vco.Name, "cluster-name", "c", "", "Name for your kubernetes cluster")
-
 	// Optional flags
 	validateClusterCmd.Flags().StringVarP(&vco.Owner, "owner", "o", "", "Owner of your kubernetes cluster")
 

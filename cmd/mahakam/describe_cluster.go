@@ -23,9 +23,10 @@ var describeClusterCmd = &cobra.Command{
 	Short: "Describe kubernetes cluster",
 	Long:  `Describe a kubernetes cluster with one command`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if dco.Name == "" {
+		if len(args) == 0 {
 			exitWithHelp(cmd, "Please provide name for your cluster.")
 		}
+		dco.Name = args[0]
 
 		res, err := RunDescribeCluster(dco)
 		if err != nil {
@@ -54,8 +55,5 @@ func RunDescribeCluster(dco *DescribeClusterOptions) (*models.Cluster, error) {
 }
 
 func init() {
-	// Required flags
-	describeClusterCmd.Flags().StringVarP(&dco.Name, "cluster-name", "c", "", "Name for your kubernetes cluster")
-
 	describeCmd.AddCommand(describeClusterCmd)
 }

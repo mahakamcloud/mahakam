@@ -30,9 +30,10 @@ var createClusterCmd = &cobra.Command{
 	Short: "Create kubernetes cluster",
 	Long:  `Create a kubernetes cluster with one command`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if cco.Name == "" {
+		if len(args) == 0 {
 			exitWithHelp(cmd, "Please provide name for your cluster.")
 		}
+		cco.Name = args[0]
 
 		if cco.Owner == "" {
 			// Hack since we don't have login mechanism yet
@@ -47,10 +48,10 @@ var createClusterCmd = &cobra.Command{
 		}
 
 		fmt.Println("Creating kubernetes cluster...")
-		fmt.Printf("\nName:\t%s", swag.StringValue(res.Name))
-		fmt.Printf("\nCluster Plan:\t%s", res.ClusterPlan)
-		fmt.Printf("\nWorker Nodes:\t%v", res.NumNodes)
-		fmt.Printf("\nStatus:\t%v", res.Status)
+		fmt.Printf("\nName:\t\t%s", swag.StringValue(res.Name))
+		fmt.Printf("\nCluster Plan:\t\t%s", res.ClusterPlan)
+		fmt.Printf("\nWorker Nodes:\t\t%v", res.NumNodes)
+		fmt.Printf("\nStatus:\t\t%v", res.Status)
 		fmt.Printf("\n\nUse 'mahakam describe cluster %s' to monitor the state of your cluster", swag.StringValue(res.Name))
 	},
 }
@@ -71,9 +72,6 @@ func RunCreateCluster(cco *CreateClusterOptions) (*models.Cluster, error) {
 }
 
 func init() {
-	// Required flags
-	createClusterCmd.Flags().StringVarP(&cco.Name, "cluster-name", "c", "", "Name for your kubernetes cluster")
-
 	// Optional flags
 	createClusterCmd.Flags().StringVarP(&cco.Owner, "owner", "o", "", "Owner of your kubernetes cluster")
 	createClusterCmd.Flags().IntVarP(&cco.NumNodes, "num-nodes", "n", 1, "Number of worker nodes you want kubernetes cluster to run")
