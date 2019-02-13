@@ -11,12 +11,13 @@ import (
 
 // Config represents mahakam configuration
 type Config struct {
-	KVStoreConfig    StorageBackendConfig `yaml:"storage_backend"`
-	NetworkConfig    NetworkConfig        `yaml:"network"`
-	KubernetesConfig KubernetesConfig     `yaml:"kubernetes"`
-	GateConfig       GateConfig           `yaml:"gate"`
-	TerraformConfig  TerraformConfig      `yaml:"terraform"`
-	HostsConfig      []Host               `yaml:"hosts"`
+	MahakamServerConfig MahakamServerConfig  `yaml:"server"`
+	KVStoreConfig       StorageBackendConfig `yaml:"storage_backend"`
+	NetworkConfig       NetworkConfig        `yaml:"network"`
+	KubernetesConfig    KubernetesConfig     `yaml:"kubernetes"`
+	GateConfig          GateConfig           `yaml:"gate"`
+	TerraformConfig     TerraformConfig      `yaml:"terraform"`
+	HostsConfig         []Host               `yaml:"hosts"`
 }
 
 // LoadConfig loads a configuration file
@@ -44,6 +45,10 @@ func LoadConfig(configFilePath string) (*Config, error) {
 
 // Validate validates mahakam configuration
 func (c *Config) Validate() error {
+	if err := c.MahakamServerConfig.Validate(); err != nil {
+		return fmt.Errorf("Error validating KV store configuration: %s", err)
+	}
+
 	if err := c.KVStoreConfig.Validate(); err != nil {
 		return fmt.Errorf("Error validating KV store configuration: %s", err)
 	}
@@ -68,6 +73,20 @@ func (c *Config) Validate() error {
 		if err := host.Validate(); err != nil {
 			return fmt.Errorf("Error validating hosts configuration: %s", err)
 		}
+	}
+
+	return nil
+}
+
+// MahakamServerConfig stores mahakam server config
+type MahakamServerConfig struct {
+	Address string `yaml:"address"`
+	Port    int    `yaml:"port"`
+}
+
+func (m *MahakamServerConfig) Validate() error {
+	if m.Port == 0 {
+		return fmt.Errorf("Must provide non-empty port")
 	}
 
 	return nil
