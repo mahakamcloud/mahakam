@@ -22,7 +22,7 @@ const (
 type Node struct {
 	Name         string
 	NumCPUs      int32
-	MemoryMB     int64
+	Memory       int64
 	DiskSizeGB   int32
 	SSHPublicKey string
 	NetworkConfig

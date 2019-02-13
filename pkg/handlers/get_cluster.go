@@ -49,6 +49,7 @@ func (h *GetCluster) Handle(params clusters.GetClustersParams) middleware.Respon
 		clusterModel := &models.Cluster{
 			Name:     &v.Name,
 			NumNodes: int64(v.NumNodes),
+			NodeSize: &v.NodeSize,
 			Owner:    v.Owner,
 			Status:   string(v.Status),
 		}

@@ -30,6 +30,7 @@ func (h *DescribeCluster) Handle(params clusters.DescribeClustersParams) middlew
 		Name:     swag.String(c.Name),
 		Owner:    c.Owner,
 		NumNodes: int64(c.NumNodes),
+		NodeSize: swag.String(c.NodeSize),
 		Status:   string(c.Status),
 	})
 }

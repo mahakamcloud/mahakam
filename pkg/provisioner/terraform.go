@@ -32,6 +32,8 @@ const (
 	TerraformBroadcastAddress  = "BroadcastAddress"
 	TerraformSubnetAddress     = "SubnetAddress"
 	TerraformSubnetMask        = "SubnetMask"
+	TerraformMemory            = "MemorySize"
+	TerraformCPU               = "NumCpu"
 )
 
 type terraformProvisioner struct {
@@ -55,6 +57,9 @@ func (tp *terraformProvisioner) CreateNode(nconfig node.NodeCreateConfig) error 
 	case node.RoleControlPlane:
 		err = tfmodule.CreateControlPlaneNode(nconfig.Name, config.TerraformDefaultDirectory+nconfig.Name, data)
 	case node.RoleWorker:
+		data = tp.overrideWorkerData(nconfig, data)
+		log.Infof("terraform data for worker nodes to render files: %v\n", data)
+
 		err = tfmodule.CreateWorkerNode(nconfig.Name, config.TerraformDefaultDirectory+nconfig.Name, data)
 	case node.RoleNetworkDNS:
 		err = tfmodule.CreateNetworkDNS(nconfig.Name, config.TerraformDefaultDirectory+nconfig.Name, data)
@@ -122,6 +127,13 @@ func (tp *terraformProvisioner) overrideNetworkGWData(nconfig node.NodeCreateCon
 	data[TerraformDNSAddress] = nconfig.ExtraNetworks[0].Nameserver.String()
 	data[TerraformNetworkCIDR] = nconfig.ExtraConfig[config.KeyClusterNetworkCidr]
 	data[TerraformLibvirtModulePath] = tp.config.PublicLibvirtModulePath
+
+	return data
+}
+
+func (tp *terraformProvisioner) overrideWorkerData(nconfig node.NodeCreateConfig, data map[string]string) map[string]string {
+	data[TerraformMemory] = string(nconfig.Memory)
+	data[TerraformCPU] = string(nconfig.NumCPUs)
 
 	return data
 }

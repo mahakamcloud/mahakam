@@ -76,6 +76,7 @@ func (h *CreateCluster) Handle(params clusters.CreateClusterParams) middleware.R
 	cres := &models.Cluster{
 		Name:     params.Body.Name,
 		NumNodes: params.Body.NumNodes,
+		NodeSize: params.Body.NodeSize,
 		Status:   string(r.StatusPending),
 	}
 	return clusters.NewCreateClusterCreated().WithPayload(cres)
@@ -158,6 +159,19 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 	cwfLog.Debugf("init create cluster workflow")
 
 	clusterName := swag.StringValue(cluster.Name)
+	clusterNodeSize := swag.StringValue(cluster.NodeSize)
+
+	numCPUs, err := r.GetClusterNodeCPUs(clusterNodeSize)
+	if err != nil {
+		cwfLog.Errorf("error getting number of CPUs: %s", err)
+		return nil, err
+	}
+
+	memorySize, err := r.GetClusterNodeMemory(clusterNodeSize)
+	if err != nil {
+		cwfLog.Errorf("error getting memory size %s", err)
+		return nil, err
+	}
 
 	clusterNetwork, err := getClusterNetwork(clusterName, cHandler.Network, cHandler.Client)
 	if err != nil {
@@ -172,6 +186,8 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 
 	controlPlane := node.Node{
 		Name:          fmt.Sprintf("%s-cp", clusterName),
+		NumCPUs:       numCPUs,
+		Memory:        memorySize,
 		NetworkConfig: *controlPlaneNetworkConfig,
 	}
 
@@ -185,12 +201,14 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 
 		worker := node.Node{
 			Name:          fmt.Sprintf("%s-worker-%d", clusterName, i),
+			NumCPUs:       numCPUs,
+			Memory:        memorySize,
 			NetworkConfig: *workerNetworkConfig,
 		}
 		workers = append(workers, worker)
 	}
 
-	err = storeClusterResource(clusterName, workerNodesCount, clusterNetwork, cHandler)
+	err = storeClusterResource(clusterName, workerNodesCount, clusterNodeSize, clusterNetwork, cHandler)
 	if err != nil {
 		cwfLog.Errorf("error storing cluster resource to kvstore '%v': %s", cluster, err)
 		return nil, err
@@ -296,6 +314,8 @@ func (c *createClusterWF) setupWorkerTasks(tasks []task.Task) []task.Task {
 			Node: node.Node{
 				Name:         worker.Name,
 				SSHPublicKey: c.nodePublicKey,
+				NumCPUs:      worker.NumCPUs,
+				Memory:       worker.Memory,
 				NetworkConfig: node.NetworkConfig{
 					MacAddress: worker.MacAddress,
 					IP:         worker.IP,
@@ -352,9 +372,10 @@ func (c *createClusterWF) setupClusterValidationTasks(tasks []task.Task) []task.
 	return tasks
 }
 
-func storeClusterResource(clusterName string, numNodes int, clusternet *network.ClusterNetwork, cHandler *CreateCluster) error {
+func storeClusterResource(clusterName string, numNodes int, nodeSize string, clusternet *network.ClusterNetwork, cHandler *CreateCluster) error {
 	c := r.NewResourceCluster(clusterName)
 	c.NumNodes = numNodes
+	c.NodeSize = nodeSize
 	c.Status = r.StatusPending
 	c.NetworkName = clusternet.Name
 	c.KubeconfigPath = utils.GenerateKubeconfigPath(config.MahakamMultiKubeconfigPath, c.Owner, c.Name)

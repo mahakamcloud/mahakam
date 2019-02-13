@@ -112,7 +112,7 @@ func CreateWorkerNode(name, destdir string, data map[string]string) error {
 		Files: []TerraformFile{
 			TerraformFile{"backend", templates.Backend, destdir, "backend.tf"},
 			TerraformFile{"data", worker.Data, destdir, "data.tf"},
-			TerraformFile{"main", templates.MainFile, destdir, "main.tf"},
+			TerraformFile{"main", worker.MainFile, destdir, "main.tf"},
 			TerraformFile{"tfvars", worker.TFVars, destdir, "terraform.tfvars"},
 			TerraformFile{"vars", worker.Vars, destdir, "vars.tf"},
 			TerraformFile{"cloudinit", worker.CloudInit, destdir + "/templates/", "user_data.tpl"},
