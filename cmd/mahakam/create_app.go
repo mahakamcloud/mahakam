@@ -32,9 +32,10 @@ var createAppCmd = &cobra.Command{
 	Short: "Create application",
 	Long:  `Create application on kubernetes cluster with one command`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if cao.Name == "" {
+		if len(args) == 0 {
 			exitWithHelp(cmd, "Please provide name for your application.")
 		}
+		cao.Name = args[0]
 
 		if cao.ClusterName == "" {
 			exitWithHelp(cmd, "Please provide which cluster do you want to run the application.")
@@ -99,7 +100,6 @@ func RunCreateApp(cao *CreateAppOptions) (*models.App, error) {
 
 func init() {
 	// Required flags
-	createAppCmd.Flags().StringVarP(&cao.Name, "app-name", "a", "", "Name for your application")
 	createAppCmd.Flags().StringVarP(&cao.ClusterName, "cluster-name", "c", "", "Name of your kubernetes cluster")
 	createAppCmd.Flags().StringVarP(&cao.ChartURL, "chart", "u", "", "Helm chart url to run your application")
 
