@@ -91,7 +91,7 @@ func (h *AllocateOrReleaseFromIPPool) allocateIP() (string, error) {
 
 	_, err = h.Handlers.Store.UpdateFromPath(ipPoolPath, p)
 	if err != nil {
-		return "", fmt.Errorf("Error updating network subnet resource into kvstore: %s", err)
+		return "", fmt.Errorf("error updating network subnet resource into kvstore: %s", err)
 	}
 
 	return allocatedIP, nil
@@ -108,7 +108,7 @@ func (h *AllocateOrReleaseFromIPPool) releaseIP(releasedIP string) error {
 	p := r.NewResourceNetwork(network.ParseSubnetCIDR(ipPoolPath))
 	err = h.Handlers.Store.GetFromPath(ipPoolPath, p)
 	if err != nil {
-		return fmt.Errorf("Error getting ip pool resource from kvstore %s: %s", ipPoolPath, err)
+		return fmt.Errorf("error getting ip pool resource from kvstore %s: %s", ipPoolPath, err)
 	}
 
 	ipPools := p.AllocatedIPPools
@@ -120,12 +120,12 @@ func (h *AllocateOrReleaseFromIPPool) releaseIP(releasedIP string) error {
 
 			_, err = h.Handlers.Store.UpdateFromPath(ipPoolPath, p)
 			if err != nil {
-				return fmt.Errorf("Error updating ip pool resource into kvstore '%v': %s", p, err)
+				return fmt.Errorf("error updating ip pool resource into kvstore '%v': %s", p, err)
 			}
 			return nil
 		}
 	}
-	return fmt.Errorf("Error releasing IP: %s not found in ip pool %v", releasedIP, p)
+	return fmt.Errorf("error releasing IP: %s not found in ip pool %v", releasedIP, p)
 }
 
 func (h *AllocateOrReleaseFromIPPool) getFirstIPPool() (string, error) {

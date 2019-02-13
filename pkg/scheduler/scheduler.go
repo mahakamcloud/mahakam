@@ -16,17 +16,17 @@ type Scheduler interface {
 // GetHost return a single host IP
 func GetHost(hosts []config.Host) (net.IP, error) {
 	if len(hosts) == 0 {
-		return nil, fmt.Errorf("Empty hosts config")
+		return nil, fmt.Errorf("empty hosts config")
 	}
 
 	host, err := algorithm.RandomAllocator(hosts)
 	if err != nil {
-		return nil, fmt.Errorf("Empty hosts config")
+		return nil, fmt.Errorf("empty hosts config")
 	}
 
 	hostIP := net.ParseIP(host.IPAddress)
 	if hostIP == nil {
-		return nil, fmt.Errorf("Invalid host address")
+		return nil, fmt.Errorf("invalid host address")
 	}
 
 	return hostIP, nil

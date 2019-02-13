@@ -14,7 +14,7 @@ func TestGetHostReturnsErrorForEmptyHostList(t *testing.T) {
 	_, err := scheduler.GetHost(hosts)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, "Empty hosts config", err.Error(), "they should be equal")
+	assert.Equal(t, "empty hosts config", err.Error(), "they should be equal")
 }
 
 func TestGetHostReturnsErrorForInvalidHost(t *testing.T) {
@@ -23,5 +23,5 @@ func TestGetHostReturnsErrorForInvalidHost(t *testing.T) {
 	_, err := scheduler.GetHost(hosts)
 
 	assert.NotNil(t, err)
-	assert.Equal(t, "Empty hosts config", err.Error(), "they should be equal")
+	assert.Equal(t, "empty hosts config", err.Error(), "they should be equal")
 }

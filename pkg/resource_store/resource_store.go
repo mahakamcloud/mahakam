@@ -48,10 +48,10 @@ func New(c config.StorageBackendConfig) (ResourceStore, error) {
 	case string(BackendConsul):
 		kv, err := newConsulKVStore(c)
 		if err != nil {
-			return nil, fmt.Errorf("Create resource store with consul error: %s", err)
+			return nil, fmt.Errorf("create resource store with consul error: %s", err)
 		}
 		return NewKVResourceStore(kv), nil
 	default:
-		return nil, fmt.Errorf("Create resource store error: %s not supported", c.BackendType)
+		return nil, fmt.Errorf("create resource store error: %s not supported", c.BackendType)
 	}
 }

@@ -51,7 +51,7 @@ func RunGetClusters(gclo *GetClustersOptions) ([]*models.Cluster, error) {
 	res, err := gclo.ClusterAPI.GetClusters(clusters.NewGetClustersParams().WithOwner(owner))
 
 	if err != nil {
-		return nil, fmt.Errorf("Error getting cluster '%v': '%v'", gclo, err)
+		return nil, fmt.Errorf("error getting cluster '%v': '%v'", gclo, err)
 	}
 
 	return res.Payload, nil

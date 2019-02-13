@@ -22,7 +22,7 @@ func NewKVResourceStore(s store.Store) ResourceStore {
 // Add adds new resource to kv store
 func (kvr *kvResourceStore) Add(r resource.Resource) (id string, err error) {
 	if err := r.PreCheck(); err != nil {
-		return "", fmt.Errorf("KV resource precheck failed: %s", err)
+		return "", fmt.Errorf("kv resource precheck failed: %s", err)
 	}
 
 	// TODO(giri): check if key exists or duplicated
@@ -31,7 +31,7 @@ func (kvr *kvResourceStore) Add(r resource.Resource) (id string, err error) {
 
 	value, err := json.Marshal(r)
 	if err != nil {
-		return "", fmt.Errorf("Add KV resource serialization error: %s", err)
+		return "", fmt.Errorf("add kv resource serialization error: %s", err)
 	}
 
 	opts := &store.WriteOptions{
@@ -39,7 +39,7 @@ func (kvr *kvResourceStore) Add(r resource.Resource) (id string, err error) {
 	}
 	_, res, err := kvr.store.AtomicPut(key, value, nil, opts)
 	if err != nil {
-		return "", fmt.Errorf("Add KV resource atomic put error: %s", err)
+		return "", fmt.Errorf("add kv resource atomic put error: %s", err)
 	}
 
 	r.GetResource().Revision = res.LastIndex
@@ -50,23 +50,23 @@ func (kvr *kvResourceStore) Add(r resource.Resource) (id string, err error) {
 // must include owner, name, and kind in the passed resource struct
 func (kvr *kvResourceStore) Get(r resource.Resource) error {
 	if r.GetResource().Owner == "" {
-		return fmt.Errorf("Owner parameter is required for getting resource")
+		return fmt.Errorf("owner parameter is required for getting resource")
 	}
 	if r.GetResource().Name == "" {
-		return fmt.Errorf("Name parameter is required for getting resource")
+		return fmt.Errorf("name parameter is required for getting resource")
 	}
 	if r.GetResource().Kind == "" {
-		return fmt.Errorf("Kind parameter is required for getting resource")
+		return fmt.Errorf("kind parameter is required for getting resource")
 	}
 
 	res, err := kvr.store.Get(r.BuildKey())
 	if err != nil {
-		return fmt.Errorf("Error getting response from kv store: %s", err)
+		return fmt.Errorf("error getting response from kv store: %s", err)
 	}
 
 	err = json.Unmarshal(res.Value, r)
 	if err != nil {
-		return fmt.Errorf("Error unmarshalling resource: %s", err)
+		return fmt.Errorf("error unmarshalling resource: %s", err)
 	}
 
 	// TODO(giri): filter based on given labels and scope
@@ -79,7 +79,7 @@ func (kvr *kvResourceStore) List(owner string, kind resource.ResourceKind, list 
 
 	kvpairs, err := kvr.store.List(string(kind) + "/" + owner + "/")
 	if err != nil && err != store.ErrKeyNotFound {
-		return fmt.Errorf("Error getting list of kvpairs from path: %s", err)
+		return fmt.Errorf("error getting list of kvpairs from path: %s", err)
 	}
 
 	for _, kv := range kvpairs {
@@ -87,7 +87,7 @@ func (kvr *kvResourceStore) List(owner string, kind resource.ResourceKind, list 
 
 		err = json.Unmarshal(kv.Value, r)
 		if err != nil {
-			return fmt.Errorf("Error unmarshalling resources: %s", err)
+			return fmt.Errorf("error unmarshalling resources: %s", err)
 		}
 
 		resources = append(resources, r)
@@ -99,13 +99,13 @@ func (kvr *kvResourceStore) List(owner string, kind resource.ResourceKind, list 
 
 func (kvr *kvResourceStore) Update(resource resource.Resource) (revision int64, err error) {
 	if err := resource.PreCheck(); err != nil {
-		return -1, fmt.Errorf("KV resource precheck failed: %s", err)
+		return -1, fmt.Errorf("kv resource precheck failed: %s", err)
 	}
 	resource.UpdateResource()
 
 	value, err := json.Marshal(resource)
 	if err != nil {
-		return -1, fmt.Errorf("Add KV resource serialization error: %s", err)
+		return -1, fmt.Errorf("add kv resource serialization error: %s", err)
 	}
 
 	prev := &store.KVPair{
@@ -117,7 +117,7 @@ func (kvr *kvResourceStore) Update(resource resource.Resource) (revision int64, 
 	}
 	_, res, err := kvr.store.AtomicPut(resource.BuildKey(), value, prev, opts)
 	if err != nil {
-		return -1, fmt.Errorf("Add KV resource atomic put error: %s", err)
+		return -1, fmt.Errorf("add kv resource atomic put error: %s", err)
 	}
 
 	resource.GetResource().Revision = res.LastIndex
@@ -132,16 +132,16 @@ func (kvr *kvResourceStore) Delete(owner string, id string, resource resource.Re
 // AddFromPath adds new resource to kv store with specific key path
 func (kvr *kvResourceStore) AddFromPath(path string, r resource.Resource) (id string, err error) {
 	if path == "" {
-		return "", fmt.Errorf("Must provide non-empty path for storing resource: %s", err)
+		return "", fmt.Errorf("must provide non-empty path for storing resource: %s", err)
 	}
 	if err := r.PreCheck(); err != nil {
-		return "", fmt.Errorf("KV resource precheck failed: %s", err)
+		return "", fmt.Errorf("kv resource precheck failed: %s", err)
 	}
 	r.BuildResource()
 
 	value, err := json.Marshal(r)
 	if err != nil {
-		return "", fmt.Errorf("Add KV resource serialization error: %s", err)
+		return "", fmt.Errorf("add kv resource serialization error: %s", err)
 	}
 
 	opts := &store.WriteOptions{
@@ -149,7 +149,7 @@ func (kvr *kvResourceStore) AddFromPath(path string, r resource.Resource) (id st
 	}
 	_, res, err := kvr.store.AtomicPut(path, value, nil, opts)
 	if err != nil {
-		return "", fmt.Errorf("Add KV resource atomic put error: %s", err)
+		return "", fmt.Errorf("add kv resource atomic put error: %s", err)
 	}
 
 	r.GetResource().Revision = res.LastIndex
@@ -159,17 +159,17 @@ func (kvr *kvResourceStore) AddFromPath(path string, r resource.Resource) (id st
 // Get retrieves single resource from specified key path
 func (kvr *kvResourceStore) GetFromPath(path string, r resource.Resource) error {
 	if path == "" {
-		return fmt.Errorf("Must provide non-empty path for getting resource")
+		return fmt.Errorf("must provide non-empty path for getting resource")
 	}
 
 	res, err := kvr.store.Get(path)
 	if err != nil {
-		return fmt.Errorf("Error getting response from kv store: %s", err)
+		return fmt.Errorf("error getting response from kv store: %s", err)
 	}
 
 	err = json.Unmarshal(res.Value, r)
 	if err != nil {
-		return fmt.Errorf("Error unmarshalling resource: %s", err)
+		return fmt.Errorf("error unmarshalling resource: %s", err)
 	}
 
 	r.GetResource().Revision = res.LastIndex
@@ -180,7 +180,7 @@ func (kvr *kvResourceStore) GetFromPath(path string, r resource.Resource) error 
 func (kvr *kvResourceStore) ListFromPath(path string, filter Filter, resources resource.ResourceList) error {
 	kvpairs, err := kvr.store.List(path)
 	if err != nil && err != store.ErrKeyNotFound {
-		return fmt.Errorf("Error getting list of kvpairs from path: %s", err)
+		return fmt.Errorf("error getting list of kvpairs from path: %s", err)
 	}
 
 	var items []resource.Resource
@@ -188,13 +188,13 @@ func (kvr *kvResourceStore) ListFromPath(path string, filter Filter, resources r
 		r := resources.Resource()
 		err := json.Unmarshal(kvpair.Value, r)
 		if err != nil {
-			return fmt.Errorf("Error unmarshalling resource: %s", err)
+			return fmt.Errorf("error unmarshalling resource: %s", err)
 		}
 
 		if filter != nil {
 			ok := ApplyFilter(filter, r)
 			if err != nil {
-				return fmt.Errorf("Error filtering resources: %s", err)
+				return fmt.Errorf("error filtering resources: %s", err)
 			}
 			if !ok {
 				continue
@@ -213,7 +213,7 @@ func (kvr *kvResourceStore) ListKeysFromPath(path string) ([]string, error) {
 
 	kvpairs, err := kvr.store.List(path)
 	if err != nil && err != store.ErrKeyNotFound {
-		return []string{}, fmt.Errorf("Error getting list of kvpairs from path: %s", err)
+		return []string{}, fmt.Errorf("error getting list of kvpairs from path: %s", err)
 	}
 
 	for _, kvpair := range kvpairs {
@@ -224,16 +224,16 @@ func (kvr *kvResourceStore) ListKeysFromPath(path string) ([]string, error) {
 
 func (kvr *kvResourceStore) UpdateFromPath(path string, r resource.Resource) (revision int64, err error) {
 	if path == "" {
-		return -1, fmt.Errorf("Must provide non-empty path for updating resource: %s", err)
+		return -1, fmt.Errorf("must provide non-empty path for updating resource: %s", err)
 	}
 	if err := r.PreCheck(); err != nil {
-		return -1, fmt.Errorf("KV resource precheck failed: %s", err)
+		return -1, fmt.Errorf("kv resource precheck failed: %s", err)
 	}
 	r.UpdateResource()
 
 	value, err := json.Marshal(r)
 	if err != nil {
-		return -1, fmt.Errorf("Add KV resource serialization error: %s", err)
+		return -1, fmt.Errorf("add kv resource serialization error: %s", err)
 	}
 
 	prev := &store.KVPair{
@@ -245,7 +245,7 @@ func (kvr *kvResourceStore) UpdateFromPath(path string, r resource.Resource) (re
 	}
 	_, res, err := kvr.store.AtomicPut(path, value, prev, opts)
 	if err != nil {
-		return -1, fmt.Errorf("Add KV resource atomic put error: %s", err)
+		return -1, fmt.Errorf("add kv resource atomic put error: %s", err)
 	}
 
 	r.GetResource().Revision = res.LastIndex
