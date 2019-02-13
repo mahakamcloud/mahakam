@@ -4,14 +4,13 @@ import (
 	"encoding/binary"
 	"fmt"
 	"net"
-	"strconv"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/client"
 	netclient "github.com/mahakamcloud/mahakam/pkg/api/v1/client/networks"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/networks"
-	mahakamclient "github.com/mahakamcloud/mahakam/pkg/client"
 	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/mahakamcloud/mahakam/pkg/network"
 	"github.com/mahakamcloud/mahakam/pkg/node"
@@ -112,7 +111,7 @@ func newCreateNetworkWF(cluster *models.Network, cHandler *CreateNetwork) (*crea
 
 	dcNameserverIP := net.ParseIP(cHandler.AppConfig.NetworkConfig.DatacenterNameserver)
 
-	allocatedPublicIP, err := getPublicIP()
+	allocatedPublicIP, err := getPublicIP(cHandler.Client)
 	if err != nil {
 		return nil, fmt.Errorf("error getting public IP allocation: %s", err)
 	}
@@ -331,9 +330,8 @@ func (cn *createNetworkWF) setupNetworkNameserverTasks(tasks []task.Task) []task
 	return tasks
 }
 
-func getPublicIP() (net.IP, error) {
-	client := mahakamclient.GetMahakamClient(":" + strconv.Itoa(config.MahakamAPIDefaultPort))
-	res, err := client.Networks.AllocateOrReleaseFromIPPool(netclient.NewAllocateOrReleaseFromIPPoolParams().
+func getPublicIP(c *client.Mahakam) (net.IP, error) {
+	res, err := c.Networks.AllocateOrReleaseFromIPPool(netclient.NewAllocateOrReleaseFromIPPoolParams().
 		WithAction(swag.String(config.IPPoolActionAllocate)))
 	if err != nil {
 		return nil, err
