@@ -39,12 +39,15 @@ var (
 
 // GetClusterNodeCPUs returns number of CPUs for a cluster node
 func GetClusterNodeCPUs(size string) string {
+	size = strings.ToUpper(size)
 	cpuInString := clusterNodeSizes[size]["cpu"]
 	return cpuInString
 }
 
 // GetClusterNodeMemoryInMB returns memory for a cluster node in bytes from default GB representationss
 func GetClusterNodeMemoryInMB(size string) (string, error) {
+	size = strings.ToUpper(size)
+
 	memoryInGB := clusterNodeSizes[size]["ram"]
 
 	memoryInMB, err := utils.ToMegabytes(memoryInGB)
