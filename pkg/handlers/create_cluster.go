@@ -161,13 +161,29 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 	clusterName := swag.StringValue(cluster.Name)
 	clusterNodeSize := swag.StringValue(cluster.NodeSize)
 
-	numCPUs, err := r.GetClusterNodeCPUs(clusterNodeSize)
+	workerNumCPUs, err := r.GetClusterNodeCPUs(clusterNodeSize)
 	if err != nil {
 		cwfLog.Errorf("error getting number of CPUs: %s", err)
 		return nil, err
 	}
 
-	memorySize, err := r.GetClusterNodeMemory(clusterNodeSize)
+	workerMemorySize, err := r.GetClusterNodeMemory(clusterNodeSize)
+	if err != nil {
+		cwfLog.Errorf("error getting memory size %s", err)
+		return nil, err
+	}
+
+	// For controlplane default the CPUs to default value
+	// instead of passed one
+	cpNumCPUs, err := r.GetClusterNodeCPUs(r.ClusterSizeDefault)
+	if err != nil {
+		cwfLog.Errorf("error getting number of CPUs: %s", err)
+		return nil, err
+	}
+
+	// For controlplane default the memory to default value
+	// instead of passed one
+	cpMemorySize, err := r.GetClusterNodeMemory(r.ClusterSizeDefault)
 	if err != nil {
 		cwfLog.Errorf("error getting memory size %s", err)
 		return nil, err
@@ -186,8 +202,8 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 
 	controlPlane := node.Node{
 		Name:          fmt.Sprintf("%s-cp", clusterName),
-		NumCPUs:       numCPUs,
-		Memory:        memorySize,
+		NumCPUs:       cpNumCPUs,
+		Memory:        cpMemorySize,
 		NetworkConfig: *controlPlaneNetworkConfig,
 	}
 
@@ -275,6 +291,8 @@ func (c *createClusterWF) setupControlPlaneTasks(tasks []task.Task) []task.Task 
 		Node: node.Node{
 			Name:         c.controlPlane.Name,
 			SSHPublicKey: c.nodePublicKey,
+			NumCPUs:      c.controlPlane.NumCPUs,
+			Memory:       c.controlPlane.Memory,
 			NetworkConfig: node.NetworkConfig{
 				MacAddress: c.controlPlane.MacAddress,
 				IP:         c.controlPlane.IP,

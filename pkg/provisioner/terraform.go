@@ -55,6 +55,8 @@ func (tp *terraformProvisioner) CreateNode(nconfig node.NodeCreateConfig) error 
 	var err error
 	switch role := nconfig.Role; role {
 	case node.RoleControlPlane:
+		data = tp.overrideControlPlaneData(nconfig, data)
+		log.Infof("terraform data for control plane nodes to render files: %v\n", data)
 		err = tfmodule.CreateControlPlaneNode(nconfig.Name, config.TerraformDefaultDirectory+nconfig.Name, data)
 	case node.RoleWorker:
 		data = tp.overrideWorkerData(nconfig, data)
@@ -132,6 +134,13 @@ func (tp *terraformProvisioner) overrideNetworkGWData(nconfig node.NodeCreateCon
 }
 
 func (tp *terraformProvisioner) overrideWorkerData(nconfig node.NodeCreateConfig, data map[string]string) map[string]string {
+	data[TerraformMemory] = string(nconfig.Memory)
+	data[TerraformCPU] = string(nconfig.NumCPUs)
+
+	return data
+}
+
+func (tp *terraformProvisioner) overrideControlPlaneData(nconfig node.NodeCreateConfig, data map[string]string) map[string]string {
 	data[TerraformMemory] = string(nconfig.Memory)
 	data[TerraformCPU] = string(nconfig.NumCPUs)
 
