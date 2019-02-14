@@ -1,10 +1,10 @@
 server:
   host: "0.0.0.0"
-  port: 9000
+  port: 9001
 log_level: "INFO"
 storage_backend:
   backend_type: "consul"
-  address: "127.0.0.1:8500"
+  address: "consul:8500"
   username: ""
   password: ""
   bucket: "mahakam"

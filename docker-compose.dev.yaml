@@ -1,0 +1,14 @@
+version: "3"
+services:
+  mahakam-server:
+    build: 
+      context: .
+      dockerfile: ./build/mahakam-server/Dockerfile
+    ports:
+      - "9001:9001"
+    volumes:
+      - ./pkg/config/example/config.sample.yaml:/etc/mahakam/config.yaml
+    depends_on:
+      - consul
+  consul:
+    image: consul:latest
