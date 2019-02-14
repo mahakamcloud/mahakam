@@ -12,12 +12,20 @@ help:  ## Display this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 .PHONY: cli
-mahakam-cli: fmt vet ## Build mahakam cli binary
+cli: fmt vet ## Build mahakam cli binary
 	./hack/build-bin.sh mahakam cmd/mahakam
 
-.PHONY: server
-mahakam-server: fmt vet ## Build mahakam server binary
-	./hack/build-bin.sh mahakam-server cmd/mahakam_server
+.PHONY: server-darwin
+server-darwin: fmt vet ## Build mahakam server binary
+	./hack/build-bin.sh mahakam-server cmd/mahakam_server darwin
+
+.PHONY: server-linux
+server-linux: fmt vet ## Build mahakam server binary
+	./hack/build-bin.sh mahakam-server cmd/mahakam_server linux
+
+.PHONY: server-image
+server-image: server-linux
+	./build/run.sh mahakam-server
 
 .PHONY: fmt
 fmt: ## Run go fmt against code
