@@ -33,6 +33,7 @@ func (tfProvisioner *TerraformProvisioner) UpdateProvisionerFile(filetype string
 	tfProvisioner.Files = append(tfProvisioner.Files, tfFile)
 }
 
+// GenerateProvisionerFiles writes terraform files to disk
 func (tfProvisioner TerraformProvisioner) GenerateProvisionerFiles(data map[string]string) {
 	for _, tfFile := range tfProvisioner.Files {
 		parsedFile := tfFile.ParseTerraformFile(data)
@@ -40,6 +41,7 @@ func (tfProvisioner TerraformProvisioner) GenerateProvisionerFiles(data map[stri
 	}
 }
 
+// ExecuteProvisioner executes terraform init and terraform apply
 func (tfProvisioner *TerraformProvisioner) ExecuteProvisioner() error {
 	t := New()
 

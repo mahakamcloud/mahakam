@@ -1,5 +1,7 @@
 package worker
 
+// MainFile represents terraform main.tf go template
+// for kubernetes worker nodes
 var MainFile = `module "{{.Name}}" {
     source = "{{.LibvirtModulePath}}"
 

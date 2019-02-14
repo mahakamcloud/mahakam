@@ -1,5 +1,6 @@
 package templates
 
+// MainFile represents terraform main.tf go template
 var MainFile = `module "{{.Name}}" {
     source = "{{.LibvirtModulePath}}"
 

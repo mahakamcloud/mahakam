@@ -15,6 +15,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// CreateClusterOptions represents create cluster parameters
 type CreateClusterOptions struct {
 	Name     string
 	Owner    string
@@ -55,6 +56,7 @@ var createClusterCmd = &cobra.Command{
 	},
 }
 
+// RunCreateCluster requests cluster creation from mahakam server
 func RunCreateCluster(cco *CreateClusterOptions) (*models.Cluster, error) {
 	req := &models.Cluster{
 		Name:     swag.String(cco.Name),
