@@ -161,13 +161,8 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 	clusterName := swag.StringValue(cluster.Name)
 	clusterNodeSize := swag.StringValue(cluster.NodeSize)
 
-	workerNumCPUs, err := r.GetClusterNodeCPUs(clusterNodeSize)
-	if err != nil {
-		cwfLog.Errorf("error getting number of CPUs: %s", err)
-		return nil, err
-	}
-
-	workerMemorySize, err := r.GetClusterNodeMemory(clusterNodeSize)
+	workerNumCPUs := r.GetClusterNodeCPUs(clusterNodeSize)
+	workerMemorySize, err := r.GetClusterNodeMemoryInMB(r.ClusterSizeDefault)
 	if err != nil {
 		cwfLog.Errorf("error getting memory size %s", err)
 		return nil, err
@@ -175,15 +170,11 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 
 	// For controlplane default the CPUs to default value
 	// instead of passed one
-	cpNumCPUs, err := r.GetClusterNodeCPUs(r.ClusterSizeDefault)
-	if err != nil {
-		cwfLog.Errorf("error getting number of CPUs: %s", err)
-		return nil, err
-	}
+	cpNumCPUs := r.GetClusterNodeCPUs(r.ClusterSizeDefault)
 
 	// For controlplane default the memory to default value
 	// instead of passed one
-	cpMemorySize, err := r.GetClusterNodeMemory(r.ClusterSizeDefault)
+	cpMemorySize, err := r.GetClusterNodeMemoryInMB(r.ClusterSizeDefault)
 	if err != nil {
 		cwfLog.Errorf("error getting memory size %s", err)
 		return nil, err

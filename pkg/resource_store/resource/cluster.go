@@ -33,28 +33,24 @@ var clusterNodeSizes = map[string]map[string]string{
 }
 
 // GetClusterNodeCPUs returns number of CPUs for a cluster node
-func GetClusterNodeCPUs(size string) (int32, error) {
+func GetClusterNodeCPUs(size string) string {
 	size = ClusterSizeDefault // TODO: remove
 	cpuInString := clusterNodeSizes[size]["cpu"]
-	cpuInInt, err := strconv.ParseInt(cpuInString, 10, 32)
-
-	if err != nil {
-		return 0, err
-	}
-
-	return int32(cpuInInt), nil
+	return cpuInString
 }
 
-// GetClusterNodeMemory returns memory for a cluster node in bytes from default GB representation
-func GetClusterNodeMemory(size string) (int64, error) {
+// GetClusterNodeMemoryInMB returns memory for a cluster node in bytes from default GB representationss
+func GetClusterNodeMemoryInMB(size string) (string, error) {
 	size = ClusterSizeDefault
 	memoryInGB := clusterNodeSizes[size]["ram"]
-	memoryInBytes, err := utils.ToBytes(memoryInGB)
-	if err != nil {
-		return 0, err
-	}
 
-	return int64(memoryInBytes), nil
+	memoryInMB, err := utils.ToMegabytes(memoryInGB)
+	if err != nil {
+		// TODO: Figure out a better return value as default
+		return "", err
+	}
+	memory := strconv.FormatUint(memoryInMB, 10)
+	return memory, nil
 }
 
 // ResourceCluster represents stored resource with cluster kind
