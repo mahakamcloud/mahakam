@@ -161,13 +161,13 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 	clusterName := swag.StringValue(cluster.Name)
 	workerNodeSize := swag.StringValue(cluster.NodeSize)
 
+	if workerNodeSize == "" {
+		workerNodeSize = r.ClusterSizeDefault
+	}
+
 	if !r.ClusterSizeValidate(workerNodeSize) {
 		cwfLog.Errorf("provided cluster size is not available: %s", workerNodeSize)
 		return nil, fmt.Errorf("provided cluster size is not available: %s", workerNodeSize)
-	}
-
-	if workerNodeSize == "" {
-		workerNodeSize = r.ClusterSizeDefault
 	}
 
 	workerNumCPUs := r.GetClusterNodeCPUs(workerNodeSize)
