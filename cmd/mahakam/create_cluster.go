@@ -78,7 +78,7 @@ func init() {
 	// Optional flags
 	createClusterCmd.Flags().StringVarP(&cco.Owner, "owner", "o", "", "Owner of your kubernetes cluster")
 	createClusterCmd.Flags().IntVarP(&cco.NumNodes, "num-nodes", "n", 1, "Number of worker nodes you want kubernetes cluster to run")
-	createClusterCmd.Flags().StringVarP(&cco.NodeSize, "node-size", "s", "", "Number of worker nodes you want kubernetes cluster to run")
+	createClusterCmd.Flags().StringVarP(&cco.NodeSize, "node-size", "s", "", "Configuration of worker nodes you want kubernetes cluster to run")
 
 	createCmd.AddCommand(createClusterCmd)
 }
