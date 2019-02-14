@@ -143,8 +143,8 @@ func (tp *terraformProvisioner) overrideWorkerData(nconfig node.NodeCreateConfig
 }
 
 func (tp *terraformProvisioner) overrideControlPlaneData(nconfig node.NodeCreateConfig, data map[string]string) map[string]string {
-	data[TerraformMemory] = string(nconfig.Memory)
-	data[TerraformCPU] = string(nconfig.NumCPUs)
+	data[TerraformMemory] = strconv.FormatInt(nconfig.Memory, 10)
+	data[TerraformCPU] = strconv.Itoa(int(nconfig.NumCPUs))
 
 	return data
 }
