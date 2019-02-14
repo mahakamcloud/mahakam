@@ -20,11 +20,19 @@ const (
 
 // Node represents VM node metadata
 type Node struct {
-	Name         string
-	NumCPUs      int32
-	MemoryMB     int64
-	DiskSizeGB   int32
+	// Name is identifier for a libvirt VM
+	Name string
+	// NumCPUs is number of CPU's assigned to a VM
+	NumCPUs string
+	// Memory is amount of memory allocated for
+	// a VM in Gigabytes
+	Memory string
+	// DiskSize is the amount of disk for a VM
+	// in Gigabytes
+	DiskSize int32
+	// SSHPublicKey is ssh public key for a VM
 	SSHPublicKey string
+	// NetworkConfig is network configs for a VM
 	NetworkConfig
 	ExtraNetworks []NetworkConfig
 }

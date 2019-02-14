@@ -41,7 +41,7 @@ var getClustersCmd = &cobra.Command{
 		// TODO: Move cluster list formatting in separate method
 		fmt.Println("Name\t\tSize\tNodes\tStatus")
 		for _, v := range clusters {
-			fmt.Printf("%s\t%s\t%d\t%s\n", *v.Name, v.ClusterPlan, v.NumNodes, v.Status)
+			fmt.Printf("%s\t%d\t%s\n", *v.Name, v.NumNodes, v.Status)
 		}
 	},
 }

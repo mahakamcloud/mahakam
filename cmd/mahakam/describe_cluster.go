@@ -12,6 +12,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// DescribeClusterOptions represents cluster parameters
 type DescribeClusterOptions struct {
 	Name string
 }
@@ -35,12 +36,12 @@ var describeClusterCmd = &cobra.Command{
 
 		fmt.Printf("\nName:\t%s", swag.StringValue(res.Name))
 		fmt.Printf("\nOwner:\t%s", res.Owner)
-		fmt.Printf("\nCluster Plan:\t%s", res.ClusterPlan)
 		fmt.Printf("\nWorker Nodes:\t%v", res.NumNodes)
 		fmt.Printf("\nStatus:\t%v", res.Status)
 	},
 }
 
+// RunDescribeCluster gets description of a cluster from mahakam server
 func RunDescribeCluster(dco *DescribeClusterOptions) (*models.Cluster, error) {
 	c := mahakamclient.GetMahakamClient(os.Getenv("MAHAKAM_API_SERVER_HOST"))
 

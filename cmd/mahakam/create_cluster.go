@@ -15,10 +15,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// CreateClusterOptions represents create cluster parameters
 type CreateClusterOptions struct {
 	Name     string
 	Owner    string
 	NumNodes int
+	NodeSize string
 
 	ClusterAPI v1.ClusterAPI
 }
@@ -48,19 +50,20 @@ var createClusterCmd = &cobra.Command{
 		}
 
 		fmt.Println("Creating kubernetes cluster...")
-		fmt.Printf("\nName:\t\t%s", swag.StringValue(res.Name))
-		fmt.Printf("\nCluster Plan:\t\t%s", res.ClusterPlan)
-		fmt.Printf("\nWorker Nodes:\t\t%v", res.NumNodes)
-		fmt.Printf("\nStatus:\t\t%v", res.Status)
+		fmt.Printf("\nName:\t%s", swag.StringValue(res.Name))
+		fmt.Printf("\nWorker Nodes:\t%v", res.NumNodes)
+		fmt.Printf("\nStatus:\t%v", res.Status)
 		fmt.Printf("\n\nUse 'mahakam describe cluster %s' to monitor the state of your cluster", swag.StringValue(res.Name))
 	},
 }
 
+// RunCreateCluster requests cluster creation from mahakam server
 func RunCreateCluster(cco *CreateClusterOptions) (*models.Cluster, error) {
 	req := &models.Cluster{
 		Name:     swag.String(cco.Name),
 		Owner:    cco.Owner,
 		NumNodes: int64(cco.NumNodes),
+		NodeSize: swag.String(cco.NodeSize),
 	}
 
 	res, err := cco.ClusterAPI.CreateCluster(clusters.NewCreateClusterParams().WithBody(req))
@@ -75,6 +78,7 @@ func init() {
 	// Optional flags
 	createClusterCmd.Flags().StringVarP(&cco.Owner, "owner", "o", "", "Owner of your kubernetes cluster")
 	createClusterCmd.Flags().IntVarP(&cco.NumNodes, "num-nodes", "n", 1, "Number of worker nodes you want kubernetes cluster to run")
+	createClusterCmd.Flags().StringVarP(&cco.NodeSize, "node-size", "s", "", "Number of worker nodes you want kubernetes cluster to run")
 
 	createCmd.AddCommand(createClusterCmd)
 }

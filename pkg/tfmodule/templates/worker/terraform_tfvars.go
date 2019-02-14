@@ -12,4 +12,6 @@ dns_address = "{{.DNSAddress}}"
 dns_domain_name = "{{.DNSDomainName}}"
 controlplane_ip = "{{.ControlPlaneIP}}"
 kubeadm_token = "{{.KubeadmToken}}"
+memory_size = "{{.MemorySize}}"
+num_cpu = "{{.NumCpu}}"
 `

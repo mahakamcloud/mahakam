@@ -52,4 +52,12 @@ variable "controlplane_ip" {
 variable "kubeadm_token" {
     type = "string"
 }
+
+variable "num_cpu" {
+    type = "string"
+}
+
+variable "memory_size" {
+    type = "string"
+}
 `

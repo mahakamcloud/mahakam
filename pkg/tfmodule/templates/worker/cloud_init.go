@@ -1,5 +1,7 @@
 package worker
 
+// CloudInit represents go template of terraform template
+// for kubernetes worker nodes
 var CloudInit = `password: ${password}
 chpasswd: { expire: False }
 ssh_pwauth: True
