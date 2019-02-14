@@ -217,8 +217,8 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 
 		worker := node.Node{
 			Name:          fmt.Sprintf("%s-worker-%d", clusterName, i),
-			NumCPUs:       numCPUs,
-			Memory:        memorySize,
+			NumCPUs:       workerNumCPUs,
+			Memory:        workerMemorySize,
 			NetworkConfig: *workerNetworkConfig,
 		}
 		workers = append(workers, worker)
