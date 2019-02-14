@@ -159,22 +159,30 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 	cwfLog.Debugf("init create cluster workflow")
 
 	clusterName := swag.StringValue(cluster.Name)
-	clusterNodeSize := swag.StringValue(cluster.NodeSize)
+	workerNodeSize := swag.StringValue(cluster.NodeSize)
 
-	workerNumCPUs := r.GetClusterNodeCPUs(clusterNodeSize)
-	workerMemorySize, err := r.GetClusterNodeMemoryInMB(r.ClusterSizeDefault)
+	if !r.ClusterSizeValidate(workerNodeSize) {
+		cwfLog.Errorf("provided cluster size is not available: %s", workerNodeSize)
+		return nil, fmt.Errorf("provided cluster size is not available: %s", workerNodeSize)
+	}
+
+	if workerNodeSize == "" {
+		workerNodeSize = r.ClusterSizeDefault
+	}
+
+	workerNumCPUs := r.GetClusterNodeCPUs(workerNodeSize)
+	workerMemorySize, err := r.GetClusterNodeMemoryInMB(workerNodeSize)
 	if err != nil {
 		cwfLog.Errorf("error getting memory size %s", err)
 		return nil, err
 	}
 
-	// For controlplane default the CPUs to default value
-	// instead of passed one
-	cpNumCPUs := r.GetClusterNodeCPUs(r.ClusterSizeDefault)
+	// For controlplane default to ClusterSizeDefault
+	// instead of NodeSize passed from CLI
+	cpNodeSize := r.ClusterSizeDefault
+	cpNumCPUs := r.GetClusterNodeCPUs(cpNodeSize)
 
-	// For controlplane default the memory to default value
-	// instead of passed one
-	cpMemorySize, err := r.GetClusterNodeMemoryInMB(r.ClusterSizeDefault)
+	cpMemorySize, err := r.GetClusterNodeMemoryInMB(cpNodeSize)
 	if err != nil {
 		cwfLog.Errorf("error getting memory size %s", err)
 		return nil, err
@@ -215,7 +223,7 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 		workers = append(workers, worker)
 	}
 
-	err = storeClusterResource(clusterName, workerNodesCount, clusterNodeSize, clusterNetwork, cHandler)
+	err = storeClusterResource(clusterName, workerNodesCount, workerNodeSize, clusterNetwork, cHandler)
 	if err != nil {
 		cwfLog.Errorf("error storing cluster resource to kvstore '%v': %s", cluster, err)
 		return nil, err
