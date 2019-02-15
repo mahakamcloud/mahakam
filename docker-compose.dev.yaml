@@ -8,6 +8,7 @@ services:
       - "9001:9001"
     volumes:
       - ./pkg/config/example/config.sample.yaml:/etc/mahakam/config.yaml
+      - .:/go/src/github.com/mahakamcloud/mahakam 
     depends_on:
       - consul
   consul:
