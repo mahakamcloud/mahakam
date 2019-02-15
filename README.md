@@ -2,6 +2,7 @@
 Cloud application platform on Kubernetes
 
 ## Common Development Task
+
 Running unit test
 ```
 $ make test
@@ -26,4 +27,30 @@ $ make generate-server
 Generate mahakam client api using swagger
 ```
 $ make generate-client
+```
+
+### Using go modules
+
+If you're using go path for src
+
+```
+$ export GO111MODULE=on
+```
+
+Add new dependency
+
+```
+$ go get golang.org/x/text@v0.3.0
+```
+
+Add vendoring
+
+```
+$ go mod vendor
+```
+
+Building with vendor dir
+
+```
+$ go build -mod=vendor
 ```
