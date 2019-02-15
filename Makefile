@@ -40,6 +40,10 @@ test: ## run tests
 	@echo running tests...
 	$(GO) test -v $(shell go list -v ./... | grep -v /vendor/ | grep -v integration | grep -v /playground )
 
+.PHONY: dev
+dev: ## run dev server and consul
+	docker-compose -f docker-compose.dev.yaml up --build
+
 .PHONY: dev-server
 dev-server: ## run dev server
 	@echo running dev server...
@@ -59,6 +63,9 @@ dev-docker: ## run dev docker that has terraform libvirt plugin and golang
 staging-docker: ## run staging docker that has terraform libvirt plugin and golang with privileged access
 	@echo running staging docker container...
 	docker run -it --rm --network host --privileged -v $(PWD):/root/go/src/github.com/mahakamcloud/mahakam -v $(HOME)/.aws:/root/.aws -w /root/go/src/github.com/mahakamcloud/mahakam devrunner:latest /bin/bash
+z
+.PHONY: generate
+generate: generate-server generate-client ## Generate both swagger server and client
 
 .PHONY: generate-server
 generate-server: ## Generate swagger server
