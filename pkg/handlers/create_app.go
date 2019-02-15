@@ -42,7 +42,7 @@ func (h *CreateApp) Handle(params apps.CreateAppParams) middleware.Responder {
 	h.log.Infof("handling create app request: %v", params)
 
 	b := params.Body
-	cluster := r.NewResourceCluster(b.ClusterName)
+	cluster := r.NewCluster(b.ClusterName)
 	err := h.Handlers.Store.Get(cluster)
 	if err != nil {
 		h.log.Errorf("error retrieving cluster info from kvstore '%v': %s\n", cluster, err)

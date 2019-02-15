@@ -16,7 +16,7 @@ type DescribeCluster struct {
 // Handle is handler for describe-cluster operation
 func (h *DescribeCluster) Handle(params clusters.DescribeClustersParams) middleware.Responder {
 
-	c := r.NewResourceCluster(swag.StringValue(params.Name))
+	c := r.NewCluster(swag.StringValue(params.Name))
 
 	err := h.Handlers.Store.Get(c)
 	if err != nil {

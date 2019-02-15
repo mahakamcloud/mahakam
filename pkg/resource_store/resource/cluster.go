@@ -68,8 +68,8 @@ func ClusterSizeValidate(size string) bool {
 	return false
 }
 
-// ResourceCluster represents stored resource with cluster kind
-type ResourceCluster struct {
+// Cluster represents stored resource with cluster kind
+type Cluster struct {
 	BaseResource
 	NodeSize       string
 	NumNodes       int
@@ -77,9 +77,9 @@ type ResourceCluster struct {
 	KubeconfigPath string
 }
 
-// NewResourceCluster creates new resource cluster
-func NewResourceCluster(name string) *ResourceCluster {
-	return &ResourceCluster{
+// NewCluster creates new resource cluster
+func NewCluster(name string) *Cluster {
+	return &Cluster{
 		BaseResource: BaseResource{
 			Name:  name,
 			Kind:  string(KindCluster),
@@ -88,20 +88,20 @@ func NewResourceCluster(name string) *ResourceCluster {
 	}
 }
 
-// ResourceClusterList represents a group of Clusters
-type ResourceClusterList struct {
-	Items []*ResourceCluster
+// ClusterList represents a group of Clusters
+type ClusterList struct {
+	Items []*Cluster
 }
 
-// Resource returns a empty ResourceCluster
-func (l *ResourceClusterList) Resource() Resource {
-	return &ResourceCluster{}
+// Resource returns a empty Cluster
+func (l *ClusterList) Resource() Resource {
+	return &Cluster{}
 }
 
-// WithItems returns list of ResourceCluster
-func (l *ResourceClusterList) WithItems(items []Resource) {
+// WithItems returns list of Cluster
+func (l *ClusterList) WithItems(items []Resource) {
 	for _, i := range items {
-		cluster := i.(*ResourceCluster)
+		cluster := i.(*Cluster)
 		l.Items = append(l.Items, cluster)
 	}
 }

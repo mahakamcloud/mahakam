@@ -119,7 +119,7 @@ func (br *BaseResource) GetLabels() Labels {
 func NewResourceFromKind(resKind ResourceKind) (Resource, error) {
 	switch resKind {
 	case KindCluster:
-		return &ResourceCluster{}, nil
+		return &Cluster{}, nil
 	case KindIPPool:
 		return &ResourceIPPool{}, nil
 	case KindNetwork:
@@ -137,7 +137,7 @@ func NewResourceFromKind(resKind ResourceKind) (Resource, error) {
 func NewResourceListFromKind(resKind ResourceKind) (ResourceList, error) {
 	switch resKind {
 	case KindCluster:
-		return &ResourceClusterList{}, nil
+		return &ClusterList{}, nil
 	case KindIPPool:
 		return &ResourceIPPoolList{}, nil
 	default:

@@ -27,7 +27,7 @@ func NewPreCreateCheck(clustername string, log logrus.FieldLogger, store store.R
 	preCreateCheckLog := log.WithField("cluster", clustername).
 		WithField("task", fmt.Sprintf("pre-create cluster check"))
 
-	clusterKeyPath := resource.NewResourceCluster(clustername).BuildKey()
+	clusterKeyPath := resource.NewCluster(clustername).BuildKey()
 
 	return &PreCreateCheck{
 		clustername:    clustername,
@@ -247,7 +247,7 @@ func (v *ClusterValidation) Run() error {
 }
 
 func (v *ClusterValidation) updateClusterResource(clustername string) error {
-	c := resource.NewResourceCluster(clustername)
+	c := resource.NewCluster(clustername)
 	if err := v.store.Get(c); err != nil {
 		return fmt.Errorf("error adding cluster resource into kv store '%v': %s", c, err)
 	}

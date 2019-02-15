@@ -33,7 +33,7 @@ func (h *GetCluster) Handle(params clusters.GetClustersParams) middleware.Respon
 	h.log.Infof("handling get cluster request: %v", params)
 
 	clusterKind := resource.ResourceKind("cluster")
-	clusterList := &resource.ResourceClusterList{Items: []*resource.ResourceCluster{}}
+	clusterList := &resource.ClusterList{Items: []*resource.Cluster{}}
 
 	err := h.Handlers.Store.List(swag.StringValue(params.Owner), clusterKind, clusterList)
 	if err != nil {

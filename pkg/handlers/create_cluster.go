@@ -390,7 +390,7 @@ func (c *createClusterWF) setupClusterValidationTasks(tasks []task.Task) []task.
 }
 
 func storeClusterResource(clusterName string, numNodes int, nodeSize string, clusternet *network.ClusterNetwork, cHandler *CreateCluster) error {
-	c := r.NewResourceCluster(clusterName)
+	c := r.NewCluster(clusterName)
 	c.NumNodes = numNodes
 	c.NodeSize = nodeSize
 	c.Status = r.StatusPending
