@@ -12,7 +12,7 @@ Run dev server and consul with docker-compose:
 ```
 $ make dev
 ```
-Before running the command, you must populate necessary info in `pkg/config/config.sample.yaml`. Or, you can create new config yaml file and change the volume mount in `docker-compose.dev.yaml` accordingly.
+Before running the command, you must populate necessary info in `pkg/config/example/config.sample.yaml`. Or, you can create new config yaml file and change the volume mount in `docker-compose.dev.yaml` accordingly.
 
 Building mahakam cli as per your machine, find the build under `dist/bin`
 ```
