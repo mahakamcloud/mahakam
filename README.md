@@ -3,28 +3,45 @@ Cloud application platform on Kubernetes
 
 ## Common Development Task
 
-Running unit test
+### Unit tests
+
+To run unit tests, execute the following command:
+
 ```
 $ make test
 ```
 
+### Dev server
+
+To run dev server, first populate necessary info in `pkg/config/example/config.sample.yaml`. Or, you can create new config yaml file and change the volume mount in `docker-compose.dev.yaml` accordingly.
+
 Run dev server and consul with docker-compose:
+
 ```
+$ make server-linux
 $ make dev
 ```
-Before running the command, you must populate necessary info in `pkg/config/example/config.sample.yaml`. Or, you can create new config yaml file and change the volume mount in `docker-compose.dev.yaml` accordingly.
+
+### CLI
 
 Building mahakam cli as per your machine, find the build under `dist/bin`
+
 ```
 $ make cli
 ```
 
+### Server API
+
 Generate mahakam server api using swagger
+
 ```
 $ make generate-server
 ```
 
+### Client API
+
 Generate mahakam client api using swagger
+
 ```
 $ make generate-client
 ```
