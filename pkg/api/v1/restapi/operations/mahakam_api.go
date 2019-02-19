@@ -22,6 +22,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/apps"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/clusters"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/networks"
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/nodes"
 )
 
 // NewMahakamAPI creates a new Mahakam instance
@@ -57,6 +58,9 @@ func NewMahakamAPI(spec *loads.Document) *MahakamAPI {
 		NetworksCreateNetworkHandler: networks.CreateNetworkHandlerFunc(func(params networks.CreateNetworkParams) middleware.Responder {
 			return middleware.NotImplemented("operation NetworksCreateNetwork has not yet been implemented")
 		}),
+		NodesCreateNodeHandler: nodes.CreateNodeHandlerFunc(func(params nodes.CreateNodeParams) middleware.Responder {
+			return middleware.NotImplemented("operation NodesCreateNode has not yet been implemented")
+		}),
 		ClustersDescribeClustersHandler: clusters.DescribeClustersHandlerFunc(func(params clusters.DescribeClustersParams) middleware.Responder {
 			return middleware.NotImplemented("operation ClustersDescribeClusters has not yet been implemented")
 		}),
@@ -68,6 +72,9 @@ func NewMahakamAPI(spec *loads.Document) *MahakamAPI {
 		}),
 		NetworksGetNetworksHandler: networks.GetNetworksHandlerFunc(func(params networks.GetNetworksParams) middleware.Responder {
 			return middleware.NotImplemented("operation NetworksGetNetworks has not yet been implemented")
+		}),
+		NodesGetNodesHandler: nodes.GetNodesHandlerFunc(func(params nodes.GetNodesParams) middleware.Responder {
+			return middleware.NotImplemented("operation NodesGetNodes has not yet been implemented")
 		}),
 		AppsUploadAppValuesHandler: apps.UploadAppValuesHandlerFunc(func(params apps.UploadAppValuesParams) middleware.Responder {
 			return middleware.NotImplemented("operation AppsUploadAppValues has not yet been implemented")
@@ -118,6 +125,8 @@ type MahakamAPI struct {
 	NetworksCreateIPPoolHandler networks.CreateIPPoolHandler
 	// NetworksCreateNetworkHandler sets the operation handler for the create network operation
 	NetworksCreateNetworkHandler networks.CreateNetworkHandler
+	// NodesCreateNodeHandler sets the operation handler for the create node operation
+	NodesCreateNodeHandler nodes.CreateNodeHandler
 	// ClustersDescribeClustersHandler sets the operation handler for the describe clusters operation
 	ClustersDescribeClustersHandler clusters.DescribeClustersHandler
 	// AppsGetAppsHandler sets the operation handler for the get apps operation
@@ -126,6 +135,8 @@ type MahakamAPI struct {
 	ClustersGetClustersHandler clusters.GetClustersHandler
 	// NetworksGetNetworksHandler sets the operation handler for the get networks operation
 	NetworksGetNetworksHandler networks.GetNetworksHandler
+	// NodesGetNodesHandler sets the operation handler for the get nodes operation
+	NodesGetNodesHandler nodes.GetNodesHandler
 	// AppsUploadAppValuesHandler sets the operation handler for the upload app values operation
 	AppsUploadAppValuesHandler apps.UploadAppValuesHandler
 	// ClustersValidateClusterHandler sets the operation handler for the validate cluster operation
@@ -217,6 +228,10 @@ func (o *MahakamAPI) Validate() error {
 		unregistered = append(unregistered, "networks.CreateNetworkHandler")
 	}
 
+	if o.NodesCreateNodeHandler == nil {
+		unregistered = append(unregistered, "nodes.CreateNodeHandler")
+	}
+
 	if o.ClustersDescribeClustersHandler == nil {
 		unregistered = append(unregistered, "clusters.DescribeClustersHandler")
 	}
@@ -231,6 +246,10 @@ func (o *MahakamAPI) Validate() error {
 
 	if o.NetworksGetNetworksHandler == nil {
 		unregistered = append(unregistered, "networks.GetNetworksHandler")
+	}
+
+	if o.NodesGetNodesHandler == nil {
+		unregistered = append(unregistered, "nodes.GetNodesHandler")
 	}
 
 	if o.AppsUploadAppValuesHandler == nil {
@@ -367,6 +386,11 @@ func (o *MahakamAPI) initHandlerCache() {
 	}
 	o.handlers["POST"]["/networks"] = networks.NewCreateNetwork(o.context, o.NetworksCreateNetworkHandler)
 
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/nodes"] = nodes.NewCreateNode(o.context, o.NodesCreateNodeHandler)
+
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -386,6 +410,11 @@ func (o *MahakamAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/networks"] = networks.NewGetNetworks(o.context, o.NetworksGetNetworksHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/nodes"] = nodes.NewGetNodes(o.context, o.NodesGetNodesHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
