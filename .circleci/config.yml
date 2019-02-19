@@ -21,5 +21,9 @@ jobs:
           version: 18.06.0-ce
 
       - run:
+          name: Build mahakam server binary
+          command: ./hack/build-bin.sh mahakam-server cmd/mahakam_server linux
+
+      - run:
           name: Build docker images
           command: ./build/run.sh mahakam-server
