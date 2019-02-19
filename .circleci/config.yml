@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: /go/src/github.com/mahakamcloud/mahakam
     docker:
-      - image: mahakamcloud/builder:20181213
+      - image: mahakamcloud/builder:20190219
     steps:
       - checkout
 
@@ -15,6 +15,10 @@ jobs:
       - run:
           name: Submit coverage results
           command: bash <(curl -s https://codecov.io/bash)
+
+      - setup_remote_docker:
+          docker_layer_caching: true
+          version: 18.06.0-ce
 
       - run:
           name: Build docker images
