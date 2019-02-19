@@ -27,5 +27,9 @@ else
   TAG=$CURRENT_VERSION
 fi
 
+if [[ ${2} == "--circleci" ]] ; then
+  docker login -u $DOCKER_USERNAME -p $DOCKER_PASS
+fi
+
 docker build --pull -t ${DOCKER_REGISTRY}/${PACKAGE}:${TAG} -f ./build/${PACKAGE}/Dockerfile .
 docker push ${DOCKER_REGISTRY}/${PACKAGE}:${TAG}
