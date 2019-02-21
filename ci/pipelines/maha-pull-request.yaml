@@ -1,0 +1,42 @@
+---
+resource_types:
+- name: pull-request
+  type: docker-image
+  source:
+    repository: jtarchie/pr
+
+resources:
+- name: git-maha
+  type: pull-request
+  source:
+    repo: mahakamcloud/mahakam
+    uri: git@github.com:mahakamcloud/mahakam.git
+    access_token: ((github-access-token))
+    private_key: ((github-private-key))
+    every: true
+
+- name: git-maha-ci
+  type: git
+  source:
+    uri: https://github.com/mahakamcloud/mahakam.git
+    branch: ci
+
+jobs:
+- name: run-unit-tests
+  plan:
+  - get: git-maha-pull-request
+    resource: git-maha
+    trigger: true
+    version: every
+  - put: git-maha
+    params: {path: git-maha-pull-request, context: run-unit-tests, status: pending}
+    get_params: {fetch_merge: true}
+  - aggregate:
+    - task: unit-tests
+      file: git-maha-pull-request/tasks/unit-tests.yaml
+    on_failure:
+      put: git-maha
+      params: {path: git-maha-pull-request, context: run-unit-tests, status: failure}
+    on_success:
+      put: git-maha
+      params: {path: git-maha-pull-request, context: run-unit-tests, status: success}

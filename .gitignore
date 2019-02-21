@@ -3,3 +3,4 @@ playground
 .vscode
 config.dev*
 .terraform
+credentials*
