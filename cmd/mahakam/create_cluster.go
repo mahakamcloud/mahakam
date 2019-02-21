@@ -33,7 +33,7 @@ var createClusterCmd = &cobra.Command{
 	Long:  `Create a kubernetes cluster with one command`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
-			exitWithHelp(cmd, "Please provide name for your cluster.")
+			exitWithHelp(cmd, "Hello world")
 		}
 		cco.Name = args[0]
 
