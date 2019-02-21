@@ -19,4 +19,4 @@ run:
     set -eux
     export GOPATH=$PWD
     cd $GOPATH/src/github.com/mahakamcloud/mahakam
-    ./hack.test.sh
+    ./hack/test.sh

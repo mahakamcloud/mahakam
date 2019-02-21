@@ -28,12 +28,13 @@ jobs:
     resource: git-maha
     trigger: true
     version: every
+  - get: git-maha-ci
   - put: git-maha
     params: {path: git-maha-pull-request, context: run-unit-tests, status: pending}
     get_params: {fetch_merge: true}
   - aggregate:
     - task: unit-tests
-      file: git-maha-pull-request/tasks/unit-tests.yaml
+      file: git-maha-ci/ci/tasks/unit-tests.yaml
     on_failure:
       put: git-maha
       params: {path: git-maha-pull-request, context: run-unit-tests, status: failure}
