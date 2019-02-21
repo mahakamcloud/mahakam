@@ -13,7 +13,7 @@ resources:
     uri: git@github.com:mahakamcloud/mahakam.git
     access_token: ((github-access-token))
     private_key: ((github-private-key))
-    label: run-e2e-test
+    label: run-e2e-tests
     every: true
 
 - name: git-maha-ci
