@@ -6,16 +6,9 @@ image_resource:
     repository: mahakamcloud/builder
     tag: "20190219"
 
+run:
+  path: git-maha/ci/scripts/deploy-mahakam-server.sh
+
 inputs:
 - name: git-maha
   path: src/github.com/mahakamcloud/mahakam
-
-run:
-  path: /bin/bash
-  args:
-  - -c
-  - |
-    set -eux
-    export GOPATH=$PWD
-    cd $GOPATH/src/github.com/mahakamcloud/mahakam
-    ./hack/test.sh
