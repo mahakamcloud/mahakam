@@ -7,8 +7,7 @@ image_resource:
     tag: "20190219"
 
 run:
-  path: git-maha/ci/scripts/deploy-mahakam-server.sh
+  path: git-maha-ci/ci/scripts/deploy-mahakam-server.sh
 
 inputs:
-- name: git-maha
-  path: src/github.com/mahakamcloud/mahakam
+- name: git-maha-ci
