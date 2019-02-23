@@ -32,3 +32,9 @@ func NewResourceNode(name string) *ResourceNode {
 		},
 	}
 }
+
+// WithLabels attaches labels metadata to ResourceNode
+func (p *ResourceNode) WithLabels(labels []Label) *ResourceNode {
+	p.Labels = labels
+	return p
+}
