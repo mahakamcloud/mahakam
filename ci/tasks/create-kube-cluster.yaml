@@ -1,0 +1,13 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: mahakamcloud/builder
+    tag: "20190219"
+
+run:
+  path: git-maha-ci/ci/scripts/create-kube-cluster.sh
+
+inputs:
+- name: git-maha-ci

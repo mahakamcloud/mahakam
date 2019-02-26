@@ -1,0 +1,46 @@
+---
+resource_types:
+- name: pull-request
+  type: docker-image
+  source:
+    repository: jtarchie/pr
+
+resources:
+- name: git-maha
+  type: pull-request
+  source:
+    repo: mahakamcloud/mahakam
+    uri: git@github.com:mahakamcloud/mahakam.git
+    access_token: ((github-access-token))
+    private_key: ((github-private-key))
+    label: run-e2e-tests
+    every: true
+
+- name: git-maha-ci
+  type: git
+  source:
+    uri: https://github.com/mahakamcloud/mahakam.git
+    branch: ci
+
+jobs:
+- name: run-e2e-tests
+  plan:
+  - get: git-maha-pull-request
+    resource: git-maha
+    trigger: true
+    version: every
+  - get: git-maha-ci
+  - put: git-maha
+    params: {path: git-maha-pull-request, context: run-e2e-tests, status: pending}
+    get_params: {fetch_merge: true}
+  - aggregate:
+    - task: deploy-mahakam-server
+      file: git-maha-ci/ci/tasks/deploy-mahakam-server.yaml
+    - task: create-kube-cluster
+      file: git-maha-ci/ci/tasks/create-kube-cluster.yaml
+    on_failure:
+      put: git-maha
+      params: {path: git-maha-pull-request, context: run-e2e-tests, status: failure}
+    on_success:
+      put: git-maha
+      params: {path: git-maha-pull-request, context: run-e2e-tests, status: success}
