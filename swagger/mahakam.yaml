@@ -397,6 +397,8 @@ definitions:
         readOnly: true
       name:
         type: string
+      type:
+        type: string
       labels:
         type: array
         items:

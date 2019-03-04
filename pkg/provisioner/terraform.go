@@ -61,9 +61,9 @@ func (tp *terraformProvisioner) CreateNode(nconfig node.NodeCreateConfig) error 
 	case node.RoleWorker:
 		data = tp.overrideWorkerData(nconfig, data)
 		log.Infof("terraform data for worker nodes to render files: %v\n", data)
-
 		err = tfmodule.CreateWorkerNode(nconfig.Name, config.TerraformDefaultDirectory+nconfig.Name, data)
 	case node.RoleNetworkDNS:
+		log.Infof("terraform data for network DNS to render files: %v\n", data)
 		err = tfmodule.CreateNetworkDNS(nconfig.Name, config.TerraformDefaultDirectory+nconfig.Name, data)
 	case node.RoleNetworkDHCP:
 		data = tp.overrideNetworkDHCPData(nconfig, data)

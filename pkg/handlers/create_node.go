@@ -65,7 +65,7 @@ func (h *CreateNode) storeNodeResource(params nodes.CreateNodeParams) (string, e
 		})
 	}
 
-	node := r.NewResourceNode(*params.Body.Name).WithLabels(labels)
+	node := r.NewNode(*params.Body.Name).WithLabels(labels)
 
 	nodeID, err := h.Handlers.Store.Add(node)
 	if err != nil {

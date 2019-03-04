@@ -37,7 +37,7 @@ func NewCreateNetworkHandler(handlers Handlers) *CreateNetwork {
 	}
 }
 
-// Handle is handler for create-network operation
+// Handle is handler for create-network operation`
 func (h *CreateNetwork) Handle(params networks.CreateNetworkParams) middleware.Responder {
 	h.log.Infof("handling create network request: %v", params)
 

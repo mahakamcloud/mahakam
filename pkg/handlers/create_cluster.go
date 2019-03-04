@@ -199,6 +199,14 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 		return nil, err
 	}
 
+	workerNodesCount := int(cluster.NumNodes)
+
+	err = storeClusterResource(clusterName, workerNodesCount, workerNodeSize, clusterNetwork, cHandler)
+	if err != nil {
+		cwfLog.Errorf("error storing cluster resource to kvstore '%v': %s", cluster, err)
+		return nil, err
+	}
+
 	controlPlane := node.Node{
 		Name:          fmt.Sprintf("%s-cp", clusterName),
 		NumCPUs:       cpNumCPUs,
@@ -207,7 +215,6 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 	}
 
 	var workers []node.Node
-	workerNodesCount := int(cluster.NumNodes)
 	for i := 1; i <= workerNodesCount; i++ {
 		workerNetworkConfig, err := getNetworkConfig(clusterNetwork)
 		if err != nil {
@@ -221,12 +228,6 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 			NetworkConfig: *workerNetworkConfig,
 		}
 		workers = append(workers, worker)
-	}
-
-	err = storeClusterResource(clusterName, workerNodesCount, workerNodeSize, clusterNetwork, cHandler)
-	if err != nil {
-		cwfLog.Errorf("error storing cluster resource to kvstore '%v': %s", cluster, err)
-		return nil, err
 	}
 
 	return &createClusterWF{
