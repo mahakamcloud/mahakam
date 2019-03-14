@@ -5,6 +5,7 @@ RUN yum -y install \
     genisoimage-1.1.11 \
     libvirt \
     wget \
+    git \
     && yum -y clean all
 
 RUN cd tmp \
