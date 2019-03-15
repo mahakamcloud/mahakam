@@ -6,51 +6,75 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/config"
 )
 
-// Type represents types of nodes
-type Type string
+const (
+	SmallNode      = "SmallNode"
+	MediumNode     = "MediumNode"
+	LargeNode      = "LargeNode"
+	ExtraLargeNode = "ExtraLargeNode"
+)
+
+// NodeSpec represents types of nodes
+type NodeSpec struct {
+	nCPUCores     int64
+	memoryInBytes int64
+}
+
+// NewNodeSpec creates new NodeSpec
+func NewNodeSpec(nodeType string) *NodeSpec {
+	if nodeType == SmallNode {
+		return &NodeSpec{2, 4}
+	} else if nodeType == MediumNode {
+		return &NodeSpec{4, 16}
+	} else if nodeType == LargeNode {
+		return &NodeSpec{8, 32}
+	} else if nodeType == ExtraLargeNode {
+		return &NodeSpec{16, 64}
+	}
+
+	return nil
+}
 
 // Disk represents disk attached to a node
 type Disk struct {
-	Size string
-	Type string
+	size     string
+	disktype string
 }
 
 // NetworkConfig represents network config of a node
 type NetworkConfig struct {
-	MacAddress string
-	IP         net.IP
-	Mask       net.IPMask
-	Gateway    net.IP
-	Nameserver net.IP
+	macAddress string
+	ipAddress  net.IP
+	ipMask     net.IPMask
+	gateway    net.IP
+	nameserver net.IP
 }
 
 // NodeStatus represents status of a node resource
 type NodeStatus struct {
-	Host  string
-	State string
+	host  string
+	state string
 }
 
 // Metadata for node resource
 type Metadata struct {
-	UserData    string
-	SSHKeys     []string
-	ExtraConfig map[string]string
+	userData    string
+	sshKeys     []string
+	extraConfig map[string]string
 }
 
 // Node represents stored resource
 type Node struct {
 	BaseResource
-	Type
-	NetworkConfig
-	NodeStatus
-	Metadata
-	BootDisk        Disk
-	AdditionalDisks []Disk
-	Name            string
+	nodeSpec        NodeSpec
+	networkConfig   NetworkConfig
+	nodeStatus      NodeStatus
+	metadata        Metadata
+	bootDisk        Disk
+	additionalDisks []Disk
 }
 
 // NewNode creates new Node resource
-func NewNode(name string) *Node {
+func NewNode(name string, ns NodeSpec, nc NetworkConfig) *Node {
 	return &Node{
 		BaseResource: BaseResource{
 			Name:  name,
