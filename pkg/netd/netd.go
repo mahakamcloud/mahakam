@@ -6,6 +6,8 @@ import (
 	"os"
 
 	"github.com/sirupsen/logrus"
+
+	"github.com/mahakamcloud/mahakam/pkg/netd/agent"
 )
 
 type NetDaemon struct {
@@ -32,7 +34,7 @@ func Run(nd *NetDaemon) {
 		return
 	}
 
-	provisionAgent := agent.NewProvisionAgent(ipaddress, nd.MahakamAPIServer, nd.Log)
+	provisionAgent := agent.NewProvisionAgent(hostname, ipaddress.String(), nd.MahakamAPIServer, nd.Log)
 	go provisionAgent.Run()
 }
 

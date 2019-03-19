@@ -17,6 +17,7 @@ const (
 )
 
 type provisionAgent struct {
+	hostname      string
 	hostAddress   string
 	netReconciler Reconciler
 
@@ -26,7 +27,7 @@ type provisionAgent struct {
 	log logrus.FieldLogger
 }
 
-func NewProvisionAgent(hostAddress, mahakamAPIServer string, log logrus.FieldLogger) Agent {
+func NewProvisionAgent(hostname, hostAddress, mahakamAPIServer string, log logrus.FieldLogger) Agent {
 	mahakamClient := mahakamclient.GetMahakamClusterClient(mahakamAPIServer)
 	ovsClient := ovs.New()
 
@@ -35,6 +36,8 @@ func NewProvisionAgent(hostAddress, mahakamAPIServer string, log logrus.FieldLog
 	paLog := log.WithField("agent", "provision")
 
 	return &provisionAgent{
+		hostname:      hostname,
+		hostAddress:   hostAddress,
 		netReconciler: netReconciler,
 		log:           paLog,
 	}
