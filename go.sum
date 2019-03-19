@@ -21,6 +21,8 @@ github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDk
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/digitalocean/go-openvswitch v0.0.0-20190305170430-10882ec21235 h1:22iyBzv/GeSZ85rSv80nI5eZRCkisYsrZ+GTCtSC0oY=
+github.com/digitalocean/go-openvswitch v0.0.0-20190305170430-10882ec21235/go.mod h1:MpzfscrezUxa94/T4sy2tDaxB+hQ6w0EmRBPv+xHWEs=
 github.com/docker/go-units v0.3.3 h1:Xk8S3Xj5sLGlG5g67hJmYMmUgXv5N4PhkjJHHqrwnTk=
 github.com/docker/go-units v0.3.3/go.mod h1:fgPhTUdO+D/Jk86RDLlptpiXQzgHJF7gydDDbaIK4Dk=
 github.com/docker/libkv v0.2.1 h1:PNXYaftMVCFS5CmnDtDWTg3wbBO61Q/cEo3KX1oKxto=
