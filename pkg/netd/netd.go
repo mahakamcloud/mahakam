@@ -31,11 +31,9 @@ func Run(nd *NetDaemon) {
 		nd.Log.Errorf("error getting host ip address: %v", err)
 		return
 	}
-	fmt.Println(hostname, ipaddress)
 
-	// TODO(giri): provisioning networks for cluster
-	// provisionAgent := agent.NewProvisionAgent(ovsClient, mahakamClient)
-	// go provisionAgent.Run()
+	provisionAgent := agent.NewProvisionAgent(ipaddress, nd.MahakamAPIServer, nd.Log)
+	go provisionAgent.Run()
 }
 
 func hostIP(brName string) (net.Addr, error) {
