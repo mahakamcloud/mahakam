@@ -11,6 +11,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/api/v1"
 	mahakamclient "github.com/mahakamcloud/mahakam/pkg/client"
 	"github.com/mahakamcloud/mahakam/pkg/netd/network"
+	"github.com/mahakamcloud/mahakam/pkg/netd/provisioner"
 	"github.com/mahakamcloud/mahakam/pkg/netd/util"
 	"github.com/mahakamcloud/mahakam/pkg/task"
 )
@@ -25,16 +26,15 @@ type provisionAgent struct {
 	localHostIP net.IP
 
 	netReconciler Reconciler
-
-	ovsClient     *ovs.Client
 	mahakamClient v1.ClusterAPI
+	ovsClient     *ovs.Client
 
 	log logrus.FieldLogger
 }
 
 func NewProvisionAgent(clustername, hostname, localIP, mahakamAPIServer string, log logrus.FieldLogger) Agent {
 	mahakamClient := mahakamclient.GetMahakamClusterClient(mahakamAPIServer)
-	ovsClient := ovs.New()
+	ovsClient := ovs.New(ovs.Sudo())
 
 	netReconciler := NewNetworkReconciler(mahakamClient, ovsClient)
 
@@ -46,6 +46,8 @@ func NewProvisionAgent(clustername, hostname, localIP, mahakamAPIServer string, 
 		hostname:      hostname,
 		localHostIP:   localHostIP,
 		netReconciler: netReconciler,
+		mahakamClient: mahakamClient,
+		ovsClient:     ovsClient,
 		log:           paLog,
 	}
 }
@@ -90,7 +92,7 @@ func (pa *provisionAgent) Execute() error {
 	for cl, val := range reconciledClusters.states {
 		switch val.action {
 		case actionCreate:
-			grewf := newProvisionClusterHostGreWF(cl, val.GREKey, pa.localHostIP, hostIPs, pa.log)
+			grewf := newProvisionClusterHostGreWF(cl, val.GREKey, hostIPs, pa)
 			if err := grewf.Run(); err != nil {
 				provisionErrors = append(provisionErrors, fmt.Errorf("error provisioning %q cluster host gre: %s", cl, err))
 			}
@@ -110,22 +112,24 @@ func (pa *provisionAgent) Execute() error {
 type provisionClusterHostGreWF struct {
 	clustername string
 	*network.ClusterHostGRE
+	*provisionAgent
+
 	log logrus.FieldLogger
 }
 
-func newProvisionClusterHostGreWF(clustername, greKey string, localIP net.IP, hostIPs []net.IP, log logrus.FieldLogger) *provisionClusterHostGreWF {
-	wfLog := log.WithField("workflow", "provision-cluster-host-gre-wf")
+func newProvisionClusterHostGreWF(clustername, greKey string, hostIPs []net.IP, pa *provisionAgent) *provisionClusterHostGreWF {
+	wfLog := pa.log.WithField("workflow", "provision-cluster-host-gre-wf")
 
 	brName := fmt.Sprintf(network.BridgeFormat, greKey)
 
 	var hostGRETunnels []network.HostGRETunnel
 	for _, hostIP := range hostIPs {
-		if hostIP.String() == localIP.String() {
+		if hostIP.String() == pa.localHostIP.String() {
 			continue
 		}
 		tunnel := network.HostGRETunnel{
-			TapDevName:   fmt.Sprintf(network.TapDevFormat, greKey, util.LastOctet(localIP), util.LastOctet(hostIP)),
-			LocalHostIP:  localIP,
+			TapDevName:   fmt.Sprintf(network.TapDevFormat, greKey, util.LastOctet(pa.localHostIP), util.LastOctet(hostIP)),
+			LocalHostIP:  pa.localHostIP,
 			RemoteHostIP: hostIP,
 		}
 		hostGRETunnels = append(hostGRETunnels, tunnel)
@@ -140,6 +144,7 @@ func newProvisionClusterHostGreWF(clustername, greKey string, localIP net.IP, ho
 	return &provisionClusterHostGreWF{
 		clustername:    clustername,
 		ClusterHostGRE: clusterHostGRE,
+		provisionAgent: pa,
 		log:            wfLog,
 	}
 }
@@ -153,13 +158,14 @@ func (wf *provisionClusterHostGreWF) Run() error {
 		return err
 	}
 
-	for _, t := range tasks {
-		if err := t.Run(); err != nil {
-			wf.log.Errorf("error running task: %s", err)
-			return err
-		}
+	for i := range tasks {
+		go func(t task.Task) {
+			wf.log.Infof("running provision cluster host gre task: %v", t)
+			if err := t.Run(); err != nil {
+				wf.log.Errorf("error running task: %s", err)
+			}
+		}(tasks[i])
 	}
-
 	return nil
 }
 
@@ -174,6 +180,12 @@ func (wf *provisionClusterHostGreWF) getProvisionTask() ([]task.Task, error) {
 func (wf *provisionClusterHostGreWF) setupGRETasks(tasks []task.Task) []task.Task {
 	wf.log.Debugf("setup gre tasks for cluster %q", wf.clustername)
 
-	tasks = append(tasks)
+	for _, tun := range wf.Tunnels {
+		createTapDevTask := provisioner.NewCreateTapDev(tun.TapDevName, wf.log)
+		createGREBridgeTask := provisioner.NewCreateGREBridge(wf.BrName, tun.TapDevName, wf.GREKey, tun.RemoteHostIP, wf.ovsClient, wf.log)
+
+		greSeqTasks := task.NewSeqTask(wf.log, createTapDevTask, createGREBridgeTask)
+		tasks = append(tasks, greSeqTasks)
+	}
 	return tasks
 }
