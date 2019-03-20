@@ -17,7 +17,7 @@ const (
 )
 
 type ReconcileState struct {
-	clusterName string
+	clustername string
 	action      reconcileAction
 }
 

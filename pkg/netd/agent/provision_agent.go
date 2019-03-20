@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/digitalocean/go-openvswitch/ovs"
@@ -9,6 +10,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/api/v1"
 	mahakamclient "github.com/mahakamcloud/mahakam/pkg/client"
 	"github.com/mahakamcloud/mahakam/pkg/netd/util"
+	"github.com/mahakamcloud/mahakam/pkg/task"
 )
 
 const (
@@ -27,7 +29,7 @@ type provisionAgent struct {
 	log logrus.FieldLogger
 }
 
-func NewProvisionAgent(hostname, hostAddress, mahakamAPIServer string, log logrus.FieldLogger) Agent {
+func NewProvisionAgent(clustername, hostname, hostAddress, mahakamAPIServer string, log logrus.FieldLogger) Agent {
 	mahakamClient := mahakamclient.GetMahakamClusterClient(mahakamAPIServer)
 	ovsClient := ovs.New()
 
@@ -57,8 +59,6 @@ func (pa *provisionAgent) Run() {
 }
 
 func (pa *provisionAgent) Execute() error {
-	var err error
-
 	expectedClusters, err := pa.netReconciler.GetExpected()
 	if err != nil {
 		return err
@@ -77,16 +77,32 @@ func (pa *provisionAgent) Execute() error {
 		return err
 	}
 
+	var provisionErrors []error
 	for _, st := range states {
 		switch st.action {
 		case actionCreate:
-			err = pa.provisionClusterHostGRE()
+			if err := pa.provisionClusterHostGRE(st.clustername); err != nil {
+				provisionErrors = append(provisionErrors, fmt.Errorf("error provisioning %q cluster host gre: %s", st.clustername, err))
+			}
 		}
 	}
 
-	return err
+	if len(provisionErrors) > 0 {
+		for _, err := range provisionErrors {
+			pa.log.Errorf("%s", err)
+		}
+		return fmt.Errorf("reconcile action errors out")
+	}
+
+	return nil
 }
 
-func (pa *provisionAgent) provisionClusterHostGRE() error {
+func (pa *provisionAgent) provisionClusterHostGRE(clustername string) error {
 	return nil
+}
+
+func (pa *provisionAgent) getProvisionTask(clustername string) ([]task.Task, error) {
+	pa.log.Debugf("getting provision task for cluster %q host gre", clustername)
+
+	return nil, nil
 }
