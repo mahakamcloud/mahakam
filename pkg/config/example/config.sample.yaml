@@ -13,6 +13,7 @@ network:
   cluster_netmask: 24
   datacenter_gateway_cidr: "1.2.3.4/28"
   datacenter_nameserver: "8.8.8.8"
+  domain: dctv.mahakam.vpc
 kubernetes:
   pod_network_cidr: "10.244.0.0/16"
   kubeadm_token: "<TODO: pass valid kubeadm token here>"
