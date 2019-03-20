@@ -30,6 +30,8 @@ func main() {
 	log.Println("inititializing...")
 	defer log.Println("exiting...")
 
+	nd.Log = log
+
 	registerFlags()
 
 	if err := app.Execute(); err != nil {
