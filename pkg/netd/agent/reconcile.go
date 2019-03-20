@@ -57,10 +57,11 @@ func (nr *NetworkReconciler) GetExpected() (*ReconcileStates, error) {
 	clusters := res.Payload
 	for _, cl := range clusters {
 		// TODO(giri): populate proper GRE key
-		key := swag.StringValue(cl.Name)
-		expectedClusterStates[key] = &State{
+		greKey := "1"
+		expectedClusterStates[greKey] = &State{
 			ClusterHostGRE: network.ClusterHostGRE{
-				GREKey: "1",
+				ClusterName: swag.StringValue(cl.Name),
+				GREKey:      greKey,
 			},
 		}
 	}
@@ -70,8 +71,23 @@ func (nr *NetworkReconciler) GetExpected() (*ReconcileStates, error) {
 }
 
 func (nr *NetworkReconciler) GetActual() (*ReconcileStates, error) {
-	// TODO(giri): gather GRE tunnel info with OVS client
 	actualClusterStates := make(map[string]*State)
+
+	brs, err := nr.ovsClient.VSwitch.ListBridges()
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO(giri): currently this is only fetching bridge, remaining:
+	// tap dev, number of tunnels
+	for _, br := range brs {
+		greKey := network.ParseGREKey(br)
+		actualClusterStates[greKey] = &State{
+			ClusterHostGRE: network.ClusterHostGRE{
+				GREKey: greKey,
+			},
+		}
+	}
 
 	return &ReconcileStates{
 		states: actualClusterStates,
@@ -84,19 +100,19 @@ func (nr *NetworkReconciler) Reconcile(
 
 	reconciledStates := make(map[string]*State)
 
-	for cl := range expectedClusterStates.states {
-		if _, ok := actualClusterStates.states[cl]; !ok {
-			reconciledStates[cl] = &State{
-				ClusterHostGRE: expectedClusterStates.states[cl].ClusterHostGRE,
+	for greKey := range expectedClusterStates.states {
+		if _, ok := actualClusterStates.states[greKey]; !ok {
+			reconciledStates[greKey] = &State{
+				ClusterHostGRE: expectedClusterStates.states[greKey].ClusterHostGRE,
 				action:         actionCreate,
 			}
 		}
 	}
 
-	for cl := range actualClusterStates.states {
-		if _, ok := expectedClusterStates.states[cl]; !ok {
-			reconciledStates[cl] = &State{
-				ClusterHostGRE: actualClusterStates.states[cl].ClusterHostGRE,
+	for greKey := range actualClusterStates.states {
+		if _, ok := expectedClusterStates.states[greKey]; !ok {
+			reconciledStates[greKey] = &State{
+				ClusterHostGRE: actualClusterStates.states[greKey].ClusterHostGRE,
 				action:         actionDestroy,
 			}
 		}

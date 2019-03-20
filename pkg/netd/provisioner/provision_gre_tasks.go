@@ -23,6 +23,8 @@ func NewCreateTapDev(tapDevName string, log logrus.FieldLogger) *CreateTapDev {
 }
 
 func (td *CreateTapDev) Run() error {
+	td.log.Debugf("Creating tap device")
+
 	// TODO(giri): implement create tap dev
 	return nil
 }
@@ -51,11 +53,13 @@ func NewCreateGREBridge(bridgeName, tapDevName, greKey string, remoteIP net.IP, 
 
 func (ob *CreateGREBridge) Run() error {
 	if !ob.bridgeExists() {
+		ob.log.Debugf("GRE bridge doesn't exist, creating one")
 		if err := ob.ovsClient.VSwitch.AddBridge(ob.bridgeName); err != nil {
 			return fmt.Errorf("failed to add new ovs bridge: %s", err)
 		}
 	}
 
+	ob.log.Debugf("Attach tap dev %q to GRE bridge %q", ob.tapDevName, ob.bridgeName)
 	if err := ob.ovsClient.VSwitch.AddPort(ob.bridgeName, ob.tapDevName); err != nil {
 		return fmt.Errorf("failed to attach tap dev to ovs bridge: %s", err)
 	}
@@ -65,6 +69,7 @@ func (ob *CreateGREBridge) Run() error {
 		RemoteIP: ob.remoteIP.String(),
 		Key:      ob.greKey,
 	}
+	ob.log.Debugf("Set GRE interface for bridge %q with key %q", ob.bridgeName, ob.greKey)
 	if err := ob.ovsClient.VSwitch.Set.Interface(ob.tapDevName, opts); err != nil {
 		return fmt.Errorf("failed to set gre interface: %s", err)
 	}
