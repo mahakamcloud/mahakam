@@ -65,13 +65,13 @@ func (h *CreateNode) storeNodeResource(params nodes.CreateNodeParams) (string, e
 		})
 	}
 
-	node := r.NewNode(*params.Body.Name).WithLabels(labels)
+	// node := r.NewNode(*params.Body.Name).WithLabels(labels)
 
-	nodeID, err := h.Handlers.Store.Add(node)
-	if err != nil {
-		h.log.Errorf("error storing new ip pool resource '%v': %s", node, err)
-		return "", fmt.Errorf("error storing new ip pool resource %s", err)
-	}
+	// nodeID, err := h.Handlers.Store.Add(node)
+	// if err != nil {
+	// 	h.log.Errorf("error storing new ip pool resource '%v': %s", node, err)
+	// 	return "", fmt.Errorf("error storing new ip pool resource %s", err)
+	// }
 
-	return nodeID, nil
+	return "", nil // nodeID, nil
 }
