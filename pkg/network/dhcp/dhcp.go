@@ -7,7 +7,7 @@ import (
 	"text/template"
 
 	"github.com/hashicorp/consul/api"
-	"github.com/mahakamcloud/mahakam/pkg/node"
+	"github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -35,10 +35,7 @@ type EndpointConfig struct {
 // NodeDHCPConfig describes dhcp config for a host to be appended in dhcpd.conf
 type NodeDHCPConfig struct {
 	NodeHostName    string
-	NodeAddress     net.IP
 	HardwareAddress string
-	Gateway         net.IP
-	DNS             net.IP
 }
 
 // NewEndpointConfig returns EndpointConfig for a DHCP
@@ -50,13 +47,13 @@ func NewEndpointConfig(dhcpIP net.IP) EndpointConfig {
 }
 
 // NewNodeConfig returns a NodeDHCPConfig to be registered on DHCP
-func NewNodeConfig(nodeConfig node.NodeCreateConfig) *NodeDHCPConfig {
+func NewNodeConfig(node resource.Node) *NodeDHCPConfig {
+	networkConfigs := node.NetworkConfigs()
+	privateNetworkConfig := networkConfigs[0]
+
 	return &NodeDHCPConfig{
-		NodeHostName:    nodeConfig.Node.Name,
-		NodeAddress:     nodeConfig.Node.NetworkConfig.IP,
-		HardwareAddress: nodeConfig.Node.NetworkConfig.MacAddress,
-		Gateway:         nodeConfig.Node.NetworkConfig.Gateway,
-		DNS:             nodeConfig.Node.NetworkConfig.Nameserver,
+		NodeHostName:    node.BaseResource.Name,
+		HardwareAddress: privateNetworkConfig.MacAddress(),
 	}
 }
 
