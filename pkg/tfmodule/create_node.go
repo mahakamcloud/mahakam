@@ -2,36 +2,12 @@ package tfmodule
 
 import (
 	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates"
-	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates/basic"
 	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates/controlplane"
 	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates/dhcp"
 	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates/dns"
 	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates/gateway"
 	"github.com/mahakamcloud/mahakam/pkg/tfmodule/templates/worker"
 )
-
-// CreateNode creates VM with generic configuration through terraform
-func CreateNode(name, destdir string, data map[string]string) error {
-	var basicNode = &TerraformProvisioner{
-		Name:    name,
-		DestDir: destdir,
-		Files: []TerraformFile{
-			TerraformFile{"backend", templates.Backend, destdir, "backend.tf"},
-			TerraformFile{"data", basic.Data, destdir, "data.tf"},
-			TerraformFile{"main", templates.MainFile, destdir, "main.tf"},
-			TerraformFile{"tfvars", basic.TFVars, destdir, "terraform.tfvars"},
-			TerraformFile{"vars", basic.Vars, destdir, "vars.tf"},
-			TerraformFile{"cloudinit", basic.CloudInit, destdir + "/templates/", "user_data.tpl"},
-		},
-	}
-
-	basicNode.GenerateProvisionerFiles(data)
-	err := basicNode.ExecuteProvisioner()
-	if err != nil {
-		return err
-	}
-	return nil
-}
 
 // CreateControlPlaneNode creates VM with kubernetes control plane configuration
 // through terraform
