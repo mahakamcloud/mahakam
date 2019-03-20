@@ -2,9 +2,10 @@ package agent
 
 import (
 	"github.com/digitalocean/go-openvswitch/ovs"
+	"github.com/go-openapi/swag"
+
 	"github.com/mahakamcloud/mahakam/pkg/api/v1"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/clusters"
-	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/mahakamcloud/mahakam/pkg/netd/network"
 )
 
@@ -16,20 +17,26 @@ const (
 	actionNone    reconcileAction = "none"
 )
 
-type ReconcileState struct {
-	clustername string
-	action      reconcileAction
+type State struct {
+	network.ClusterHostGRE
+	action reconcileAction
+}
+
+type ReconcileStates struct {
+	states map[string]*State
 }
 
 type Reconciler interface {
-	GetExpected() ([]*models.Cluster, error)
-	GetActual() ([]*network.ClusterHostGRE, error)
-	Reconcile(expected []*models.Cluster, actual []*network.ClusterHostGRE) ([]*ReconcileState, error)
+	GetExpected() (*ReconcileStates, error)
+	GetActual() (*ReconcileStates, error)
+	Reconcile(expected *ReconcileStates, actual *ReconcileStates) (*ReconcileStates, error)
 }
 
 type NetworkReconciler struct {
 	mahakamClient v1.ClusterAPI
 	ovsClient     *ovs.Client
+
+	reconciledStates *ReconcileStates
 }
 
 func NewNetworkReconciler(mahakamClient v1.ClusterAPI, ovsClient *ovs.Client) Reconciler {
@@ -39,22 +46,63 @@ func NewNetworkReconciler(mahakamClient v1.ClusterAPI, ovsClient *ovs.Client) Re
 	}
 }
 
-func (nr *NetworkReconciler) GetExpected() ([]*models.Cluster, error) {
+func (nr *NetworkReconciler) GetExpected() (*ReconcileStates, error) {
+	// TODO(giri): get GRE key from API server
 	res, err := nr.mahakamClient.GetClusters(clusters.NewGetClustersParams())
 	if err != nil {
 		return nil, err
 	}
-	return res.Payload, nil
+
+	expectedClusterStates := make(map[string]*State)
+	clusters := res.Payload
+	for _, cl := range clusters {
+		// TODO(giri): populate proper GRE key
+		key := swag.StringValue(cl.Name)
+		expectedClusterStates[key] = &State{
+			ClusterHostGRE: network.ClusterHostGRE{
+				GREKey: "1",
+			},
+		}
+	}
+	return &ReconcileStates{
+		states: expectedClusterStates,
+	}, nil
 }
 
-func (nr *NetworkReconciler) GetActual() ([]*network.ClusterHostGRE, error) {
-	// TODO(giri): provision GRE tunnel with OVS client
-	return nil, nil
+func (nr *NetworkReconciler) GetActual() (*ReconcileStates, error) {
+	// TODO(giri): gather GRE tunnel info with OVS client
+	actualClusterStates := make(map[string]*State)
+
+	return &ReconcileStates{
+		states: actualClusterStates,
+	}, nil
 }
 
 func (nr *NetworkReconciler) Reconcile(
-	expectedClusters []*models.Cluster,
-	actualClusterHostGREs []*network.ClusterHostGRE) ([]*ReconcileState, error) {
-	// TODO(giri): reconcile states
-	return nil, nil
+	expectedClusterStates *ReconcileStates,
+	actualClusterStates *ReconcileStates) (*ReconcileStates, error) {
+
+	reconciledStates := make(map[string]*State)
+
+	for cl := range expectedClusterStates.states {
+		if _, ok := actualClusterStates.states[cl]; !ok {
+			reconciledStates[cl] = &State{
+				ClusterHostGRE: expectedClusterStates.states[cl].ClusterHostGRE,
+				action:         actionCreate,
+			}
+		}
+	}
+
+	for cl := range actualClusterStates.states {
+		if _, ok := expectedClusterStates.states[cl]; !ok {
+			reconciledStates[cl] = &State{
+				ClusterHostGRE: actualClusterStates.states[cl].ClusterHostGRE,
+				action:         actionDestroy,
+			}
+		}
+	}
+
+	return &ReconcileStates{
+		states: reconciledStates,
+	}, nil
 }
