@@ -35,10 +35,10 @@ func Run(nd *NetDaemon) {
 	}
 
 	provisionAgent := agent.NewProvisionAgent(hostname, ipaddress.String(), nd.MahakamAPIServer, nd.Log)
-	go provisionAgent.Run()
+	provisionAgent.Run()
 }
 
-func hostIP(brName string) (net.Addr, error) {
+func hostIP(brName string) (net.IP, error) {
 	ifaces, err := net.Interfaces()
 	if err != nil {
 		return nil, err
@@ -47,7 +47,8 @@ func hostIP(brName string) (net.Addr, error) {
 	for _, iface := range ifaces {
 		if iface.Name == brName {
 			if addrs, _ := iface.Addrs(); len(addrs) > 0 {
-				return addrs[0], nil
+				ip, _, _ := net.ParseCIDR(addrs[0].String())
+				return ip, nil
 			}
 			return nil, fmt.Errorf("host bridge %q doesn't have IP", brName)
 		}
