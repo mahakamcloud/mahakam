@@ -222,7 +222,7 @@ func getNameserverIP(cidr net.IPNet) net.IP {
 	copy(nameserver, cidr.IP)
 
 	// Reserved IPs for main network components in cluster network
-	nameserver[3] = byte(3)
+	nameserver[3] = byte(2)
 	return nameserver
 }
 
@@ -231,7 +231,7 @@ func getDHCPIP(cidr net.IPNet) net.IP {
 	copy(dhcp, cidr.IP)
 
 	// Reserved IPs for main network components in cluster network
-	dhcp[3] = byte(2)
+	dhcp[3] = byte(3)
 	return dhcp
 }
 
