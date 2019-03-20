@@ -2,6 +2,7 @@ package agent
 
 import (
 	"fmt"
+	"net"
 	"time"
 
 	"github.com/digitalocean/go-openvswitch/ovs"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/mahakamcloud/mahakam/pkg/api/v1"
 	mahakamclient "github.com/mahakamcloud/mahakam/pkg/client"
+	"github.com/mahakamcloud/mahakam/pkg/netd/network"
 	"github.com/mahakamcloud/mahakam/pkg/netd/util"
 	"github.com/mahakamcloud/mahakam/pkg/task"
 )
@@ -19,8 +21,9 @@ const (
 )
 
 type provisionAgent struct {
-	hostname      string
-	hostAddress   string
+	hostname    string
+	localHostIP net.IP
+
 	netReconciler Reconciler
 
 	ovsClient     *ovs.Client
@@ -29,17 +32,19 @@ type provisionAgent struct {
 	log logrus.FieldLogger
 }
 
-func NewProvisionAgent(clustername, hostname, hostAddress, mahakamAPIServer string, log logrus.FieldLogger) Agent {
+func NewProvisionAgent(clustername, hostname, localIP, mahakamAPIServer string, log logrus.FieldLogger) Agent {
 	mahakamClient := mahakamclient.GetMahakamClusterClient(mahakamAPIServer)
 	ovsClient := ovs.New()
 
 	netReconciler := NewNetworkReconciler(mahakamClient, ovsClient)
 
+	localHostIP := net.ParseIP(localIP)
+
 	paLog := log.WithField("agent", "provision")
 
 	return &provisionAgent{
 		hostname:      hostname,
-		hostAddress:   hostAddress,
+		localHostIP:   localHostIP,
 		netReconciler: netReconciler,
 		log:           paLog,
 	}
@@ -59,30 +64,35 @@ func (pa *provisionAgent) Run() {
 }
 
 func (pa *provisionAgent) Execute() error {
+	// TODO(giri): getting list of hosts managed by Mahakam
+	hostIPs := []net.IP{}
+
+	// TODO(giri): cluster model must include GRE key
 	expectedClusters, err := pa.netReconciler.GetExpected()
 	if err != nil {
 		return err
 	}
 
-	actualClusterInfras, err := pa.netReconciler.GetActual()
+	actualClusters, err := pa.netReconciler.GetActual()
 	if err != nil {
 		return err
 	}
 
-	// Reconcile between list of clusters from API server (desired state)
+	// Reconcile between list of clusters from API server (expected state)
 	// and list of bridges/tunnels from OVS daemon (actual state). Perform
 	// action as necessary.
-	states, err := pa.netReconciler.Reconcile(expectedClusters, actualClusterInfras)
+	reconciledClusters, err := pa.netReconciler.Reconcile(expectedClusters, actualClusters)
 	if err != nil {
 		return err
 	}
 
 	var provisionErrors []error
-	for _, st := range states {
-		switch st.action {
+	for cl, val := range reconciledClusters.states {
+		switch val.action {
 		case actionCreate:
-			if err := pa.provisionClusterHostGRE(st.clustername); err != nil {
-				provisionErrors = append(provisionErrors, fmt.Errorf("error provisioning %q cluster host gre: %s", st.clustername, err))
+			grewf := newProvisionClusterHostGreWF(cl, val.GREKey, pa.localHostIP, hostIPs, pa.log)
+			if err := grewf.Run(); err != nil {
+				provisionErrors = append(provisionErrors, fmt.Errorf("error provisioning %q cluster host gre: %s", cl, err))
 			}
 		}
 	}
@@ -97,12 +107,73 @@ func (pa *provisionAgent) Execute() error {
 	return nil
 }
 
-func (pa *provisionAgent) provisionClusterHostGRE(clustername string) error {
+type provisionClusterHostGreWF struct {
+	clustername string
+	*network.ClusterHostGRE
+	log logrus.FieldLogger
+}
+
+func newProvisionClusterHostGreWF(clustername, greKey string, localIP net.IP, hostIPs []net.IP, log logrus.FieldLogger) *provisionClusterHostGreWF {
+	wfLog := log.WithField("workflow", "provision-cluster-host-gre-wf")
+
+	brName := fmt.Sprintf(network.BridgeFormat, greKey)
+
+	var hostGRETunnels []network.HostGRETunnel
+	for _, hostIP := range hostIPs {
+		if hostIP.String() == localIP.String() {
+			continue
+		}
+		tunnel := network.HostGRETunnel{
+			TapDevName:   fmt.Sprintf(network.TapDevFormat, greKey, util.LastOctet(localIP), util.LastOctet(hostIP)),
+			LocalHostIP:  localIP,
+			RemoteHostIP: hostIP,
+		}
+		hostGRETunnels = append(hostGRETunnels, tunnel)
+	}
+
+	clusterHostGRE := &network.ClusterHostGRE{
+		BrName:  brName,
+		GREKey:  greKey,
+		Tunnels: hostGRETunnels,
+	}
+
+	return &provisionClusterHostGreWF{
+		clustername:    clustername,
+		ClusterHostGRE: clusterHostGRE,
+		log:            wfLog,
+	}
+}
+
+func (wf *provisionClusterHostGreWF) Run() error {
+	wf.log.Infof("provisioning cluster %q host gre", wf.clustername)
+
+	tasks, err := wf.getProvisionTask()
+	if err != nil {
+		wf.log.Errorf("error provisioning cluster %q host gre", wf.clustername)
+		return err
+	}
+
+	for _, t := range tasks {
+		if err := t.Run(); err != nil {
+			wf.log.Errorf("error running task: %s", err)
+			return err
+		}
+	}
+
 	return nil
 }
 
-func (pa *provisionAgent) getProvisionTask(clustername string) ([]task.Task, error) {
-	pa.log.Debugf("getting provision task for cluster %q host gre", clustername)
+func (wf *provisionClusterHostGreWF) getProvisionTask() ([]task.Task, error) {
+	wf.log.Debugf("getting provision task for cluster %q host gre", wf.clustername)
 
-	return nil, nil
+	var tasks []task.Task
+	tasks = wf.setupGRETasks(tasks)
+	return tasks, nil
+}
+
+func (wf *provisionClusterHostGreWF) setupGRETasks(tasks []task.Task) []task.Task {
+	wf.log.Debugf("setup gre tasks for cluster %q", wf.clustername)
+
+	tasks = append(tasks)
+	return tasks
 }
