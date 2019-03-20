@@ -17,7 +17,6 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/clusters"
 	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/mahakamcloud/mahakam/pkg/network"
-	"github.com/mahakamcloud/mahakam/pkg/node"
 	"github.com/mahakamcloud/mahakam/pkg/provisioner"
 	r "github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
 	"github.com/mahakamcloud/mahakam/pkg/task"
@@ -144,8 +143,9 @@ type createClusterWF struct {
 	owner          string
 	clustername    string
 	clusterNetwork *network.ClusterNetwork
-	controlPlane   node.Node
-	workers        []node.Node
+	controlPlane   r.Node
+	workers        []r.Node
+	workerCount    int
 	hosts          []config.Host
 
 	controlPlaneIP net.IP
@@ -193,12 +193,6 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 		cwfLog.Errorf("error getting network allocation for cluster %s: %s", clusterName, err)
 	}
 
-	controlPlaneNetworkConfig, err := getNetworkConfig(clusterNetwork)
-	if err != nil {
-		cwfLog.Errorf("error getting network config for control plane: %s", err)
-		return nil, err
-	}
-
 	workerNodesCount := int(cluster.NumNodes)
 
 	err = storeClusterResource(clusterName, workerNodesCount, workerNodeSize, clusterNetwork, cHandler)
@@ -207,39 +201,17 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 		return nil, err
 	}
 
-	controlPlane := node.Node{
-		Name:          fmt.Sprintf("%s-cp", clusterName),
-		NumCPUs:       cpNumCPUs,
-		Memory:        cpMemorySize,
-		NetworkConfig: *controlPlaneNetworkConfig,
-	}
-
-	var workers []node.Node
-	for i := 1; i <= workerNodesCount; i++ {
-		workerNetworkConfig, err := getNetworkConfig(clusterNetwork)
-		if err != nil {
-			return nil, err
-		}
-
-		worker := node.Node{
-			Name:          fmt.Sprintf("%s-worker-%d", clusterName, i),
-			NumCPUs:       workerNumCPUs,
-			Memory:        workerMemorySize,
-			NetworkConfig: *workerNetworkConfig,
-		}
-		workers = append(workers, worker)
-	}
-
 	return &createClusterWF{
 		handlers:       cHandler.Handlers,
 		log:            cwfLog,
 		owner:          cluster.Owner,
 		clustername:    clusterName,
 		clusterNetwork: clusterNetwork,
-		controlPlane:   controlPlane,
-		workers:        workers,
+		controlPlane:   r.Node{},
+		workers:        []r.Node{},
 		hosts:          cHandler.hosts,
-		controlPlaneIP: controlPlane.NetworkConfig.IP,
+		controlPlaneIP: nil,
+		workerCount:    workerNodesCount,
 		nodePublicKey:  cHandler.KubernetesConfig.SSHPublicKey,
 		podNetworkCidr: cHandler.KubernetesConfig.PodNetworkCidr,
 		kubeadmToken:   cHandler.KubernetesConfig.KubeadmToken,
@@ -285,30 +257,34 @@ func (c *createClusterWF) setupControlPlaneTasks(tasks []task.Task) []task.Task 
 		return nil
 	}
 
-	cpConfig := node.NodeCreateConfig{
-		Host: host,
-		Role: node.RoleControlPlane,
-		Node: node.Node{
-			Name:         c.controlPlane.Name,
-			SSHPublicKey: c.nodePublicKey,
-			NumCPUs:      c.controlPlane.NumCPUs,
-			Memory:       c.controlPlane.Memory,
-			NetworkConfig: node.NetworkConfig{
-				MacAddress: c.controlPlane.MacAddress,
-				IP:         c.controlPlane.IP,
-				Mask:       c.controlPlane.Mask,
-				Gateway:    c.controlPlane.Gateway,
-				Nameserver: c.controlPlane.Nameserver,
-			},
-		},
-		ExtraConfig: map[string]string{
-			config.KeyPodNetworkCidr: c.podNetworkCidr,
-			config.KeyKubeadmToken:   c.kubeadmToken,
-		},
+	cpNodeSpec := r.NewNodeSpec(r.SmallNode)
+	cpNodeStatus := r.NewNodeStatus(host.String())
+	cpNodeFqdn := getFQDN(c.controlPlane.Name, c.clusterNetwork.Name, c.handlers.AppConfig.NetworkConfig.Domain)
+
+	extraConfig := map[string]string{
+		config.KeyPodNetworkCidr: c.podNetworkCidr,
+		config.KeyKubeadmToken:   c.kubeadmToken,
+	}
+	cpNodeMetadata := r.NewMetadata("", []string{c.nodePublicKey}, extraConfig)
+
+	cpNetworkConfigs := []r.NetworkConfig{
+		*r.NewNetworkConfig(network.GenerateMacAddress(),
+			cpNodeFqdn,
+			c.clusterNetwork.ClusterNetworkCIDR.Mask,
+			nil,
+			c.clusterNetwork.Gateway,
+			nil),
 	}
 
+	cpNodeConfig := r.NewNode(fmt.Sprintf("%s-cp", c.clustername),
+		*cpNodeSpec,
+		cpNetworkConfigs,
+		*cpNodeMetadata,
+		*cpNodeStatus,
+		string(r.RoleNetworkGW))
+
 	checkClusterNetworkNodes := provisioner.NewCheckClusterNetworkNodes(c.clusterNetwork, c.log, utils.NewPingCheck())
-	createControlPlaneNode := provisioner.NewCreateNode(cpConfig, c.handlers.Provisioner, c.log)
+	createControlPlaneNode := provisioner.NewCreateNode(*cpNodeConfig, c.handlers.Provisioner, c.log)
 
 	controlPlaneSeqTasks := task.NewSeqTask(c.log, checkClusterNetworkNodes, createControlPlaneNode)
 	tasks = append(tasks, controlPlaneSeqTasks)
@@ -319,37 +295,44 @@ func (c *createClusterWF) setupControlPlaneTasks(tasks []task.Task) []task.Task 
 func (c *createClusterWF) setupWorkerTasks(tasks []task.Task) []task.Task {
 	c.log.Debugf("setup worker steps for cluster %s", c.clustername)
 
-	for _, worker := range c.workers {
+	for i := 1; i <= c.workerCount; i++ {
 		host, err := scheduler.GetHost(c.hosts)
 		if err != nil {
 			c.log.Errorf("Error : %v", err)
 			return nil
 		}
 
-		wConfig := node.NodeCreateConfig{
-			Host: host,
-			Role: node.RoleWorker,
-			Node: node.Node{
-				Name:         worker.Name,
-				SSHPublicKey: c.nodePublicKey,
-				NumCPUs:      worker.NumCPUs,
-				Memory:       worker.Memory,
-				NetworkConfig: node.NetworkConfig{
-					MacAddress: worker.MacAddress,
-					IP:         worker.IP,
-					Mask:       worker.Mask,
-					Gateway:    worker.Gateway,
-					Nameserver: worker.Nameserver,
-				},
-			},
-			ExtraConfig: map[string]string{
-				config.KeyControlPlaneIP: c.controlPlaneIP.String(),
-				config.KeyKubeadmToken:   c.kubeadmToken,
-			},
+		wrNodeSpec := r.NewNodeSpec(r.SmallNode)
+		wrNodeStatus := r.NewNodeStatus(host.String())
+		wrNodeFqdn := getFQDN(c.controlPlane.Name, c.clusterNetwork.Name, c.handlers.AppConfig.NetworkConfig.Domain)
+
+		// TODO: We don't know control plane IP here, due to DHCP allocation.
+		// This needs to be sorted either via pre allocated reserved IP or
+		// some other mechanism. This breaks cluster creation workflow
+		extraConfig := map[string]string{
+			config.KeyControlPlaneIP: c.controlPlaneIP.String(),
+			config.KeyKubeadmToken:   c.kubeadmToken,
+		}
+		wrNodeMetadata := r.NewMetadata("", []string{c.nodePublicKey}, extraConfig)
+
+		wrNetworkConfigs := []r.NetworkConfig{
+			*r.NewNetworkConfig(network.GenerateMacAddress(),
+				wrNodeFqdn,
+				c.clusterNetwork.ClusterNetworkCIDR.Mask,
+				nil,
+				c.clusterNetwork.Gateway,
+				nil),
 		}
 
+		wrNodeConfig := r.NewNode(fmt.Sprintf("%s-worker-%d", c.clustername, i),
+			*wrNodeSpec,
+			wrNetworkConfigs,
+			*wrNodeMetadata,
+			*wrNodeStatus,
+			string(r.RoleNetworkGW))
+
 		checkClusterNetworkNodes := provisioner.NewCheckClusterNetworkNodes(c.clusterNetwork, c.log, utils.NewPingCheck())
-		createWorkerNode := provisioner.NewCreateNode(wConfig, c.handlers.Provisioner, c.log)
+		createWorkerNode := provisioner.NewCreateNode(*wrNodeConfig, c.handlers.Provisioner, c.log)
 
 		workerSeqTasks := task.NewSeqTask(c.log, checkClusterNetworkNodes, createWorkerNode)
 
@@ -419,19 +402,6 @@ func getClusterNetwork(clusterName string, netmanager *network.NetworkManager, c
 	return network.NewClusterNetwork(*cidr, netmanager), nil
 }
 
-func getNetworkConfig(clusterNetwork *network.ClusterNetwork) (*node.NetworkConfig, error) {
-	macAddress := network.GenerateMacAddress()
-	ip, err := clusterNetwork.AllocateIP()
-	if err != nil {
-		return nil, err
-	}
-
-	networkConfig := &node.NetworkConfig{
-		MacAddress: macAddress,
-		IP:         net.ParseIP(ip),
-		Mask:       clusterNetwork.ClusterNetworkCIDR.Mask,
-		Gateway:    clusterNetwork.Gateway,
-		Nameserver: clusterNetwork.Nameserver,
-	}
-	return networkConfig, nil
+func getFQDN(hostname, clusterNetworkName, rootDomain string) string {
+	return hostname + "." + clusterNetworkName + "." + rootDomain
 }
