@@ -6,6 +6,8 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -33,6 +35,7 @@ type Cluster struct {
 	NodeFailures []string `json:"nodeFailures"`
 
 	// node size
+	// Enum: [extrasmall small medium large extralarge]
 	NodeSize *string `json:"nodeSize,omitempty"`
 
 	// num nodes
@@ -59,6 +62,10 @@ func (m *Cluster) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateNodeSize(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateNumNodes(formats); err != nil {
 		res = append(res, err)
 	}
@@ -80,6 +87,58 @@ func (m *Cluster) validateName(formats strfmt.Registry) error {
 	}
 
 	if err := validate.MinLength("name", "body", string(*m.Name), 1); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var clusterTypeNodeSizePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["extrasmall","small","medium","large","extralarge"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		clusterTypeNodeSizePropEnum = append(clusterTypeNodeSizePropEnum, v)
+	}
+}
+
+const (
+
+	// ClusterNodeSizeExtrasmall captures enum value "extrasmall"
+	ClusterNodeSizeExtrasmall string = "extrasmall"
+
+	// ClusterNodeSizeSmall captures enum value "small"
+	ClusterNodeSizeSmall string = "small"
+
+	// ClusterNodeSizeMedium captures enum value "medium"
+	ClusterNodeSizeMedium string = "medium"
+
+	// ClusterNodeSizeLarge captures enum value "large"
+	ClusterNodeSizeLarge string = "large"
+
+	// ClusterNodeSizeExtralarge captures enum value "extralarge"
+	ClusterNodeSizeExtralarge string = "extralarge"
+)
+
+// prop value enum
+func (m *Cluster) validateNodeSizeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, clusterTypeNodeSizePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *Cluster) validateNodeSize(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.NodeSize) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateNodeSizeEnum("nodeSize", "body", *m.NodeSize); err != nil {
 		return err
 	}
 

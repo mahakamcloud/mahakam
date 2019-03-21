@@ -282,7 +282,13 @@ definitions:
         readOnly: true
       nodeSize:
         type: string
-        default: "xs"
+        default: "small"
+        enum:
+          - "extrasmall"
+          - "small"
+          - "medium"
+          - "large"
+          - "extralarge"
       name:
         type: string
         minLength: 1
@@ -417,14 +423,13 @@ definitions:
               type: string
             value:
               type: string
-  nodespec:
+  nodeSpec:
     type: object
     properties:
-      nCores:
+      cpu:
         type: integer
-      Memory:
-        type: integer
-        format: int64
+      memory:
+        type: string
   networkConfig:
     type: object
     properties:
@@ -476,17 +481,17 @@ definitions:
         type: string
       owner:
         type: string
-      createdTime:
+      createdAt:
         type: string
         format : date-time
-      modifiedTime:
+      modifiedAt:
         type: string
         format : date-time
       revision:
         type: integer
         format: uint64
       nodespec:
-        $ref: "#/definitions/nodespec"
+        $ref: "#/definitions/nodeSpec"
       networkConfigs:
         type: array
         items:

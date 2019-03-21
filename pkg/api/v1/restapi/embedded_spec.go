@@ -570,7 +570,14 @@ func init() {
         },
         "nodeSize": {
           "type": "string",
-          "default": "xs"
+          "default": "small",
+          "enum": [
+            "extrasmall",
+            "small",
+            "medium",
+            "large",
+            "extralarge"
+          ]
         },
         "numNodes": {
           "type": "integer",
@@ -729,7 +736,7 @@ func init() {
         }
       ],
       "properties": {
-        "createdTime": {
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -741,7 +748,7 @@ func init() {
         "metadata": {
           "$ref": "#/definitions/metadata"
         },
-        "modifiedTime": {
+        "modifiedAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -755,7 +762,7 @@ func init() {
           }
         },
         "nodespec": {
-          "$ref": "#/definitions/nodespec"
+          "$ref": "#/definitions/nodeSpec"
         },
         "owner": {
           "type": "string"
@@ -769,23 +776,22 @@ func init() {
         }
       }
     },
+    "nodeSpec": {
+      "type": "object",
+      "properties": {
+        "cpu": {
+          "type": "integer"
+        },
+        "memory": {
+          "type": "string"
+        }
+      }
+    },
     "nodeStatus": {
       "type": "object",
       "properties": {
         "host": {
           "type": "string"
-        }
-      }
-    },
-    "nodespec": {
-      "type": "object",
-      "properties": {
-        "Memory": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "nCores": {
-          "type": "integer"
         }
       }
     }
@@ -1344,7 +1350,14 @@ func init() {
         },
         "nodeSize": {
           "type": "string",
-          "default": "xs"
+          "default": "small",
+          "enum": [
+            "extrasmall",
+            "small",
+            "medium",
+            "large",
+            "extralarge"
+          ]
         },
         "numNodes": {
           "type": "integer",
@@ -1503,7 +1516,7 @@ func init() {
         }
       ],
       "properties": {
-        "createdTime": {
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -1515,7 +1528,7 @@ func init() {
         "metadata": {
           "$ref": "#/definitions/metadata"
         },
-        "modifiedTime": {
+        "modifiedAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -1529,7 +1542,7 @@ func init() {
           }
         },
         "nodespec": {
-          "$ref": "#/definitions/nodespec"
+          "$ref": "#/definitions/nodeSpec"
         },
         "owner": {
           "type": "string"
@@ -1543,23 +1556,22 @@ func init() {
         }
       }
     },
+    "nodeSpec": {
+      "type": "object",
+      "properties": {
+        "cpu": {
+          "type": "integer"
+        },
+        "memory": {
+          "type": "string"
+        }
+      }
+    },
     "nodeStatus": {
       "type": "object",
       "properties": {
         "host": {
           "type": "string"
-        }
-      }
-    },
-    "nodespec": {
-      "type": "object",
-      "properties": {
-        "Memory": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "nCores": {
-          "type": "integer"
         }
       }
     }

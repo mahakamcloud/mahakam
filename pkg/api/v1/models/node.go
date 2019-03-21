@@ -20,9 +20,9 @@ import (
 type Node struct {
 	BaseResource
 
-	// created time
+	// created at
 	// Format: date-time
-	CreatedTime strfmt.DateTime `json:"createdTime,omitempty"`
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// id
 	// Read Only: true
@@ -31,9 +31,9 @@ type Node struct {
 	// metadata
 	Metadata *Metadata `json:"metadata,omitempty"`
 
-	// modified time
+	// modified at
 	// Format: date-time
-	ModifiedTime strfmt.DateTime `json:"modifiedTime,omitempty"`
+	ModifiedAt strfmt.DateTime `json:"modifiedAt,omitempty"`
 
 	// name
 	// Required: true
@@ -43,7 +43,7 @@ type Node struct {
 	NetworkConfigs []*NetworkConfig `json:"networkConfigs"`
 
 	// nodespec
-	Nodespec *Nodespec `json:"nodespec,omitempty"`
+	Nodespec *NodeSpec `json:"nodespec,omitempty"`
 
 	// owner
 	Owner string `json:"owner,omitempty"`
@@ -66,19 +66,19 @@ func (m *Node) UnmarshalJSON(raw []byte) error {
 
 	// now for regular properties
 	var propsNode struct {
-		CreatedTime strfmt.DateTime `json:"createdTime,omitempty"`
+		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 		ID int64 `json:"id,omitempty"`
 
 		Metadata *Metadata `json:"metadata,omitempty"`
 
-		ModifiedTime strfmt.DateTime `json:"modifiedTime,omitempty"`
+		ModifiedAt strfmt.DateTime `json:"modifiedAt,omitempty"`
 
 		Name *string `json:"name"`
 
 		NetworkConfigs []*NetworkConfig `json:"networkConfigs"`
 
-		Nodespec *Nodespec `json:"nodespec,omitempty"`
+		Nodespec *NodeSpec `json:"nodespec,omitempty"`
 
 		Owner string `json:"owner,omitempty"`
 
@@ -89,13 +89,13 @@ func (m *Node) UnmarshalJSON(raw []byte) error {
 	if err := swag.ReadJSON(raw, &propsNode); err != nil {
 		return err
 	}
-	m.CreatedTime = propsNode.CreatedTime
+	m.CreatedAt = propsNode.CreatedAt
 
 	m.ID = propsNode.ID
 
 	m.Metadata = propsNode.Metadata
 
-	m.ModifiedTime = propsNode.ModifiedTime
+	m.ModifiedAt = propsNode.ModifiedAt
 
 	m.Name = propsNode.Name
 
@@ -124,19 +124,19 @@ func (m Node) MarshalJSON() ([]byte, error) {
 
 	// now for regular properties
 	var propsNode struct {
-		CreatedTime strfmt.DateTime `json:"createdTime,omitempty"`
+		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 		ID int64 `json:"id,omitempty"`
 
 		Metadata *Metadata `json:"metadata,omitempty"`
 
-		ModifiedTime strfmt.DateTime `json:"modifiedTime,omitempty"`
+		ModifiedAt strfmt.DateTime `json:"modifiedAt,omitempty"`
 
 		Name *string `json:"name"`
 
 		NetworkConfigs []*NetworkConfig `json:"networkConfigs"`
 
-		Nodespec *Nodespec `json:"nodespec,omitempty"`
+		Nodespec *NodeSpec `json:"nodespec,omitempty"`
 
 		Owner string `json:"owner,omitempty"`
 
@@ -144,13 +144,13 @@ func (m Node) MarshalJSON() ([]byte, error) {
 
 		Status *NodeStatus `json:"status,omitempty"`
 	}
-	propsNode.CreatedTime = m.CreatedTime
+	propsNode.CreatedAt = m.CreatedAt
 
 	propsNode.ID = m.ID
 
 	propsNode.Metadata = m.Metadata
 
-	propsNode.ModifiedTime = m.ModifiedTime
+	propsNode.ModifiedAt = m.ModifiedAt
 
 	propsNode.Name = m.Name
 
@@ -181,7 +181,7 @@ func (m *Node) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateCreatedTime(formats); err != nil {
+	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -189,7 +189,7 @@ func (m *Node) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateModifiedTime(formats); err != nil {
+	if err := m.validateModifiedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -215,13 +215,13 @@ func (m *Node) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Node) validateCreatedTime(formats strfmt.Registry) error {
+func (m *Node) validateCreatedAt(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.CreatedTime) { // not required
+	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("createdTime", "body", "date-time", m.CreatedTime.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -246,13 +246,13 @@ func (m *Node) validateMetadata(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Node) validateModifiedTime(formats strfmt.Registry) error {
+func (m *Node) validateModifiedAt(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ModifiedTime) { // not required
+	if swag.IsZero(m.ModifiedAt) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("modifiedTime", "body", "date-time", m.ModifiedTime.String(), formats); err != nil {
+	if err := validate.FormatOf("modifiedAt", "body", "date-time", m.ModifiedAt.String(), formats); err != nil {
 		return err
 	}
 
