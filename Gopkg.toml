@@ -1,0 +1,138 @@
+# Gopkg.toml example
+#
+# Refer to https://golang.github.io/dep/docs/Gopkg.toml.html
+# for detailed Gopkg.toml documentation.
+#
+# required = ["github.com/user/thing/cmd/thing"]
+# ignored = ["github.com/user/project/pkgX", "bitbucket.org/user/project/pkgA/pkgY"]
+#
+# [[constraint]]
+#   name = "github.com/user/project"
+#   version = "1.0.0"
+#
+# [[constraint]]
+#   name = "github.com/user/project2"
+#   branch = "dev"
+#   source = "github.com/myfork/project2"
+#
+# [[override]]
+#   name = "github.com/x/y"
+#   version = "2.4.0"
+#
+# [prune]
+#   non-go = false
+#   go-tests = true
+#   unused-packages = true
+
+
+[[constraint]]
+  name = "github.com/go-openapi/errors"
+  version = "0.17.2"
+
+[[constraint]]
+  name = "github.com/go-openapi/loads"
+  version = "0.17.2"
+
+[[constraint]]
+  name = "github.com/go-openapi/runtime"
+  version = "0.17.2"
+
+[[constraint]]
+  name = "github.com/go-openapi/spec"
+  version = "0.17.2"
+
+[[constraint]]
+  name = "github.com/go-openapi/strfmt"
+  version = "0.17.2"
+
+[[constraint]]
+  name = "github.com/go-openapi/swag"
+  version = "0.17.2"
+
+[[constraint]]
+  name = "github.com/go-openapi/validate"
+  version = "0.17.2"
+
+[[constraint]]
+  name = "github.com/jessevdk/go-flags"
+  version = "1.4.0"
+
+[[constraint]]
+  name = "github.com/spf13/cobra"
+  version = "0.0.3"
+
+[[constraint]]
+  branch = "master"
+  name = "golang.org/x/net"
+
+[prune]
+  go-tests = true
+  unused-packages = true
+
+[[constraint]]
+  name = "github.com/docker/libkv"
+  version = "0.2.1"
+
+[[constraint]]
+  name = "github.com/sirupsen/logrus"
+  version = "1.2.0"
+
+[[constraint]]
+  name = "github.com/satori/go.uuid"
+  version = "1.2.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/golang/glog"
+
+[[constraint]]
+  name = "gopkg.in/yaml.v2"
+  version = "2.2.2"
+
+[[constraint]]
+  name = "github.com/onsi/gomega"
+  version = "1.4.3"
+
+[[override]]
+  name = "gopkg.in/fsnotify.v1"
+  source = "gopkg.in/fsnotify/fsnotify.v1"
+
+[[override]]
+  branch = "master"
+  name = "github.com/hpcloud/tail"
+
+[[constraint]]
+  name = "github.com/onsi/ginkgo"
+  version = "1.7.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/giantswarm/ipam"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/giantswarm/microstorage"
+
+[[constraint]]
+  name = "k8s.io/helm"
+  version = "2.12.1"
+
+[[constraint]]
+  name = "k8s.io/client-go"
+  version = "10.0.0"
+
+[[constraint]]
+  branch = "master"
+  name = "k8s.io/api"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/sparrc/go-ping"
+
+[[constraint]]
+  name = "github.com/stretchr/testify"
+  version = "1.3.0"
+
+[[constraint]]
+  name = "github.com/golang/mock"
+  version = "1.2.0"
