@@ -104,6 +104,14 @@
   version = "v1.1.1"
 
 [[projects]]
+  branch = "master"
+  digest = "1:f954567bcc95e4614c437b44cfd2bf52b4b3c424a5316b725f030c9f3224def0"
+  name = "github.com/digitalocean/go-openvswitch"
+  packages = ["ovs"]
+  pruneopts = "UT"
+  revision = "10882ec21235e46a2aa4b33a6e770b5bcaeb40fd"
+
+[[projects]]
   digest = "1:6f82cacd0af5921e99bf3f46748705239b36489464f4529a1589bc895764fb18"
   name = "github.com/docker/go-units"
   packages = ["."]
@@ -760,8 +768,8 @@
     "openpgp/s2k",
     "pbkdf2",
     "poly1305",
-    "scrypt",
     "ssh",
+    "scrypt",
     "ssh/terminal",
   ]
   pruneopts = "UT"
@@ -1176,6 +1184,7 @@
   input-imports = [
     "github.com/bramvdbogaerde/go-scp",
     "github.com/bramvdbogaerde/go-scp/auth",
+    "github.com/digitalocean/go-openvswitch/ovs",
     "github.com/docker/libkv",
     "github.com/docker/libkv/store",
     "github.com/docker/libkv/store/consul",
@@ -1206,6 +1215,8 @@
     "github.com/spf13/cobra",
     "github.com/stretchr/testify/assert",
     "golang.org/x/crypto/ssh",
+    "github.com/spf13/pflag",
+    "github.com/stretchr/testify/assert",
     "golang.org/x/net/netutil",
     "gopkg.in/yaml.v2",
     "k8s.io/api/core/v1",
