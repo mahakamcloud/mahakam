@@ -170,24 +170,6 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 		return nil, fmt.Errorf("provided cluster size is not available: %s", workerNodeSize)
 	}
 
-	workerNumCPUs := r.GetClusterNodeCPUs(workerNodeSize)
-	workerMemorySize, err := r.GetClusterNodeMemoryInMB(workerNodeSize)
-	if err != nil {
-		cwfLog.Errorf("error getting memory size %s", err)
-		return nil, err
-	}
-
-	// For controlplane default to ClusterSizeDefault
-	// instead of NodeSize passed from CLI
-	cpNodeSize := r.ClusterSizeDefault
-	cpNumCPUs := r.GetClusterNodeCPUs(cpNodeSize)
-
-	cpMemorySize, err := r.GetClusterNodeMemoryInMB(cpNodeSize)
-	if err != nil {
-		cwfLog.Errorf("error getting memory size %s", err)
-		return nil, err
-	}
-
 	clusterNetwork, err := getClusterNetwork(clusterName, cHandler.Network, cHandler.Client)
 	if err != nil {
 		cwfLog.Errorf("error getting network allocation for cluster %s: %s", clusterName, err)
