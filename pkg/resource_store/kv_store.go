@@ -74,7 +74,7 @@ func (kvr *kvResourceStore) Get(r resource.Resource) error {
 	return nil
 }
 
-func (kvr *kvResourceStore) List(owner string, kind resource.ResourceKind, list resource.ResourceList) error {
+func (kvr *kvResourceStore) List(owner string, kind resource.Kind, list resource.ResourceList) error {
 	var resources []resource.Resource
 
 	kvpairs, err := kvr.store.List(string(kind) + "/" + owner + "/")

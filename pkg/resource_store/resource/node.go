@@ -3,6 +3,7 @@ package resource
 import (
 	"net"
 	"strconv"
+	"strings"
 
 	"github.com/mahakamcloud/mahakam/pkg/config"
 )
@@ -21,17 +22,37 @@ const (
 	RoleNetworkDHCP Role = "network-dhcp"
 	// RoleNetworkGW defines a gateway node in a network
 	RoleNetworkGW Role = "network-gw"
-
-	SmallNode      = "SmallNode"
-	MediumNode     = "MediumNode"
-	LargeNode      = "LargeNode"
-	ExtraLargeNode = "ExtraLargeNode"
-
+	// SmallNode depicts string value of small Node size
+	SmallNode = "SMALL"
+	// MediumNode depicts string value of medium Node size
+	MediumNode = "MEDIUM"
+	// LargeNode depicts string value of large Node size
+	LargeNode = "LARGE"
+	// ExtraLargeNode depicts string value of extra large Node size
+	ExtraLargeNode = "EXTRALARGE"
+	// DefaultK8sControlPlaneNode depicts default k8s control plane Node size
 	DefaultK8sControlPlaneNode = MediumNode
-	DefaultNetworkDNSNode      = SmallNode
-	DefaultNetworkDHCPNode     = MediumNode
-	DefaultNetworkGWNode       = MediumNode
+	// DefaultK8sWorkerNode depicts default k8s worker Node size
+	DefaultK8sWorkerNode = MediumNode
+	// DefaultNetworkDNSNode depicts default DNS Node size
+	DefaultNetworkDNSNode = SmallNode
+	// DefaultNetworkDHCPNode depicts default DHCP Node size
+	DefaultNetworkDHCPNode = MediumNode
+	// DefaultNetworkGWNode depicts default Gateway Node size
+	DefaultNetworkGWNode = MediumNode
 )
+
+var availableNodeSizes = []string{SmallNode, MediumNode, LargeNode, ExtraLargeNode}
+
+// NodeSizeValidate verifies is Node size passed is valid
+func NodeSizeValidate(size string) bool {
+	for _, availableSize := range availableNodeSizes {
+		if strings.ToUpper(size) == availableSize {
+			return true
+		}
+	}
+	return false
+}
 
 // NodeSpec represents types of nodes
 type NodeSpec struct {

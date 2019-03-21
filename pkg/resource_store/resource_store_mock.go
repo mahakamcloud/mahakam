@@ -64,7 +64,7 @@ func (mr *MockResourceStoreMockRecorder) Get(resource interface{}) *gomock.Call 
 }
 
 // List mocks base method
-func (m *MockResourceStore) List(owner string, kind resource.ResourceKind, list resource.ResourceList) error {
+func (m *MockResourceStore) List(owner string, kind resource.Kind, list resource.ResourceList) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "List", owner, kind, list)
 	ret0, _ := ret[0].(error)

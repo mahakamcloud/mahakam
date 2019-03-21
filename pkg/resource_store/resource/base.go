@@ -12,8 +12,8 @@ import (
 // Status represents current state of task or entity
 type Status string
 
-// ResourceKind represents stored resource kind
-type ResourceKind string
+// Kind represents stored resource kind
+type Kind string
 
 // Labels represents filterable keypairs metadata
 type Labels []Label
@@ -28,13 +28,13 @@ const (
 	StatusCreating Status = "Creating"
 	StatusReady    Status = "Ready"
 
-	KindCluster          ResourceKind = "cluster"
-	KindTerraform        ResourceKind = "terraform"
-	KindTerraformBackend ResourceKind = "terraform backend"
-	KindTask             ResourceKind = "task"
-	KindNetwork          ResourceKind = "network"
-	KindNode             ResourceKind = "node"
-	KindIPPool           ResourceKind = "ippool"
+	KindCluster          Kind = "cluster"
+	KindTerraform        Kind = "terraform"
+	KindTerraformBackend Kind = "terraform backend"
+	KindTask             Kind = "task"
+	KindNetwork          Kind = "network"
+	KindNode             Kind = "node"
+	KindIPPool           Kind = "ippool"
 )
 
 // Resource is interface for all stored resources or objects
@@ -116,7 +116,7 @@ func (br *BaseResource) GetLabels() Labels {
 }
 
 // NewResourceFromKind returns empty resource of that type
-func NewResourceFromKind(resKind ResourceKind) (Resource, error) {
+func NewResourceFromKind(resKind Kind) (Resource, error) {
 	switch resKind {
 	case KindCluster:
 		return &Cluster{}, nil
@@ -134,7 +134,7 @@ func NewResourceFromKind(resKind ResourceKind) (Resource, error) {
 }
 
 // NewResourceListFromKind returns empty resource of that type
-func NewResourceListFromKind(resKind ResourceKind) (ResourceList, error) {
+func NewResourceListFromKind(resKind Kind) (ResourceList, error) {
 	switch resKind {
 	case KindCluster:
 		return &ClusterList{}, nil

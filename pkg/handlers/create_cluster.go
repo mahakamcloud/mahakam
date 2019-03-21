@@ -162,12 +162,11 @@ func newCreateClusterWF(cluster *models.Cluster, cHandler *CreateCluster) (*crea
 	workerNodeSize := swag.StringValue(cluster.NodeSize)
 
 	if workerNodeSize == "" {
-		workerNodeSize = r.ClusterSizeDefault
+		workerNodeSize = r.DefaultK8sWorkerNode
 	}
 
-	if !r.ClusterSizeValidate(workerNodeSize) {
-		cwfLog.Errorf("provided cluster size is not available: %s", workerNodeSize)
-		return nil, fmt.Errorf("provided cluster size is not available: %s", workerNodeSize)
+	if !r.NodeSizeValidate(workerNodeSize) {
+		return nil, fmt.Errorf("provided node size is not available: %s", workerNodeSize)
 	}
 
 	clusterNetwork, err := getClusterNetwork(clusterName, cHandler.Network, cHandler.Client)
