@@ -386,10 +386,8 @@ definitions:
         type: string
       status:
         type: string
-  node:
+  baseResource:
     type: object
-    required:
-      - name
     properties:
       id:
         type: integer
@@ -397,8 +395,19 @@ definitions:
         readOnly: true
       name:
         type: string
-      type:
+      owner:
         type: string
+      kind:
+        type: string
+      createdTime:
+        type: string
+        format : date-time
+      modifiedTime:
+        type: string
+        format : date-time
+      revision:
+        type: integer
+        format: uint64
       labels:
         type: array
         items:
@@ -408,6 +417,84 @@ definitions:
               type: string
             value:
               type: string
+  nodespec:
+    type: object
+    properties:
+      nCores:
+        type: integer
+      Memory:
+        type: integer
+        format: int64
+  networkConfig:
+    type: object
+    properties:
+      mac:
+        type: string
+        format: mac
+      ipMask:
+        type: string
+      ip:
+        type: string
+        format: ipv4
+      gatewayIP:
+        type: string
+        format: ipv4
+      nameserverIP:
+        type: string
+        format: ipv4
+      fqdn:
+        type: string
+  nodeStatus:
+    type: object
+    properties:
+      host:
+        type: string
+  metadata:
+    type: object
+    properties:
+      userdata:
+        type: string
+      sshKeys:
+        type: array
+        items:
+          type: string
+    additionalProperties:
+      type: string
+      format: string
+  node:
+    type: object
+    required:
+      - name
+    allOf:
+      - $ref: "#/definitions/baseResource"
+    properties:
+      id:
+        type: integer
+        format: int64
+        readOnly: true
+      name:
+        type: string
+      owner:
+        type: string
+      createdTime:
+        type: string
+        format : date-time
+      modifiedTime:
+        type: string
+        format : date-time
+      revision:
+        type: integer
+        format: uint64
+      nodespec:
+        $ref: "#/definitions/nodespec"
+      networkConfigs:
+        type: array
+        items:
+          $ref: "#/definitions/networkConfig"
+      status:
+        $ref: "#/definitions/nodeStatus"
+      metadata:
+        $ref: "#/definitions/metadata"
   error:
     type: object
     properties:

@@ -18,28 +18,194 @@ import (
 // Node node
 // swagger:model node
 type Node struct {
+	BaseResource
+
+	// created time
+	// Format: date-time
+	CreatedTime strfmt.DateTime `json:"createdTime,omitempty"`
 
 	// id
 	// Read Only: true
 	ID int64 `json:"id,omitempty"`
 
-	// labels
-	Labels []*NodeLabelsItems0 `json:"labels"`
+	// metadata
+	Metadata *Metadata `json:"metadata,omitempty"`
+
+	// modified time
+	// Format: date-time
+	ModifiedTime strfmt.DateTime `json:"modifiedTime,omitempty"`
 
 	// name
 	// Required: true
 	Name *string `json:"name"`
+
+	// network configs
+	NetworkConfigs []*NetworkConfig `json:"networkConfigs"`
+
+	// nodespec
+	Nodespec *Nodespec `json:"nodespec,omitempty"`
+
+	// owner
+	Owner string `json:"owner,omitempty"`
+
+	// revision
+	Revision uint64 `json:"revision,omitempty"`
+
+	// status
+	Status *NodeStatus `json:"status,omitempty"`
+}
+
+// UnmarshalJSON unmarshals this object from a JSON structure
+func (m *Node) UnmarshalJSON(raw []byte) error {
+	// AO0
+	var aO0 BaseResource
+	if err := swag.ReadJSON(raw, &aO0); err != nil {
+		return err
+	}
+	m.BaseResource = aO0
+
+	// now for regular properties
+	var propsNode struct {
+		CreatedTime strfmt.DateTime `json:"createdTime,omitempty"`
+
+		ID int64 `json:"id,omitempty"`
+
+		Metadata *Metadata `json:"metadata,omitempty"`
+
+		ModifiedTime strfmt.DateTime `json:"modifiedTime,omitempty"`
+
+		Name *string `json:"name"`
+
+		NetworkConfigs []*NetworkConfig `json:"networkConfigs"`
+
+		Nodespec *Nodespec `json:"nodespec,omitempty"`
+
+		Owner string `json:"owner,omitempty"`
+
+		Revision uint64 `json:"revision,omitempty"`
+
+		Status *NodeStatus `json:"status,omitempty"`
+	}
+	if err := swag.ReadJSON(raw, &propsNode); err != nil {
+		return err
+	}
+	m.CreatedTime = propsNode.CreatedTime
+
+	m.ID = propsNode.ID
+
+	m.Metadata = propsNode.Metadata
+
+	m.ModifiedTime = propsNode.ModifiedTime
+
+	m.Name = propsNode.Name
+
+	m.NetworkConfigs = propsNode.NetworkConfigs
+
+	m.Nodespec = propsNode.Nodespec
+
+	m.Owner = propsNode.Owner
+
+	m.Revision = propsNode.Revision
+
+	m.Status = propsNode.Status
+
+	return nil
+}
+
+// MarshalJSON marshals this object to a JSON structure
+func (m Node) MarshalJSON() ([]byte, error) {
+	_parts := make([][]byte, 0, 1)
+
+	aO0, err := swag.WriteJSON(m.BaseResource)
+	if err != nil {
+		return nil, err
+	}
+	_parts = append(_parts, aO0)
+
+	// now for regular properties
+	var propsNode struct {
+		CreatedTime strfmt.DateTime `json:"createdTime,omitempty"`
+
+		ID int64 `json:"id,omitempty"`
+
+		Metadata *Metadata `json:"metadata,omitempty"`
+
+		ModifiedTime strfmt.DateTime `json:"modifiedTime,omitempty"`
+
+		Name *string `json:"name"`
+
+		NetworkConfigs []*NetworkConfig `json:"networkConfigs"`
+
+		Nodespec *Nodespec `json:"nodespec,omitempty"`
+
+		Owner string `json:"owner,omitempty"`
+
+		Revision uint64 `json:"revision,omitempty"`
+
+		Status *NodeStatus `json:"status,omitempty"`
+	}
+	propsNode.CreatedTime = m.CreatedTime
+
+	propsNode.ID = m.ID
+
+	propsNode.Metadata = m.Metadata
+
+	propsNode.ModifiedTime = m.ModifiedTime
+
+	propsNode.Name = m.Name
+
+	propsNode.NetworkConfigs = m.NetworkConfigs
+
+	propsNode.Nodespec = m.Nodespec
+
+	propsNode.Owner = m.Owner
+
+	propsNode.Revision = m.Revision
+
+	propsNode.Status = m.Status
+
+	jsonDataPropsNode, errNode := swag.WriteJSON(propsNode)
+	if errNode != nil {
+		return nil, errNode
+	}
+	_parts = append(_parts, jsonDataPropsNode)
+	return swag.ConcatJSON(_parts...), nil
 }
 
 // Validate validates this node
 func (m *Node) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateLabels(formats); err != nil {
+	// validation for a type composition with BaseResource
+	if err := m.BaseResource.Validate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateCreatedTime(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMetadata(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateModifiedTime(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateName(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNetworkConfigs(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNodespec(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -49,21 +215,74 @@ func (m *Node) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Node) validateLabels(formats strfmt.Registry) error {
+func (m *Node) validateCreatedTime(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.Labels) { // not required
+	if swag.IsZero(m.CreatedTime) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(m.Labels); i++ {
-		if swag.IsZero(m.Labels[i]) { // not required
+	if err := validate.FormatOf("createdTime", "body", "date-time", m.CreatedTime.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Node) validateMetadata(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Metadata) { // not required
+		return nil
+	}
+
+	if m.Metadata != nil {
+		if err := m.Metadata.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("metadata")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Node) validateModifiedTime(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ModifiedTime) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("modifiedTime", "body", "date-time", m.ModifiedTime.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Node) validateName(formats strfmt.Registry) error {
+
+	if err := validate.Required("name", "body", m.Name); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Node) validateNetworkConfigs(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.NetworkConfigs) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.NetworkConfigs); i++ {
+		if swag.IsZero(m.NetworkConfigs[i]) { // not required
 			continue
 		}
 
-		if m.Labels[i] != nil {
-			if err := m.Labels[i].Validate(formats); err != nil {
+		if m.NetworkConfigs[i] != nil {
+			if err := m.NetworkConfigs[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("labels" + "." + strconv.Itoa(i))
+					return ve.ValidateName("networkConfigs" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -74,10 +293,37 @@ func (m *Node) validateLabels(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Node) validateName(formats strfmt.Registry) error {
+func (m *Node) validateNodespec(formats strfmt.Registry) error {
 
-	if err := validate.Required("name", "body", m.Name); err != nil {
-		return err
+	if swag.IsZero(m.Nodespec) { // not required
+		return nil
+	}
+
+	if m.Nodespec != nil {
+		if err := m.Nodespec.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("nodespec")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Node) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
+
+	if m.Status != nil {
+		if err := m.Status.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("status")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -94,40 +340,6 @@ func (m *Node) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (m *Node) UnmarshalBinary(b []byte) error {
 	var res Node
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
-	return nil
-}
-
-// NodeLabelsItems0 node labels items0
-// swagger:model NodeLabelsItems0
-type NodeLabelsItems0 struct {
-
-	// key
-	Key string `json:"key,omitempty"`
-
-	// value
-	Value string `json:"value,omitempty"`
-}
-
-// Validate validates this node labels items0
-func (m *NodeLabelsItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *NodeLabelsItems0) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *NodeLabelsItems0) UnmarshalBinary(b []byte) error {
-	var res NodeLabelsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

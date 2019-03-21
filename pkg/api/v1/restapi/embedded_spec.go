@@ -496,6 +496,51 @@ func init() {
         }
       }
     },
+    "baseResource": {
+      "type": "object",
+      "properties": {
+        "createdTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "kind": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "modifiedTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "name": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "integer",
+          "format": "uint64"
+        }
+      }
+    },
     "cluster": {
       "type": "object",
       "required": [
@@ -597,6 +642,24 @@ func init() {
         }
       }
     },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "sshKeys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "userdata": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {
+        "type": "string",
+        "format": "string"
+      }
+    },
     "network": {
       "type": "object",
       "required": [
@@ -628,33 +691,101 @@ func init() {
         }
       }
     },
+    "networkConfig": {
+      "type": "object",
+      "properties": {
+        "fqdn": {
+          "type": "string"
+        },
+        "gatewayIP": {
+          "type": "string",
+          "format": "ipv4"
+        },
+        "ip": {
+          "type": "string",
+          "format": "ipv4"
+        },
+        "ipMask": {
+          "type": "string"
+        },
+        "mac": {
+          "type": "string",
+          "format": "mac"
+        },
+        "nameserverIP": {
+          "type": "string",
+          "format": "ipv4"
+        }
+      }
+    },
     "node": {
       "type": "object",
       "required": [
         "name"
       ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseResource"
+        }
+      ],
       "properties": {
+        "createdTime": {
+          "type": "string",
+          "format": "date-time"
+        },
         "id": {
           "type": "integer",
           "format": "int64",
           "readOnly": true
         },
-        "labels": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "key": {
-                "type": "string"
-              },
-              "value": {
-                "type": "string"
-              }
-            }
-          }
+        "metadata": {
+          "$ref": "#/definitions/metadata"
+        },
+        "modifiedTime": {
+          "type": "string",
+          "format": "date-time"
         },
         "name": {
           "type": "string"
+        },
+        "networkConfigs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/networkConfig"
+          }
+        },
+        "nodespec": {
+          "$ref": "#/definitions/nodespec"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "integer",
+          "format": "uint64"
+        },
+        "status": {
+          "$ref": "#/definitions/nodeStatus"
+        }
+      }
+    },
+    "nodeStatus": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string"
+        }
+      }
+    },
+    "nodespec": {
+      "type": "object",
+      "properties": {
+        "Memory": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "nCores": {
+          "type": "integer"
         }
       }
     }
@@ -1139,6 +1270,51 @@ func init() {
         }
       }
     },
+    "baseResource": {
+      "type": "object",
+      "properties": {
+        "createdTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "kind": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "modifiedTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "name": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "integer",
+          "format": "uint64"
+        }
+      }
+    },
     "cluster": {
       "type": "object",
       "required": [
@@ -1240,6 +1416,24 @@ func init() {
         }
       }
     },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "sshKeys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "userdata": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {
+        "type": "string",
+        "format": "string"
+      }
+    },
     "network": {
       "type": "object",
       "required": [
@@ -1271,33 +1465,101 @@ func init() {
         }
       }
     },
+    "networkConfig": {
+      "type": "object",
+      "properties": {
+        "fqdn": {
+          "type": "string"
+        },
+        "gatewayIP": {
+          "type": "string",
+          "format": "ipv4"
+        },
+        "ip": {
+          "type": "string",
+          "format": "ipv4"
+        },
+        "ipMask": {
+          "type": "string"
+        },
+        "mac": {
+          "type": "string",
+          "format": "mac"
+        },
+        "nameserverIP": {
+          "type": "string",
+          "format": "ipv4"
+        }
+      }
+    },
     "node": {
       "type": "object",
       "required": [
         "name"
       ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseResource"
+        }
+      ],
       "properties": {
+        "createdTime": {
+          "type": "string",
+          "format": "date-time"
+        },
         "id": {
           "type": "integer",
           "format": "int64",
           "readOnly": true
         },
-        "labels": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "key": {
-                "type": "string"
-              },
-              "value": {
-                "type": "string"
-              }
-            }
-          }
+        "metadata": {
+          "$ref": "#/definitions/metadata"
+        },
+        "modifiedTime": {
+          "type": "string",
+          "format": "date-time"
         },
         "name": {
           "type": "string"
+        },
+        "networkConfigs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/networkConfig"
+          }
+        },
+        "nodespec": {
+          "$ref": "#/definitions/nodespec"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "integer",
+          "format": "uint64"
+        },
+        "status": {
+          "$ref": "#/definitions/nodeStatus"
+        }
+      }
+    },
+    "nodeStatus": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string"
+        }
+      }
+    },
+    "nodespec": {
+      "type": "object",
+      "properties": {
+        "Memory": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "nCores": {
+          "type": "integer"
         }
       }
     }
