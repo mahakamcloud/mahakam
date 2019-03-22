@@ -28,7 +28,7 @@ func Run(nd *NetDaemon) {
 		return
 	}
 
-	ipaddress, err := hostIP(nd.HostBridgeName)
+	ipaddress, err := getBridgeIpAddr(nd.HostBridgeName)
 	if err != nil {
 		nd.Log.Errorf("error getting host ip address: %v", err)
 		return
@@ -38,20 +38,15 @@ func Run(nd *NetDaemon) {
 	provisionAgent.Run()
 }
 
-func hostIP(brName string) (net.IP, error) {
-	ifaces, err := net.Interfaces()
+func getBridgeIpAddr(bridgeName string) (net.IP, error) {
+	iface, err := net.InterfaceByName(bridgeName)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, iface := range ifaces {
-		if iface.Name == brName {
-			if addrs, _ := iface.Addrs(); len(addrs) > 0 {
-				ip, _, _ := net.ParseCIDR(addrs[0].String())
-				return ip, nil
-			}
-			return nil, fmt.Errorf("host bridge %q doesn't have IP", brName)
-		}
+	if addrs, _ := iface.Addrs(); len(addrs) > 0 {
+		ip, _, _ := net.ParseCIDR(addrs[0].String())
+		return ip, nil
 	}
-	return nil, fmt.Errorf("host bridge %q not found", brName)
+	return nil, fmt.Errorf("host bridge %q doesn't have IP", bridgeName)
 }
