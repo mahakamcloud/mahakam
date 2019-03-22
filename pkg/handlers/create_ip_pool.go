@@ -19,6 +19,7 @@ type CreateIPPool struct {
 	log logrus.FieldLogger
 }
 
+// NewCreateNodeHandler returns CreateIPPool handler
 func NewCreateIPPoolHandler(handlers Handlers) *CreateIPPool {
 	return &CreateIPPool{
 		Handlers: handlers,

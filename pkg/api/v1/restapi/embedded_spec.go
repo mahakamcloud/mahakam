@@ -392,6 +392,60 @@ func init() {
           }
         }
       }
+    },
+    "/nodes": {
+      "get": {
+        "tags": [
+          "nodes"
+        ],
+        "operationId": "getNodes",
+        "responses": {
+          "200": {
+            "description": "list created nodes",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/node"
+              }
+            }
+          },
+          "default": {
+            "description": "generic error response",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "nodes"
+        ],
+        "operationId": "createNode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/node"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/node"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -442,6 +496,51 @@ func init() {
         }
       }
     },
+    "baseResource": {
+      "type": "object",
+      "properties": {
+        "createdTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "kind": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "modifiedTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "name": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "integer",
+          "format": "uint64"
+        }
+      }
+    },
     "cluster": {
       "type": "object",
       "required": [
@@ -471,7 +570,14 @@ func init() {
         },
         "nodeSize": {
           "type": "string",
-          "default": "xs"
+          "default": "small",
+          "enum": [
+            "extrasmall",
+            "small",
+            "medium",
+            "large",
+            "extralarge"
+          ]
         },
         "numNodes": {
           "type": "integer",
@@ -543,6 +649,24 @@ func init() {
         }
       }
     },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "sshKeys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "userdata": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {
+        "type": "string",
+        "format": "string"
+      }
+    },
     "network": {
       "type": "object",
       "required": [
@@ -570,6 +694,103 @@ func init() {
           "type": "string"
         },
         "networkName": {
+          "type": "string"
+        }
+      }
+    },
+    "networkConfig": {
+      "type": "object",
+      "properties": {
+        "fqdn": {
+          "type": "string"
+        },
+        "gatewayIP": {
+          "type": "string",
+          "format": "ipv4"
+        },
+        "ip": {
+          "type": "string",
+          "format": "ipv4"
+        },
+        "ipMask": {
+          "type": "string"
+        },
+        "mac": {
+          "type": "string",
+          "format": "mac"
+        },
+        "nameserverIP": {
+          "type": "string",
+          "format": "ipv4"
+        }
+      }
+    },
+    "node": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseResource"
+        }
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "metadata": {
+          "$ref": "#/definitions/metadata"
+        },
+        "modifiedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "name": {
+          "type": "string"
+        },
+        "networkConfigs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/networkConfig"
+          }
+        },
+        "nodespec": {
+          "$ref": "#/definitions/nodeSpec"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "integer",
+          "format": "uint64"
+        },
+        "status": {
+          "$ref": "#/definitions/nodeStatus"
+        }
+      }
+    },
+    "nodeSpec": {
+      "type": "object",
+      "properties": {
+        "cpu": {
+          "type": "integer"
+        },
+        "memory": {
+          "type": "string"
+        }
+      }
+    },
+    "nodeStatus": {
+      "type": "object",
+      "properties": {
+        "host": {
           "type": "string"
         }
       }
@@ -951,6 +1172,60 @@ func init() {
           }
         }
       }
+    },
+    "/nodes": {
+      "get": {
+        "tags": [
+          "nodes"
+        ],
+        "operationId": "getNodes",
+        "responses": {
+          "200": {
+            "description": "list created nodes",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/node"
+              }
+            }
+          },
+          "default": {
+            "description": "generic error response",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "nodes"
+        ],
+        "operationId": "createNode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/node"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/node"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -1001,6 +1276,51 @@ func init() {
         }
       }
     },
+    "baseResource": {
+      "type": "object",
+      "properties": {
+        "createdTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "kind": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "modifiedTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "name": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "integer",
+          "format": "uint64"
+        }
+      }
+    },
     "cluster": {
       "type": "object",
       "required": [
@@ -1030,7 +1350,14 @@ func init() {
         },
         "nodeSize": {
           "type": "string",
-          "default": "xs"
+          "default": "small",
+          "enum": [
+            "extrasmall",
+            "small",
+            "medium",
+            "large",
+            "extralarge"
+          ]
         },
         "numNodes": {
           "type": "integer",
@@ -1102,6 +1429,24 @@ func init() {
         }
       }
     },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "sshKeys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "userdata": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {
+        "type": "string",
+        "format": "string"
+      }
+    },
     "network": {
       "type": "object",
       "required": [
@@ -1129,6 +1474,103 @@ func init() {
           "type": "string"
         },
         "networkName": {
+          "type": "string"
+        }
+      }
+    },
+    "networkConfig": {
+      "type": "object",
+      "properties": {
+        "fqdn": {
+          "type": "string"
+        },
+        "gatewayIP": {
+          "type": "string",
+          "format": "ipv4"
+        },
+        "ip": {
+          "type": "string",
+          "format": "ipv4"
+        },
+        "ipMask": {
+          "type": "string"
+        },
+        "mac": {
+          "type": "string",
+          "format": "mac"
+        },
+        "nameserverIP": {
+          "type": "string",
+          "format": "ipv4"
+        }
+      }
+    },
+    "node": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseResource"
+        }
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "metadata": {
+          "$ref": "#/definitions/metadata"
+        },
+        "modifiedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "name": {
+          "type": "string"
+        },
+        "networkConfigs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/networkConfig"
+          }
+        },
+        "nodespec": {
+          "$ref": "#/definitions/nodeSpec"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "integer",
+          "format": "uint64"
+        },
+        "status": {
+          "$ref": "#/definitions/nodeStatus"
+        }
+      }
+    },
+    "nodeSpec": {
+      "type": "object",
+      "properties": {
+        "cpu": {
+          "type": "integer"
+        },
+        "memory": {
+          "type": "string"
+        }
+      }
+    },
+    "nodeStatus": {
+      "type": "object",
+      "properties": {
+        "host": {
           "type": "string"
         }
       }

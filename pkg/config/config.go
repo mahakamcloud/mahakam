@@ -161,6 +161,8 @@ type NetworkConfig struct {
 	DatacenterGatewayCIDR string `yaml:"datacenter_gateway_cidr"`
 	// DatacenterNameserver is nameserver in datacenter that can solve domains in Internet
 	DatacenterNameserver string `yaml:"datacenter_nameserver"`
+	// Domain is domain for the network
+	Domain string `yaml:"domain"`
 }
 
 // Validate validates storage backend configuration
@@ -195,6 +197,10 @@ func (nc *NetworkConfig) Validate() error {
 
 	if validIP := net.ParseIP(nc.DatacenterNameserver); validIP == nil {
 		return fmt.Errorf("must provide valid IP format for datacenter nameserver")
+	}
+
+	if nc.Domain == "" {
+		return fmt.Errorf("must provide non-empty domain")
 	}
 
 	return nil

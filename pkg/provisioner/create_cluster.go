@@ -8,7 +8,6 @@ import (
 
 	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/mahakamcloud/mahakam/pkg/network"
-	"github.com/mahakamcloud/mahakam/pkg/node"
 	store "github.com/mahakamcloud/mahakam/pkg/resource_store"
 	"github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
 	"github.com/mahakamcloud/mahakam/pkg/utils"
@@ -105,25 +104,25 @@ func (c *CheckNode) Run() error {
 }
 
 type CreateNode struct {
-	Config node.NodeCreateConfig
-	p      Provisioner
-	log    logrus.FieldLogger
+	Node resource.Node
+	p    Provisioner
+	log  logrus.FieldLogger
 }
 
-func NewCreateNode(config node.NodeCreateConfig, p Provisioner, log logrus.FieldLogger) *CreateNode {
-	createNodeLog := log.WithField("task", fmt.Sprintf("create node in %s", config.Host))
+func NewCreateNode(node resource.Node, p Provisioner, log logrus.FieldLogger) *CreateNode {
+	createNodeLog := log.WithField("task", fmt.Sprintf("create node in %s", node.Status().Host()))
 
 	return &CreateNode{
-		Config: config,
-		p:      p,
-		log:    createNodeLog,
+		Node: node,
+		p:    p,
+		log:  createNodeLog,
 	}
 }
 
 func (n *CreateNode) Run() error {
-	err := n.p.CreateNode(n.Config)
+	err := n.p.CreateNode(n.Node)
 	if err != nil {
-		n.log.Errorf("error creating node '%v': %s", n.Config, err)
+		n.log.Errorf("error creating node '%v': %s", n.Node, err)
 		return err
 	}
 	return nil

@@ -63,4 +63,6 @@ const (
 	// Enum for ip pool service
 	IPPoolActionAllocate = "ALLOCATE"
 	IPPoolActionRelease  = "RELEASE"
+
+	TerraformTFState = "/terraform.tfstate"
 )

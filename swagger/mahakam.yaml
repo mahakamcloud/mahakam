@@ -236,6 +236,40 @@ paths:
           description: generic error response
           schema:
             $ref: "#/definitions/error"
+  /nodes:
+    get:
+      tags:
+        - nodes
+      operationId: getNodes
+      responses:
+        200:
+          description: list created nodes
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/node"
+        default:
+          description: generic error response
+          schema:
+            $ref: "#/definitions/error"
+    post:
+      tags:
+        - nodes
+      operationId: createNode
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: "#/definitions/node"
+      responses:
+        201:
+          description: Created
+          schema:
+            $ref: "#/definitions/node"
+        default:
+          description: error
+          schema:
+            $ref: "#/definitions/error"
 definitions:
   cluster:
     type: object
@@ -248,7 +282,13 @@ definitions:
         readOnly: true
       nodeSize:
         type: string
-        default: "xs"
+        default: "small"
+        enum:
+          - "extrasmall"
+          - "small"
+          - "medium"
+          - "large"
+          - "extralarge"
       name:
         type: string
         minLength: 1
@@ -352,6 +392,114 @@ definitions:
         type: string
       status:
         type: string
+  baseResource:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+        readOnly: true
+      name:
+        type: string
+      owner:
+        type: string
+      kind:
+        type: string
+      createdTime:
+        type: string
+        format : date-time
+      modifiedTime:
+        type: string
+        format : date-time
+      revision:
+        type: integer
+        format: uint64
+      labels:
+        type: array
+        items:
+          type: object
+          properties:
+            key:
+              type: string
+            value:
+              type: string
+  nodeSpec:
+    type: object
+    properties:
+      cpu:
+        type: integer
+      memory:
+        type: string
+  networkConfig:
+    type: object
+    properties:
+      mac:
+        type: string
+        format: mac
+      ipMask:
+        type: string
+      ip:
+        type: string
+        format: ipv4
+      gatewayIP:
+        type: string
+        format: ipv4
+      nameserverIP:
+        type: string
+        format: ipv4
+      fqdn:
+        type: string
+  nodeStatus:
+    type: object
+    properties:
+      host:
+        type: string
+  metadata:
+    type: object
+    properties:
+      userdata:
+        type: string
+      sshKeys:
+        type: array
+        items:
+          type: string
+    additionalProperties:
+      type: string
+      format: string
+  node:
+    type: object
+    required:
+      - name
+    allOf:
+      - $ref: "#/definitions/baseResource"
+    properties:
+      id:
+        type: integer
+        format: int64
+        readOnly: true
+      name:
+        type: string
+      owner:
+        type: string
+      createdAt:
+        type: string
+        format : date-time
+      modifiedAt:
+        type: string
+        format : date-time
+      revision:
+        type: integer
+        format: uint64
+      nodespec:
+        $ref: "#/definitions/nodeSpec"
+      networkConfigs:
+        type: array
+        items:
+          $ref: "#/definitions/networkConfig"
+      status:
+        $ref: "#/definitions/nodeStatus"
+      metadata:
+        $ref: "#/definitions/metadata"
   error:
     type: object
     properties:

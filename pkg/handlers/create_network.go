@@ -13,12 +13,13 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/networks"
 	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/mahakamcloud/mahakam/pkg/network"
-	"github.com/mahakamcloud/mahakam/pkg/node"
 	"github.com/mahakamcloud/mahakam/pkg/provisioner"
 	"github.com/mahakamcloud/mahakam/pkg/scheduler"
 	"github.com/mahakamcloud/mahakam/pkg/task"
 	"github.com/mahakamcloud/mahakam/pkg/utils"
 	"github.com/sirupsen/logrus"
+
+	r "github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
 )
 
 // CreateNetwork is handlers for create-network operation
@@ -37,7 +38,7 @@ func NewCreateNetworkHandler(handlers Handlers) *CreateNetwork {
 	}
 }
 
-// Handle is handler for create-network operation
+// Handle is handler for create-network operation`
 func (h *CreateNetwork) Handle(params networks.CreateNetworkParams) middleware.Responder {
 	h.log.Infof("handling create network request: %v", params)
 
@@ -76,9 +77,10 @@ type createNetworkWF struct {
 	handlers       Handlers
 	log            logrus.FieldLogger
 	clusterNetwork *network.ClusterNetwork
-	gateway        node.Node
-	nameserver     node.Node
-	dhcp           node.Node
+	clusterName    string
+	gateway        r.Node
+	nameserver     r.Node
+	dhcp           r.Node
 	hosts          []config.Host
 
 	dcPublicNetworkCIDR    net.IPNet
@@ -95,18 +97,6 @@ func newCreateNetworkWF(cluster *models.Network, cHandler *CreateNetwork) (*crea
 
 	clusterName := swag.StringValue(cluster.Name)
 
-	gateway := node.Node{
-		Name: fmt.Sprintf("%s-network-gw", clusterName),
-	}
-
-	dhcp := node.Node{
-		Name: fmt.Sprintf("%s-network-dhcp", clusterName),
-	}
-
-	dns := node.Node{
-		Name: fmt.Sprintf("%s-network-dns", clusterName),
-	}
-
 	dcGatewayIP, dcPublicNetworkCIDR, _ := net.ParseCIDR(cHandler.AppConfig.NetworkConfig.DatacenterGatewayCIDR)
 
 	dcNameserverIP := net.ParseIP(cHandler.AppConfig.NetworkConfig.DatacenterNameserver)
@@ -119,9 +109,10 @@ func newCreateNetworkWF(cluster *models.Network, cHandler *CreateNetwork) (*crea
 	return &createNetworkWF{
 		handlers:               cHandler.Handlers,
 		log:                    cHandler.log,
-		gateway:                gateway,
-		dhcp:                   dhcp,
-		nameserver:             dns,
+		gateway:                r.Node{},
+		dhcp:                   r.Node{},
+		nameserver:             r.Node{},
+		clusterName:            clusterName,
 		hosts:                  cHandler.hosts,
 		dcPublicNetworkCIDR:    *dcPublicNetworkCIDR,
 		dcGatewayIP:            dcGatewayIP,
@@ -214,32 +205,45 @@ func (cn *createNetworkWF) setupNetworkGatewayTasks(tasks []task.Task) []task.Ta
 		return nil
 	}
 
-	gwConfig := node.NodeCreateConfig{
-		Host: host,
-		Role: node.RoleNetworkGW,
-		Node: node.Node{
-			Name:         cn.gateway.Name,
-			SSHPublicKey: cn.nodePublicKey,
-			NetworkConfig: node.NetworkConfig{
-				MacAddress: network.GenerateMacAddress(),
-				IP:         cn.clusterNetwork.Gateway,
-				Mask:       cn.clusterNetwork.ClusterNetworkCIDR.Mask,
-			},
-			ExtraNetworks: []node.NetworkConfig{
-				node.NetworkConfig{
-					IP:         cn.clusterGatewayPublicIP,
-					Mask:       cn.dcPublicNetworkCIDR.Mask,
-					Gateway:    cn.dcGatewayIP,
-					Nameserver: cn.dcNameserverIP,
-				},
-			},
-		},
-		ExtraConfig: map[string]string{
-			config.KeyClusterNetworkCidr: cn.clusterNetwork.ClusterNetworkCIDR.String(),
-		},
+	gwNodeName := fmt.Sprintf("%s-network-gw", cn.clusterName)
+	gwNodeSpec := r.NewNodeSpec(r.SmallNode)
+	gwNodeStatus := r.NewNodeStatus(host.String())
+	gwNodeFqdn := getFQDN(gwNodeName, cn.clusterNetwork.Name, cn.handlers.AppConfig.NetworkConfig.Domain)
+
+	extraConfig := map[string]string{
+		config.KeyClusterNetworkCidr: cn.clusterNetwork.ClusterNetworkCIDR.String(),
+	}
+	gwNodeMetadata := r.NewMetadata("", []string{}, extraConfig)
+
+	gwNetworkConfigs := []r.NetworkConfig{
+		*r.NewNetworkConfig(
+			network.GenerateMacAddress(),
+			gwNodeFqdn,
+			cn.clusterNetwork.ClusterNetworkCIDR.Mask,
+			nil,
+			cn.clusterNetwork.Gateway,
+			nil),
+		*r.NewNetworkConfig("",
+			"",
+			cn.dcPublicNetworkCIDR.Mask,
+			cn.clusterGatewayPublicIP,
+			cn.dcGatewayIP,
+			cn.dcNameserverIP),
 	}
 
-	createGatewayNode := provisioner.NewCreateNode(gwConfig, cn.handlers.Provisioner, cn.log)
+	gwNodeConfig := r.NewNode(gwNodeName,
+		*gwNodeSpec,
+		gwNetworkConfigs,
+		*gwNodeMetadata,
+		*gwNodeStatus,
+		string(r.RoleNetworkGW))
+
+	cn.gateway = *gwNodeConfig
+
+	createGatewayNode := provisioner.NewCreateNode(
+		*gwNodeConfig,
+		cn.handlers.Provisioner,
+		cn.log)
 
 	tasks = append(tasks, createGatewayNode)
 
@@ -257,30 +261,41 @@ func (cn *createNetworkWF) setupNetworkDHCPTasks(tasks []task.Task) []task.Task 
 		return nil
 	}
 
-	dhcpConfig := node.NodeCreateConfig{
-		Host: host,
-		Role: node.RoleNetworkDHCP,
-		Node: node.Node{
-			Name:         cn.dhcp.Name,
-			SSHPublicKey: cn.nodePublicKey,
-			NetworkConfig: node.NetworkConfig{
-				MacAddress: network.GenerateMacAddress(),
-				IP:         cn.clusterNetwork.Dhcp,
-				Mask:       netCIDR.Mask,
-				Gateway:    cn.clusterNetwork.Gateway,
-				Nameserver: cn.dcNameserverIP,
-			},
-		},
-		ExtraConfig: map[string]string{
-			config.KeyClusterNetworkCidr: netCIDR.String(),
-			config.KeySubnetAddress:      netCIDR.IP.String(),
-			config.KeySubnetMask:         utils.IPv4MaskString(netCIDR.Mask),
-			config.KeyBroadcastAddress:   broadcastAddr(netCIDR),
-		},
+	dhcpNodeName := fmt.Sprintf("%s-network-dhcp", cn.clusterName)
+	dhcpNodeSpec := r.NewNodeSpec(r.SmallNode)
+	dhcpNodeStatus := r.NewNodeStatus(host.String())
+	dhcpNodeFqdn := dhcpNodeName + "." + cn.clusterNetwork.Name + "." + cn.handlers.AppConfig.NetworkConfig.Domain
+
+	extraConfig := map[string]string{
+		config.KeyClusterNetworkCidr: netCIDR.String(),
+		config.KeySubnetAddress:      netCIDR.IP.String(),
+		config.KeySubnetMask:         utils.IPv4MaskString(netCIDR.Mask),
+		config.KeyBroadcastAddress:   broadcastAddr(netCIDR),
 	}
 
+	dhcpNodeMetadata := r.NewMetadata("", []string{}, extraConfig)
+
+	dhcpNetworkConfigs := []r.NetworkConfig{
+		*r.NewNetworkConfig(
+			network.GenerateMacAddress(),
+			dhcpNodeFqdn,
+			cn.clusterNetwork.ClusterNetworkCIDR.Mask,
+			cn.clusterNetwork.Dhcp,
+			cn.clusterNetwork.Gateway,
+			cn.clusterNetwork.Nameserver),
+	}
+
+	dhcpNodeConfig := r.NewNode(dhcpNodeName,
+		*dhcpNodeSpec,
+		dhcpNetworkConfigs,
+		*dhcpNodeMetadata,
+		*dhcpNodeStatus,
+		string(r.RoleNetworkDHCP))
+
+	cn.dhcp = *dhcpNodeConfig
+
 	checkNetworkGWNode := provisioner.NewCheckNode(cn.clusterNetwork.Gateway, cn.log, utils.NewPingCheck())
-	createDHCPNode := provisioner.NewCreateNode(dhcpConfig, cn.handlers.Provisioner, cn.log)
+	createDHCPNode := provisioner.NewCreateNode(*dhcpNodeConfig, cn.handlers.Provisioner, cn.log)
 
 	dhcpSeqTasks := task.NewSeqTask(cn.log, checkNetworkGWNode, createDHCPNode)
 
@@ -300,30 +315,41 @@ func (cn *createNetworkWF) setupNetworkNameserverTasks(tasks []task.Task) []task
 		return nil
 	}
 
-	dnsConfig := node.NodeCreateConfig{
-		Host: host,
-		Role: node.RoleNetworkDNS,
-		Node: node.Node{
-			Name:         cn.nameserver.Name,
-			SSHPublicKey: cn.nodePublicKey,
-			NetworkConfig: node.NetworkConfig{
-				MacAddress: network.GenerateMacAddress(),
-				IP:         cn.clusterNetwork.Nameserver,
-				Mask:       netCIDR.Mask,
-				Gateway:    cn.clusterNetwork.Gateway,
-				Nameserver: cn.dcNameserverIP,
-			},
-		},
-		ExtraConfig: map[string]string{
-			config.KeyClusterNetworkCidr: netCIDR.String(),
-		},
+	dnsNodeName := fmt.Sprintf("%s-network-dns", cn.clusterName)
+	dnsNodeSpec := r.NewNodeSpec(r.SmallNode)
+	dnsNodeStatus := r.NewNodeStatus(host.String())
+	dnsNodeFqdn := dnsNodeName + "." + cn.clusterNetwork.Name + "." + cn.handlers.AppConfig.NetworkConfig.Domain
+
+	extraConfig := map[string]string{
+		config.KeyClusterNetworkCidr: netCIDR.String(),
 	}
 
-	checkNetworkGWNode := provisioner.NewCheckNode(cn.clusterNetwork.Gateway, cn.log, utils.NewPingCheck())
-	checkNetworkDHCPNode := provisioner.NewCheckNode(cn.clusterNetwork.Dhcp, cn.log, utils.NewPingCheck())
-	createDNSNode := provisioner.NewCreateNode(dnsConfig, cn.handlers.Provisioner, cn.log)
+	dnsNodeMetadata := r.NewMetadata("", []string{}, extraConfig)
 
-	dnsSeqTasks := task.NewSeqTask(cn.log, checkNetworkGWNode, checkNetworkDHCPNode, createDNSNode)
+	dnsNetworkConfigs := []r.NetworkConfig{
+		*r.NewNetworkConfig(
+			network.GenerateMacAddress(),
+			dnsNodeFqdn,
+			cn.clusterNetwork.ClusterNetworkCIDR.Mask,
+			cn.clusterNetwork.Nameserver,
+			cn.clusterNetwork.Gateway,
+			cn.dcNameserverIP),
+	}
+
+	dnsNodeConfig := r.NewNode(dnsNodeName,
+		*dnsNodeSpec,
+		dnsNetworkConfigs,
+		*dnsNodeMetadata,
+		*dnsNodeStatus,
+		string(r.RoleNetworkDHCP))
+
+	cn.nameserver = *dnsNodeConfig
+
+	checkNetworkGWNode := provisioner.NewCheckNode(cn.clusterNetwork.Gateway, cn.log, utils.NewPingCheck())
+
+	createDNSNode := provisioner.NewCreateNode(*dnsNodeConfig, cn.handlers.Provisioner, cn.log)
+
+	dnsSeqTasks := task.NewSeqTask(cn.log, checkNetworkGWNode, createDNSNode)
 
 	tasks = append(tasks, dnsSeqTasks)
 

@@ -34,9 +34,10 @@ func ReadFile(filePath string) ([]byte, error) {
 }
 
 // CidrToKeyString converts CIDR format to key string
-// i.e. from 1.2.3.4/16 to 1.2.3.4-16
+// i.e. from 1.2.3.4/16 to 1-2-3-4-16
 func CidrToKeyString(cidr net.IPNet) string {
-	return strings.Replace(cidr.String(), "/", "-", -1)
+	c := strings.Replace(cidr.String(), "/", "-", -1)
+	return strings.Replace(c, ".", "-", -1)
 }
 
 // CopyFile copies source file to destination

@@ -18,7 +18,7 @@ const (
 // Labels are filterable metadata as key pairs
 type Labels map[string]string
 
-func buildKey(rk resource.ResourceKind, owner string, id ...string) string {
+func buildKey(rk resource.Kind, owner string, id ...string) string {
 	sub := strings.Join(id, "/")
 	return fmt.Sprintf("%s/%s/%s/", rk, owner, sub)
 }
@@ -27,7 +27,7 @@ func buildKey(rk resource.ResourceKind, owner string, id ...string) string {
 type ResourceStore interface {
 	Add(resource resource.Resource) (id string, err error)
 	Get(resource resource.Resource) error
-	List(owner string, kind resource.ResourceKind, list resource.ResourceList) error
+	List(owner string, kind resource.Kind, list resource.ResourceList) error
 	Update(resource resource.Resource) (revision int64, err error)
 	Delete(owner string, id string, resource resource.Resource) error
 
