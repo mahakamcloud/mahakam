@@ -6,8 +6,6 @@ import (
 	"os"
 
 	"github.com/sirupsen/logrus"
-
-	"github.com/mahakamcloud/mahakam/pkg/netd/agent"
 )
 
 type NetDaemon struct {
@@ -22,20 +20,17 @@ type NetDaemon struct {
 
 func Run(nd *NetDaemon) {
 	// TODO(giri): Self registration of host
-	hostname, err := os.Hostname()
+	_, err := os.Hostname()
 	if err != nil {
 		nd.Log.Errorf("error getting hostname: %v", err)
 		return
 	}
 
-	ipaddress, err := getBridgeIpAddr(nd.HostBridgeName)
+	_, err = getBridgeIpAddr(nd.HostBridgeName)
 	if err != nil {
 		nd.Log.Errorf("error getting host ip address: %v", err)
 		return
 	}
-
-	provisionAgent := agent.NewProvisionAgent(hostname, ipaddress.String(), nd.MahakamAPIServer, nd.Log)
-	provisionAgent.Run()
 }
 
 func getBridgeIpAddr(bridgeName string) (net.IP, error) {
