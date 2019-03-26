@@ -2,8 +2,8 @@ package resource
 
 import "github.com/mahakamcloud/mahakam/pkg/config"
 
-// ResourceNode represents stored resource with terraform backend kind
-type ResourceNode struct {
+// Node represents stored resource with terraform backend kind
+type Node struct {
 	BaseResource
 	Name                  string
 	IPAddress             string
@@ -22,9 +22,9 @@ type ResourceNode struct {
 	Password              string
 }
 
-// NewResourceNode creates new resource node
-func NewResourceNode(name string) *ResourceNode {
-	return &ResourceNode{
+// NewNode creates new resource node
+func NewNode(name string) *Node {
+	return &Node{
 		BaseResource: BaseResource{
 			Name:  name,
 			Kind:  string(KindTerraformBackend),

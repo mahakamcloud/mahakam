@@ -125,7 +125,7 @@ func NewResourceFromKind(resKind ResourceKind) (Resource, error) {
 	case KindNetwork:
 		return &ResourceNetwork{}, nil
 	case KindNode:
-		return &ResourceNode{}, nil
+		return &Node{}, nil
 	case KindTerraform:
 		return &ResourceTerraform{}, nil
 	default:
