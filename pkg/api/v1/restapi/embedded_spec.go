@@ -442,6 +442,43 @@ func init() {
         }
       }
     },
+    "baseResource": {
+      "type": "object",
+      "properties": {
+        "createdTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "kind": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/label"
+          }
+        },
+        "modifiedTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "name": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "integer",
+          "format": "uint64"
+        }
+      }
+    },
     "cluster": {
       "type": "object",
       "required": [
@@ -540,6 +577,17 @@ func init() {
           "items": {
             "type": "string"
           }
+        }
+      }
+    },
+    "label": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
         }
       }
     },
@@ -1001,6 +1049,43 @@ func init() {
         }
       }
     },
+    "baseResource": {
+      "type": "object",
+      "properties": {
+        "createdTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "kind": {
+          "type": "string"
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/label"
+          }
+        },
+        "modifiedTime": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "name": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "integer",
+          "format": "uint64"
+        }
+      }
+    },
     "cluster": {
       "type": "object",
       "required": [
@@ -1099,6 +1184,17 @@ func init() {
           "items": {
             "type": "string"
           }
+        }
+      }
+    },
+    "label": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
         }
       }
     },
