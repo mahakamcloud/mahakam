@@ -442,6 +442,24 @@ func init() {
         }
       }
     },
+    "bareMetalHost": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseResource"
+        }
+      ],
+      "properties": {
+        "ip": {
+          "type": "string",
+          "format": "ipv4"
+        },
+        "ipMask": {
+          "type": "integer",
+          "format": "int8"
+        }
+      }
+    },
     "baseResource": {
       "type": "object",
       "properties": {
@@ -1046,6 +1064,24 @@ func init() {
         },
         "status": {
           "type": "string"
+        }
+      }
+    },
+    "bareMetalHost": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseResource"
+        }
+      ],
+      "properties": {
+        "ip": {
+          "type": "string",
+          "format": "ipv4"
+        },
+        "ipMask": {
+          "type": "integer",
+          "format": "int8"
         }
       }
     },
