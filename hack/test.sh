@@ -8,7 +8,7 @@ echo "Running tests in $(pwd)..."
 
 # List of packages to test
 # Currently no packaged tests are available in fixtures or examples
-packages=$(go list ./... | grep -v -E 'vendor|fixtures|examples')
+packages=$(go list ./... | grep -v -E 'vendor|fixtures|examples|pkg/api/v1')
 repo_pref="github.com/${CIRCLE_PROJECT_USERNAME-"$(basename `pwd`)"}/${CIRCLE_PROJECT_REPONAME-"$(basename `pwd`)"}/"
 
 if [[ ${1} == "--nocover" ]] ; then
