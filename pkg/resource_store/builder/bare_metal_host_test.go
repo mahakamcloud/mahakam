@@ -46,3 +46,31 @@ func TestBuildMetadata(t *testing.T) {
 		assert.NotNil(t, test.id)
 	}
 }
+
+func TestValidate(t *testing.T) {
+	tests := []struct {
+		name  string
+		kind  string
+		owner string
+		role  string
+
+		expectedError bool
+	}{
+		{"fake-name", "fake-kind", "fake-owner", "fake-role", false},
+		{"fake-name", "fake-kind", "fake-owner", "", true},
+		{"", "fake-kind", "fake-owner", "fake-role", true},
+	}
+
+	for _, test := range tests {
+		b := &BareMetalHostBuilder{}
+		b.Build(test.name, test.kind, test.owner, test.role)
+
+		err := b.Validate()
+		if test.expectedError {
+			assert.Error(t, err)
+		}
+		if !test.expectedError {
+			assert.NoError(t, err)
+		}
+	}
+}

@@ -44,19 +44,9 @@ func (b *BareMetalHostBuilder) BuildWithMetadata(name, kind, owner, role string)
 }
 
 // BuildKey generates key for a resource
-func (b *BareMetalHostBuilder) BuildKey(optKeys ...string) (string, error) {
-	if b.resource.Owner == "" {
-		return "", fmt.Errorf("resource owner not found")
-	}
-	if b.resource.Name == "" {
-		return "", fmt.Errorf("resource name not found")
-	}
-	if b.resource.Kind == "" {
-		return "", fmt.Errorf("resource kind not found")
-	}
-
+func (b *BareMetalHostBuilder) BuildKey(optKeys ...string) string {
 	keys := strings.Join(optKeys, "/")
-	return fmt.Sprintf("%s/%s/%s/%s", b.resource.Kind, b.resource.Owner, b.resource.Name, keys), nil
+	return fmt.Sprintf("%s/%s/%s/%s", b.resource.Kind, b.resource.Owner, b.resource.Name, keys)
 }
 
 // BuildMetadata returns a resource
@@ -70,4 +60,30 @@ func (b *BareMetalHostBuilder) BuildMetadata() ResourceBuilder {
 	b.resource.ModifiedAt = strfmt.DateTime(now)
 
 	return b
+}
+
+// GetID return ID of BareMetalHostBuilder resource
+func (b *BareMetalHostBuilder) GetID() string {
+	return string(b.resource.ID)
+}
+
+// Validate BareMetalHost resource
+func (b *BareMetalHostBuilder) Validate() error {
+	if b.resource.Owner == "" {
+		return fmt.Errorf("resource owner not found")
+	}
+	if b.resource.Name == "" {
+		return fmt.Errorf("resource name not found")
+	}
+	if b.resource.Kind == "" {
+		return fmt.Errorf("resource kind not found")
+	}
+
+	for _, l := range b.resource.Labels {
+		if l.Key == RoleLabelKey && l.Value == "" {
+			return fmt.Errorf("resource labels are empty")
+		}
+	}
+
+	return nil
 }

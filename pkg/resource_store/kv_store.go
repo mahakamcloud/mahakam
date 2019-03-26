@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/docker/libkv/store"
+	"github.com/mahakamcloud/mahakam/pkg/resource_store/builder"
 	"github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
 )
 
@@ -17,6 +18,34 @@ func NewKVResourceStore(s store.Store) ResourceStore {
 	return &kvResourceStore{
 		store: s,
 	}
+}
+
+// Add adds new resource to kv store
+func (kvr *kvResourceStore) AddV1(r builder.ResourceBuilder) (id string, err error) {
+	if err := r.Validate(); err != nil {
+		return "", fmt.Errorf("kv resource precheck failed: %s", err)
+	}
+
+	// TODO(giri): check if key exists or duplicated
+	key := r.BuildKey()
+	r.BuildMetadata()
+
+	value, err := json.Marshal(r)
+	if err != nil {
+		return "", fmt.Errorf("add kv resource serialization error: %s", err)
+	}
+
+	opts := &store.WriteOptions{
+		IsDir: false,
+	}
+	_, _, err = kvr.store.AtomicPut(key, value, nil, opts)
+	if err != nil {
+		return "", fmt.Errorf("add kv resource atomic put error: %s", err)
+	}
+
+	// TODO(giri): Implement optimistic lock with revision.
+
+	return r.GetID(), nil
 }
 
 // Add adds new resource to kv store

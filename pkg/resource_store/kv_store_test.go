@@ -1,43 +1,62 @@
-package resourcestore_test
+package resourcestore
 
-// func testList(t *testing.T) {
-// 	ctrl := gomock.NewController(t)
-// 	defer ctrl.Finish()
+import (
+	"fmt"
+	"testing"
 
-// 	r := NewMockResourceStore(ctrl)
+	"github.com/docker/libkv/store"
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 
-// 	tests := []struct {
-// 		name        string
-// 		expectError error
-// 	}{
-// 		{
-// 			name:        "test list keys",
-// 			expectError: nil,
-// 		},
-// 	}
+	"github.com/mahakamcloud/mahakam/pkg/resource_store/builder"
+)
 
-// 	for _, test := range tests {
-// 		r.EXPECT().List(gomock.Any()).Return(t.expectError)
+type fakeResource struct{}
 
-// 		NewKVResourceStore()
+func NewFakeResource() builder.ResourceBuilder {
+	return &fakeResource{}
+}
 
-// 		assert.Equal(t, test.expectError, err)
-// 	}
-// }
+func (f *fakeResource) Build(name, owner, kind, role string) builder.ResourceBuilder {
+	return f
+}
 
-// func TestMyThing(t *testing.T) {
-// 	mockCtrl := gomock.NewController(t)
-// 	defer mockCtrl.Finish()
+func (f *fakeResource) BuildWithMetadata(name, owner, kind, role string) builder.ResourceBuilder {
+	return f
+}
 
-// 	r := mockRes.NewMockResourceStore(mockCtrl)
+func (f *fakeResource) Validate() error {
+	return nil
+}
 
-// 	storeConfig := &libkvStore.Config{}
+func (f *fakeResource) BuildKey(opts ...string) string {
+	return "fake-resource-key"
+}
 
-// 	mockS := new(libkvStoreMock.Mock)
+func (f *fakeResource) BuildMetadata() builder.ResourceBuilder {
+	return f
+}
 
-// 	mockS.On("List", "").Return()
+func (f *fakeResource) GetID() string {
+	return "fake-resource-id"
+}
 
-// 	kvStore := resourcestore.NewKVResourceStore(mockStore)
+func TestAddV1(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-// 	mockObj := r.EXPECT().List("cluster/gojek/")
-// }
+	s := NewMockStore(ctrl)
+	kvr := NewKVResourceStore(s)
+
+	b := NewFakeResource()
+	s.EXPECT().AtomicPut(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(false, &store.KVPair{}, nil)
+
+	id, err := kvr.AddV1(b)
+	assert.Equal(t, "fake-resource-id", id)
+	assert.NoError(t, err)
+
+	s.EXPECT().AtomicPut(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(false, &store.KVPair{}, fmt.Errorf("fake-kvstore-error"))
+	id, err = kvr.AddV1(b)
+	assert.Equal(t, "", id)
+	assert.Error(t, err)
+}
