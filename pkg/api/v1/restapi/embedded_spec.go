@@ -463,13 +463,13 @@ func init() {
     "baseResource": {
       "type": "object",
       "properties": {
-        "createdTime": {
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
         "id": {
-          "type": "integer",
-          "format": "int64",
+          "type": "string",
+          "format": "uuid",
           "readOnly": true
         },
         "kind": {
@@ -481,7 +481,7 @@ func init() {
             "$ref": "#/definitions/label"
           }
         },
-        "modifiedTime": {
+        "modifiedAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -1088,13 +1088,13 @@ func init() {
     "baseResource": {
       "type": "object",
       "properties": {
-        "createdTime": {
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
         "id": {
-          "type": "integer",
-          "format": "int64",
+          "type": "string",
+          "format": "uuid",
           "readOnly": true
         },
         "kind": {
@@ -1106,7 +1106,7 @@ func init() {
             "$ref": "#/definitions/label"
           }
         },
-        "modifiedTime": {
+        "modifiedAt": {
           "type": "string",
           "format": "date-time"
         },

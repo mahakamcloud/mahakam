@@ -19,13 +19,14 @@ import (
 // swagger:model baseResource
 type BaseResource struct {
 
-	// created time
+	// created at
 	// Format: date-time
-	CreatedTime strfmt.DateTime `json:"createdTime,omitempty"`
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// id
 	// Read Only: true
-	ID int64 `json:"id,omitempty"`
+	// Format: uuid
+	ID strfmt.UUID `json:"id,omitempty"`
 
 	// kind
 	Kind string `json:"kind,omitempty"`
@@ -33,9 +34,9 @@ type BaseResource struct {
 	// labels
 	Labels []*Label `json:"labels"`
 
-	// modified time
+	// modified at
 	// Format: date-time
-	ModifiedTime strfmt.DateTime `json:"modifiedTime,omitempty"`
+	ModifiedAt strfmt.DateTime `json:"modifiedAt,omitempty"`
 
 	// name
 	Name string `json:"name,omitempty"`
@@ -51,7 +52,11 @@ type BaseResource struct {
 func (m *BaseResource) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateCreatedTime(formats); err != nil {
+	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -59,7 +64,7 @@ func (m *BaseResource) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateModifiedTime(formats); err != nil {
+	if err := m.validateModifiedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -69,13 +74,26 @@ func (m *BaseResource) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *BaseResource) validateCreatedTime(formats strfmt.Registry) error {
+func (m *BaseResource) validateCreatedAt(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.CreatedTime) { // not required
+	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("createdTime", "body", "date-time", m.CreatedTime.String(), formats); err != nil {
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *BaseResource) validateID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
 		return err
 	}
 
@@ -107,13 +125,13 @@ func (m *BaseResource) validateLabels(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *BaseResource) validateModifiedTime(formats strfmt.Registry) error {
+func (m *BaseResource) validateModifiedAt(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.ModifiedTime) { // not required
+	if swag.IsZero(m.ModifiedAt) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("modifiedTime", "body", "date-time", m.ModifiedTime.String(), formats); err != nil {
+	if err := validate.FormatOf("modifiedAt", "body", "date-time", m.ModifiedAt.String(), formats); err != nil {
 		return err
 	}
 
