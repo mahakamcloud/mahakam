@@ -499,13 +499,13 @@ func init() {
     "baseResource": {
       "type": "object",
       "properties": {
-        "createdTime": {
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
         "id": {
-          "type": "integer",
-          "format": "int64",
+          "type": "string",
+          "format": "uuid",
           "readOnly": true
         },
         "kind": {
@@ -525,7 +525,7 @@ func init() {
             }
           }
         },
-        "modifiedTime": {
+        "modifiedAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -736,24 +736,8 @@ func init() {
         }
       ],
       "properties": {
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "id": {
-          "type": "integer",
-          "format": "int64",
-          "readOnly": true
-        },
         "metadata": {
           "$ref": "#/definitions/metadata"
-        },
-        "modifiedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "name": {
-          "type": "string"
         },
         "networkConfigs": {
           "type": "array",
@@ -763,13 +747,6 @@ func init() {
         },
         "nodespec": {
           "$ref": "#/definitions/nodeSpec"
-        },
-        "owner": {
-          "type": "string"
-        },
-        "revision": {
-          "type": "integer",
-          "format": "uint64"
         },
         "status": {
           "$ref": "#/definitions/nodeStatus"
@@ -1279,13 +1256,13 @@ func init() {
     "baseResource": {
       "type": "object",
       "properties": {
-        "createdTime": {
+        "createdAt": {
           "type": "string",
           "format": "date-time"
         },
         "id": {
-          "type": "integer",
-          "format": "int64",
+          "type": "string",
+          "format": "uuid",
           "readOnly": true
         },
         "kind": {
@@ -1305,7 +1282,7 @@ func init() {
             }
           }
         },
-        "modifiedTime": {
+        "modifiedAt": {
           "type": "string",
           "format": "date-time"
         },
@@ -1516,24 +1493,8 @@ func init() {
         }
       ],
       "properties": {
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "id": {
-          "type": "integer",
-          "format": "int64",
-          "readOnly": true
-        },
         "metadata": {
           "$ref": "#/definitions/metadata"
-        },
-        "modifiedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "name": {
-          "type": "string"
         },
         "networkConfigs": {
           "type": "array",
@@ -1543,13 +1504,6 @@ func init() {
         },
         "nodespec": {
           "$ref": "#/definitions/nodeSpec"
-        },
-        "owner": {
-          "type": "string"
-        },
-        "revision": {
-          "type": "integer",
-          "format": "uint64"
         },
         "status": {
           "$ref": "#/definitions/nodeStatus"

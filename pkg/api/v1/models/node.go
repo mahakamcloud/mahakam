@@ -12,7 +12,6 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // Node node
@@ -20,36 +19,14 @@ import (
 type Node struct {
 	BaseResource
 
-	// created at
-	// Format: date-time
-	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
-
-	// id
-	// Read Only: true
-	ID int64 `json:"id,omitempty"`
-
 	// metadata
 	Metadata *Metadata `json:"metadata,omitempty"`
-
-	// modified at
-	// Format: date-time
-	ModifiedAt strfmt.DateTime `json:"modifiedAt,omitempty"`
-
-	// name
-	// Required: true
-	Name *string `json:"name"`
 
 	// network configs
 	NetworkConfigs []*NetworkConfig `json:"networkConfigs"`
 
 	// nodespec
 	Nodespec *NodeSpec `json:"nodespec,omitempty"`
-
-	// owner
-	Owner string `json:"owner,omitempty"`
-
-	// revision
-	Revision uint64 `json:"revision,omitempty"`
 
 	// status
 	Status *NodeStatus `json:"status,omitempty"`
@@ -66,46 +43,22 @@ func (m *Node) UnmarshalJSON(raw []byte) error {
 
 	// now for regular properties
 	var propsNode struct {
-		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
-
-		ID int64 `json:"id,omitempty"`
-
 		Metadata *Metadata `json:"metadata,omitempty"`
-
-		ModifiedAt strfmt.DateTime `json:"modifiedAt,omitempty"`
-
-		Name *string `json:"name"`
 
 		NetworkConfigs []*NetworkConfig `json:"networkConfigs"`
 
 		Nodespec *NodeSpec `json:"nodespec,omitempty"`
-
-		Owner string `json:"owner,omitempty"`
-
-		Revision uint64 `json:"revision,omitempty"`
 
 		Status *NodeStatus `json:"status,omitempty"`
 	}
 	if err := swag.ReadJSON(raw, &propsNode); err != nil {
 		return err
 	}
-	m.CreatedAt = propsNode.CreatedAt
-
-	m.ID = propsNode.ID
-
 	m.Metadata = propsNode.Metadata
-
-	m.ModifiedAt = propsNode.ModifiedAt
-
-	m.Name = propsNode.Name
 
 	m.NetworkConfigs = propsNode.NetworkConfigs
 
 	m.Nodespec = propsNode.Nodespec
-
-	m.Owner = propsNode.Owner
-
-	m.Revision = propsNode.Revision
 
 	m.Status = propsNode.Status
 
@@ -124,43 +77,19 @@ func (m Node) MarshalJSON() ([]byte, error) {
 
 	// now for regular properties
 	var propsNode struct {
-		CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
-
-		ID int64 `json:"id,omitempty"`
-
 		Metadata *Metadata `json:"metadata,omitempty"`
-
-		ModifiedAt strfmt.DateTime `json:"modifiedAt,omitempty"`
-
-		Name *string `json:"name"`
 
 		NetworkConfigs []*NetworkConfig `json:"networkConfigs"`
 
 		Nodespec *NodeSpec `json:"nodespec,omitempty"`
 
-		Owner string `json:"owner,omitempty"`
-
-		Revision uint64 `json:"revision,omitempty"`
-
 		Status *NodeStatus `json:"status,omitempty"`
 	}
-	propsNode.CreatedAt = m.CreatedAt
-
-	propsNode.ID = m.ID
-
 	propsNode.Metadata = m.Metadata
-
-	propsNode.ModifiedAt = m.ModifiedAt
-
-	propsNode.Name = m.Name
 
 	propsNode.NetworkConfigs = m.NetworkConfigs
 
 	propsNode.Nodespec = m.Nodespec
-
-	propsNode.Owner = m.Owner
-
-	propsNode.Revision = m.Revision
 
 	propsNode.Status = m.Status
 
@@ -181,19 +110,7 @@ func (m *Node) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateCreatedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateMetadata(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateModifiedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateName(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -215,19 +132,6 @@ func (m *Node) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Node) validateCreatedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.CreatedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *Node) validateMetadata(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Metadata) { // not required
@@ -241,28 +145,6 @@ func (m *Node) validateMetadata(formats strfmt.Registry) error {
 			}
 			return err
 		}
-	}
-
-	return nil
-}
-
-func (m *Node) validateModifiedAt(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ModifiedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("modifiedAt", "body", "date-time", m.ModifiedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *Node) validateName(formats strfmt.Registry) error {
-
-	if err := validate.Required("name", "body", m.Name); err != nil {
-		return err
 	}
 
 	return nil

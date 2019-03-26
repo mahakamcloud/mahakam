@@ -48,8 +48,12 @@ func (h *CreateNode) Handle(params nodes.CreateNodeParams) middleware.Responder 
 	}
 
 	res := &models.Node{
-		ID:   numericID,
-		Name: params.Body.Name,
+		BaseResource: models.BaseResource{
+			ID:    numericID,
+			Name:  params.Body.Name,
+			Kind:  params.Body.Kind,
+			Owner: params.Body.Owner,
+		},
 	}
 
 	return nodes.NewCreateNodeCreated().WithPayload(res)
