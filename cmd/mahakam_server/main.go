@@ -115,6 +115,8 @@ func registerHandlers(app *handlers.Handlers, api *operations.MahakamAPI, opts *
 
 	api.AppsUploadAppValuesHandler = handlers.NewUploadAppValuesHandler(*app)
 
+	api.BareMetalHostsRegisterBareMetalHostHandler = handlers.NewRegisterBareMetalHostHandler(*app)
+
 	api.ServerShutdown = func() {}
 }
 

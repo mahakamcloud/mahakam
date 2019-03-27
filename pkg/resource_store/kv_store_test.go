@@ -37,6 +37,10 @@ func (f *fakeResource) BuildMetadata() builder.ResourceBuilder {
 	return f
 }
 
+func (f *fakeResource) Marshal() ([]byte, error) {
+	return nil, nil
+}
+
 func (f *fakeResource) GetID() string {
 	return "fake-resource-id"
 }
