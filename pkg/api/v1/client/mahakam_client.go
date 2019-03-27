@@ -12,6 +12,7 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/apps"
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/bare_metal_hosts"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/clusters"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/client/networks"
 )
@@ -60,6 +61,8 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *Mahakam {
 	cli.Transport = transport
 
 	cli.Apps = apps.New(transport, formats)
+
+	cli.BareMetalHosts = bare_metal_hosts.New(transport, formats)
 
 	cli.Clusters = clusters.New(transport, formats)
 
@@ -111,6 +114,8 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 type Mahakam struct {
 	Apps *apps.Client
 
+	BareMetalHosts *bare_metal_hosts.Client
+
 	Clusters *clusters.Client
 
 	Networks *networks.Client
@@ -123,6 +128,8 @@ func (c *Mahakam) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 
 	c.Apps.SetTransport(transport)
+
+	c.BareMetalHosts.SetTransport(transport)
 
 	c.Clusters.SetTransport(transport)
 
