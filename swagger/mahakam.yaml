@@ -79,7 +79,7 @@ paths:
   /bare-metal-hosts:
     post:
       tags:
-        - bare-metal-host
+        - bare-metal-hosts
       operationId: registerBareMetalHost
       parameters:
         - name: body
@@ -292,6 +292,9 @@ definitions:
     type: object
     allOf:
       - $ref: "#/definitions/baseResource"
+    required:
+      - ipMask
+      - ip
     properties:
       ip:
         type: string
@@ -301,6 +304,8 @@ definitions:
         format: int8
   baseResource:
     type: object
+    required:
+      - name
     properties:
       id:
         type: string

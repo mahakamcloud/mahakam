@@ -19,11 +19,13 @@ type BareMetalHost struct {
 	BaseResource
 
 	// ip
+	// Required: true
 	// Format: ipv4
-	IP strfmt.IPv4 `json:"ip,omitempty"`
+	IP *strfmt.IPv4 `json:"ip"`
 
 	// ip mask
-	IPMask int8 `json:"ipMask,omitempty"`
+	// Required: true
+	IPMask *int8 `json:"ipMask"`
 }
 
 // UnmarshalJSON unmarshals this object from a JSON structure
@@ -37,9 +39,9 @@ func (m *BareMetalHost) UnmarshalJSON(raw []byte) error {
 
 	// now for regular properties
 	var propsBareMetalHost struct {
-		IP strfmt.IPv4 `json:"ip,omitempty"`
+		IP *strfmt.IPv4 `json:"ip"`
 
-		IPMask int8 `json:"ipMask,omitempty"`
+		IPMask *int8 `json:"ipMask"`
 	}
 	if err := swag.ReadJSON(raw, &propsBareMetalHost); err != nil {
 		return err
@@ -63,9 +65,9 @@ func (m BareMetalHost) MarshalJSON() ([]byte, error) {
 
 	// now for regular properties
 	var propsBareMetalHost struct {
-		IP strfmt.IPv4 `json:"ip,omitempty"`
+		IP *strfmt.IPv4 `json:"ip"`
 
-		IPMask int8 `json:"ipMask,omitempty"`
+		IPMask *int8 `json:"ipMask"`
 	}
 	propsBareMetalHost.IP = m.IP
 
@@ -92,6 +94,10 @@ func (m *BareMetalHost) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateIPMask(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -100,11 +106,20 @@ func (m *BareMetalHost) Validate(formats strfmt.Registry) error {
 
 func (m *BareMetalHost) validateIP(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.IP) { // not required
-		return nil
+	if err := validate.Required("ip", "body", m.IP); err != nil {
+		return err
 	}
 
 	if err := validate.FormatOf("ip", "body", "ipv4", m.IP.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *BareMetalHost) validateIPMask(formats strfmt.Registry) error {
+
+	if err := validate.Required("ipMask", "body", m.IPMask); err != nil {
 		return err
 	}
 

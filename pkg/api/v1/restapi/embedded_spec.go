@@ -140,7 +140,7 @@ func init() {
     "/bare-metal-hosts": {
       "post": {
         "tags": [
-          "bare-metal-host"
+          "bare-metal-hosts"
         ],
         "operationId": "registerBareMetalHost",
         "parameters": [
@@ -475,6 +475,10 @@ func init() {
     },
     "bareMetalHost": {
       "type": "object",
+      "required": [
+        "ipMask",
+        "ip"
+      ],
       "allOf": [
         {
           "$ref": "#/definitions/baseResource"
@@ -493,6 +497,9 @@ func init() {
     },
     "baseResource": {
       "type": "object",
+      "required": [
+        "name"
+      ],
       "properties": {
         "createdAt": {
           "type": "string",
@@ -796,7 +803,7 @@ func init() {
     "/bare-metal-hosts": {
       "post": {
         "tags": [
-          "bare-metal-host"
+          "bare-metal-hosts"
         ],
         "operationId": "registerBareMetalHost",
         "parameters": [
@@ -1131,6 +1138,10 @@ func init() {
     },
     "bareMetalHost": {
       "type": "object",
+      "required": [
+        "ipMask",
+        "ip"
+      ],
       "allOf": [
         {
           "$ref": "#/definitions/baseResource"
@@ -1149,6 +1160,9 @@ func init() {
     },
     "baseResource": {
       "type": "object",
+      "required": [
+        "name"
+      ],
       "properties": {
         "createdAt": {
           "type": "string",

@@ -39,7 +39,8 @@ type BaseResource struct {
 	ModifiedAt strfmt.DateTime `json:"modifiedAt,omitempty"`
 
 	// name
-	Name string `json:"name,omitempty"`
+	// Required: true
+	Name *string `json:"name"`
 
 	// owner
 	Owner string `json:"owner,omitempty"`
@@ -65,6 +66,10 @@ func (m *BaseResource) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateModifiedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateName(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -132,6 +137,15 @@ func (m *BaseResource) validateModifiedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("modifiedAt", "body", "date-time", m.ModifiedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *BaseResource) validateName(formats strfmt.Registry) error {
+
+	if err := validate.Required("name", "body", m.Name); err != nil {
 		return err
 	}
 
