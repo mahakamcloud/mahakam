@@ -11,6 +11,90 @@ schemes:
 - http
 basePath: /v1
 paths:
+  /apps:
+    get:
+      tags:
+        - apps
+      operationId: getApps
+      responses:
+        200:
+          description: list created applications
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/app"
+        default:
+          description: generic error response
+          schema:
+            $ref: "#/definitions/error"
+    post:
+      tags:
+        - apps
+      operationId: createApp
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: "#/definitions/app"
+      responses:
+        201:
+          description: Created
+          schema:
+            $ref: "#/definitions/app"
+        default:
+          description: error
+          schema:
+            $ref: "#/definitions/error"
+  /apps/values:
+    post:
+      tags:
+        - apps
+      operationId: uploadAppValues
+      consumes:
+      - multipart/form-data
+      parameters:
+        - name: values
+          in: formData
+          description: App values.yaml to upload
+          type: file
+        - name: appName
+          in: formData
+          description: App name
+          type: string
+        - name: owner
+          in: formData
+          description: Owner of the app
+          type: string
+        - name: clusterName
+          in: formData
+          description: Cluster name to deploy app
+          type: string
+      responses:
+        201:
+          description: App values added
+        default:
+          description: error
+          schema:
+            $ref: "#/definitions/error"
+  /bare-metal-hosts:
+    post:
+      tags:
+        - bare-metal-host
+      operationId: registerBareMetalHost
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: "#/definitions/bareMetalHost"
+      responses:
+        201:
+          description: Created
+          schema:
+            $ref: "#/definitions/bareMetalHost"
+        default:
+          description: error
+          schema:
+            $ref: "#/definitions/error"
   /clusters:
     get:
       tags:
@@ -84,71 +168,6 @@ paths:
           description: Validated
           schema:
             $ref: "#/definitions/cluster"
-        default:
-          description: error
-          schema:
-            $ref: "#/definitions/error"
-  /apps:
-    get:
-      tags:
-        - apps
-      operationId: getApps
-      responses:
-        200:
-          description: list created applications
-          schema:
-            type: array
-            items:
-              $ref: "#/definitions/app"
-        default:
-          description: generic error response
-          schema:
-            $ref: "#/definitions/error"
-    post:
-      tags:
-        - apps
-      operationId: createApp
-      parameters:
-        - name: body
-          in: body
-          schema:
-            $ref: "#/definitions/app"
-      responses:
-        201:
-          description: Created
-          schema:
-            $ref: "#/definitions/app"
-        default:
-          description: error
-          schema:
-            $ref: "#/definitions/error"
-  /apps/values:
-    post:
-      tags:
-        - apps
-      operationId: uploadAppValues
-      consumes:
-      - multipart/form-data
-      parameters:
-        - name: values
-          in: formData
-          description: App values.yaml to upload
-          type: file
-        - name: appName
-          in: formData
-          description: App name
-          type: string
-        - name: owner
-          in: formData
-          description: Owner of the app
-          type: string
-        - name: clusterName
-          in: formData
-          description: Cluster name to deploy app
-          type: string
-      responses:
-        201:
-          description: App values added
         default:
           description: error
           schema:

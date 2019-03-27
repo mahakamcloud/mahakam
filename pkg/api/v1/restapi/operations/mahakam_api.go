@@ -20,6 +20,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/apps"
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/bare_metal_host"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/clusters"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/networks"
 )
@@ -68,6 +69,9 @@ func NewMahakamAPI(spec *loads.Document) *MahakamAPI {
 		}),
 		NetworksGetNetworksHandler: networks.GetNetworksHandlerFunc(func(params networks.GetNetworksParams) middleware.Responder {
 			return middleware.NotImplemented("operation NetworksGetNetworks has not yet been implemented")
+		}),
+		BareMetalHostRegisterBareMetalHostHandler: bare_metal_host.RegisterBareMetalHostHandlerFunc(func(params bare_metal_host.RegisterBareMetalHostParams) middleware.Responder {
+			return middleware.NotImplemented("operation BareMetalHostRegisterBareMetalHost has not yet been implemented")
 		}),
 		AppsUploadAppValuesHandler: apps.UploadAppValuesHandlerFunc(func(params apps.UploadAppValuesParams) middleware.Responder {
 			return middleware.NotImplemented("operation AppsUploadAppValues has not yet been implemented")
@@ -126,6 +130,8 @@ type MahakamAPI struct {
 	ClustersGetClustersHandler clusters.GetClustersHandler
 	// NetworksGetNetworksHandler sets the operation handler for the get networks operation
 	NetworksGetNetworksHandler networks.GetNetworksHandler
+	// BareMetalHostRegisterBareMetalHostHandler sets the operation handler for the register bare metal host operation
+	BareMetalHostRegisterBareMetalHostHandler bare_metal_host.RegisterBareMetalHostHandler
 	// AppsUploadAppValuesHandler sets the operation handler for the upload app values operation
 	AppsUploadAppValuesHandler apps.UploadAppValuesHandler
 	// ClustersValidateClusterHandler sets the operation handler for the validate cluster operation
@@ -231,6 +237,10 @@ func (o *MahakamAPI) Validate() error {
 
 	if o.NetworksGetNetworksHandler == nil {
 		unregistered = append(unregistered, "networks.GetNetworksHandler")
+	}
+
+	if o.BareMetalHostRegisterBareMetalHostHandler == nil {
+		unregistered = append(unregistered, "bare_metal_host.RegisterBareMetalHostHandler")
 	}
 
 	if o.AppsUploadAppValuesHandler == nil {
@@ -386,6 +396,11 @@ func (o *MahakamAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/networks"] = networks.NewGetNetworks(o.context, o.NetworksGetNetworksHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/bare-metal-hosts"] = bare_metal_host.NewRegisterBareMetalHost(o.context, o.BareMetalHostRegisterBareMetalHostHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)

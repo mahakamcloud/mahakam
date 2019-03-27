@@ -137,6 +137,37 @@ func init() {
         }
       }
     },
+    "/bare-metal-hosts": {
+      "post": {
+        "tags": [
+          "bare-metal-host"
+        ],
+        "operationId": "registerBareMetalHost",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/bareMetalHost"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/bareMetalHost"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/clusters": {
       "get": {
         "tags": [
@@ -752,6 +783,37 @@ func init() {
         "responses": {
           "201": {
             "description": "App values added"
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/bare-metal-hosts": {
+      "post": {
+        "tags": [
+          "bare-metal-host"
+        ],
+        "operationId": "registerBareMetalHost",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/bareMetalHost"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/bareMetalHost"
+            }
           },
           "default": {
             "description": "error",
