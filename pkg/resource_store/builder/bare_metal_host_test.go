@@ -3,6 +3,8 @@ package builder
 import (
 	"testing"
 
+	"github.com/go-openapi/swag"
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,14 +16,14 @@ func TestBuild(t *testing.T) {
 		role  string
 	}{
 		{"fake-name", "fake-kind", "fake-owner", "fake-role"},
-		{"", "fake-kind", "fake-owner", "fake-role"},
+		{"fake-name", "", "", "fake-role"},
 	}
 
 	for _, test := range tests {
 		b := &BareMetalHostBuilder{}
 		b.Build(test.name, test.kind, test.owner, test.role)
 
-		assert.Equal(t, test.name, b.resource.Name)
+		assert.Equal(t, test.name, swag.StringValue(b.resource.Name))
 		assert.Equal(t, test.kind, b.resource.Kind)
 		assert.Equal(t, test.owner, b.resource.Owner)
 
@@ -41,9 +43,44 @@ func TestBuildMetadata(t *testing.T) {
 
 	for _, test := range tests {
 		b := &BareMetalHostBuilder{}
+		b.Build("fake-name", "", "", "")
 		b.BuildMetadata()
 
 		assert.NotNil(t, test.id)
+	}
+}
+
+func TestBuildWithModel(t *testing.T) {
+	tests := []struct {
+		name  string
+		kind  string
+		owner string
+	}{
+		{"fake-name", "fake-kind", "fake-owner"},
+		{"fake-name", "", ""},
+	}
+
+	for _, test := range tests {
+		b := &BareMetalHostBuilder{}
+		m := &models.BareMetalHost{
+			BaseResource: models.BaseResource{
+				Name:  swag.String(test.name),
+				Kind:  test.kind,
+				Owner: test.owner,
+			},
+		}
+
+		b.BuildWithModel(m)
+
+		if test.kind == "" {
+			assert.NotEmpty(t, b.resource.Kind)
+		}
+
+		if test.owner == "" {
+			assert.NotEmpty(t, b.resource.Owner)
+		}
+
+		assert.Equal(t, test.name, swag.StringValue(b.resource.Name))
 	}
 }
 
