@@ -41,7 +41,7 @@ test: ## run tests
 	$(GO) test -v $(shell go list -v ./... | grep -v /vendor/ | grep -v integration | grep -v /playground )
 
 .PHONY: dev
-dev: ## run dev server and consul
+dev: generate-server server-linux ## run dev server and consul
 	@echo running dev server and consul...
 	docker-compose -f docker-compose.dev.yaml up --build
 
