@@ -64,6 +64,9 @@ func NewMahakamAPI(spec *loads.Document) *MahakamAPI {
 		AppsGetAppsHandler: apps.GetAppsHandlerFunc(func(params apps.GetAppsParams) middleware.Responder {
 			return middleware.NotImplemented("operation AppsGetApps has not yet been implemented")
 		}),
+		BareMetalHostsGetBareMetalHostsHandler: bare_metal_hosts.GetBareMetalHostsHandlerFunc(func(params bare_metal_hosts.GetBareMetalHostsParams) middleware.Responder {
+			return middleware.NotImplemented("operation BareMetalHostsGetBareMetalHosts has not yet been implemented")
+		}),
 		ClustersGetClustersHandler: clusters.GetClustersHandlerFunc(func(params clusters.GetClustersParams) middleware.Responder {
 			return middleware.NotImplemented("operation ClustersGetClusters has not yet been implemented")
 		}),
@@ -126,6 +129,8 @@ type MahakamAPI struct {
 	ClustersDescribeClustersHandler clusters.DescribeClustersHandler
 	// AppsGetAppsHandler sets the operation handler for the get apps operation
 	AppsGetAppsHandler apps.GetAppsHandler
+	// BareMetalHostsGetBareMetalHostsHandler sets the operation handler for the get bare metal hosts operation
+	BareMetalHostsGetBareMetalHostsHandler bare_metal_hosts.GetBareMetalHostsHandler
 	// ClustersGetClustersHandler sets the operation handler for the get clusters operation
 	ClustersGetClustersHandler clusters.GetClustersHandler
 	// NetworksGetNetworksHandler sets the operation handler for the get networks operation
@@ -229,6 +234,10 @@ func (o *MahakamAPI) Validate() error {
 
 	if o.AppsGetAppsHandler == nil {
 		unregistered = append(unregistered, "apps.GetAppsHandler")
+	}
+
+	if o.BareMetalHostsGetBareMetalHostsHandler == nil {
+		unregistered = append(unregistered, "bare_metal_hosts.GetBareMetalHostsHandler")
 	}
 
 	if o.ClustersGetClustersHandler == nil {
@@ -386,6 +395,11 @@ func (o *MahakamAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/apps"] = apps.NewGetApps(o.context, o.AppsGetAppsHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/bare-metal-hosts"] = bare_metal_hosts.NewGetBareMetalHosts(o.context, o.BareMetalHostsGetBareMetalHostsHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

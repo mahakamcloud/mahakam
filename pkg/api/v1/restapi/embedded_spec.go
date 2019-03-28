@@ -138,6 +138,29 @@ func init() {
       }
     },
     "/bare-metal-hosts": {
+      "get": {
+        "tags": [
+          "bare-metal-hosts"
+        ],
+        "operationId": "getBareMetalHosts",
+        "responses": {
+          "200": {
+            "description": "list of available bare metal hosts",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/bareMetalHost"
+              }
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
       "post": {
         "tags": [
           "bare-metal-hosts"
@@ -801,6 +824,29 @@ func init() {
       }
     },
     "/bare-metal-hosts": {
+      "get": {
+        "tags": [
+          "bare-metal-hosts"
+        ],
+        "operationId": "getBareMetalHosts",
+        "responses": {
+          "200": {
+            "description": "list of available bare metal hosts",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/bareMetalHost"
+              }
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
       "post": {
         "tags": [
           "bare-metal-hosts"
