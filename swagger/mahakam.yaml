@@ -354,6 +354,9 @@ definitions:
         type: integer
         format: int64
         readOnly: true
+      greKey:
+        type: integer
+        format: int64
       nodeSize:
         type: string
         default: "xs"

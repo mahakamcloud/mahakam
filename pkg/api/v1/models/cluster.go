@@ -20,6 +20,9 @@ type Cluster struct {
 	// component failures
 	ComponentFailures []string `json:"componentFailures"`
 
+	// gre key
+	GreKey int64 `json:"greKey,omitempty"`
+
 	// id
 	// Read Only: true
 	ID int64 `json:"id,omitempty"`

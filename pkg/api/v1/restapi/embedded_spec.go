@@ -570,6 +570,10 @@ func init() {
             "type": "string"
           }
         },
+        "greKey": {
+          "type": "integer",
+          "format": "int64"
+        },
         "id": {
           "type": "integer",
           "format": "int64",
@@ -1255,6 +1259,10 @@ func init() {
           "items": {
             "type": "string"
           }
+        },
+        "greKey": {
+          "type": "integer",
+          "format": "int64"
         },
         "id": {
           "type": "integer",
