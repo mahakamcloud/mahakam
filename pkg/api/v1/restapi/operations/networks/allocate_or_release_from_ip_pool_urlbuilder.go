@@ -49,7 +49,7 @@ func (o *AllocateOrReleaseFromIPPoolURL) Build() (*url.URL, error) {
 	if poolID != "" {
 		_path = strings.Replace(_path, "{poolId}", poolID, -1)
 	} else {
-		return nil, errors.New("PoolID is required on AllocateOrReleaseFromIPPoolURL")
+		return nil, errors.New("poolId is required on AllocateOrReleaseFromIPPoolURL")
 	}
 
 	_basePath := o._basePath
