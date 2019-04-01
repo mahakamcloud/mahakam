@@ -1,4 +1,4 @@
-package builder
+package model
 
 import (
 	"encoding/json"

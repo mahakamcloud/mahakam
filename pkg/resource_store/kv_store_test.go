@@ -8,20 +8,20 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/mahakamcloud/mahakam/pkg/resource_store/builder"
+	"github.com/mahakamcloud/mahakam/pkg/model"
 )
 
 type fakeResource struct{}
 
-func NewFakeResource() builder.ResourceBuilder {
+func NewFakeResource() model.ResourceBuilder {
 	return &fakeResource{}
 }
 
-func (f *fakeResource) Build(name, owner, kind, role string) builder.ResourceBuilder {
+func (f *fakeResource) Build(name, owner, kind, role string) model.ResourceBuilder {
 	return f
 }
 
-func (f *fakeResource) BuildWithMetadata(name, owner, kind, role string) builder.ResourceBuilder {
+func (f *fakeResource) BuildWithMetadata(name, owner, kind, role string) model.ResourceBuilder {
 	return f
 }
 
@@ -33,7 +33,7 @@ func (f *fakeResource) BuildKey(opts ...string) string {
 	return "fake-resource-key"
 }
 
-func (f *fakeResource) BuildMetadata() builder.ResourceBuilder {
+func (f *fakeResource) BuildMetadata() model.ResourceBuilder {
 	return f
 }
 

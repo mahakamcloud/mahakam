@@ -7,7 +7,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	bmhost "github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/bare_metal_hosts"
-	"github.com/mahakamcloud/mahakam/pkg/resource_store/builder"
+	"github.com/mahakamcloud/mahakam/pkg/model"
 	"github.com/sirupsen/logrus"
 )
 
@@ -29,7 +29,7 @@ func NewRegisterBareMetalHostHandler(handlers Handlers) *RegisterBareMetalHost {
 func (h *RegisterBareMetalHost) Handle(params bmhost.RegisterBareMetalHostParams) middleware.Responder {
 	h.log.Infof("handling register bare metal host request: %v", params)
 
-	bm := &builder.BareMetalHostBuilder{}
+	bm := &model.BareMetalHostBuilder{}
 	res := bm.BuildWithModel(params.Body)
 
 	_, err := h.Handlers.Store.AddV1(bm)

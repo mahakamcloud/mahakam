@@ -5,7 +5,7 @@ package resourcestore
 
 import (
 	gomock "github.com/golang/mock/gomock"
-	builder "github.com/mahakamcloud/mahakam/pkg/resource_store/builder"
+	builder "github.com/mahakamcloud/mahakam/pkg/model"
 	resource "github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
 )
 

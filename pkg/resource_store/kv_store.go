@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/docker/libkv/store"
-	"github.com/mahakamcloud/mahakam/pkg/resource_store/builder"
+	"github.com/mahakamcloud/mahakam/pkg/model"
 	"github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
 )
 
@@ -21,7 +21,7 @@ func NewKVResourceStore(s store.Store) ResourceStore {
 }
 
 // Add adds new resource to kv store
-func (kvr *kvResourceStore) AddV1(r builder.ResourceBuilder) (id string, err error) {
+func (kvr *kvResourceStore) AddV1(r model.ResourceBuilder) (id string, err error) {
 	if err := r.Validate(); err != nil {
 		return "", fmt.Errorf("kv resource precheck failed: %s", err)
 	}
@@ -50,7 +50,7 @@ func (kvr *kvResourceStore) AddV1(r builder.ResourceBuilder) (id string, err err
 
 // Get retrieves single resource with values from kv store,
 // must include owner, name, and kind in the passed resource struct
-func (kvr *kvResourceStore) GetV1(r builder.ResourceBuilder) error {
+func (kvr *kvResourceStore) GetV1(r model.ResourceBuilder) error {
 	res, err := kvr.store.Get(r.BuildKey())
 	if err != nil {
 		return fmt.Errorf("error getting response from kv store: %s", err)
@@ -65,8 +65,8 @@ func (kvr *kvResourceStore) GetV1(r builder.ResourceBuilder) error {
 }
 
 // List returns list of resource from store
-func (kvr *kvResourceStore) ListV1(owner string, kind builder.ResourceKind, list builder.ResourceBuilderList) error {
-	var resources []builder.ResourceBuilder
+func (kvr *kvResourceStore) ListV1(owner string, kind model.ResourceKind, list model.ResourceBuilderList) error {
+	var resources []model.ResourceBuilder
 
 	kvpairs, err := kvr.store.List(string(kind) + "/" + owner + "/")
 	if err != nil && err != store.ErrKeyNotFound {

@@ -1,4 +1,4 @@
-package builder
+package model
 
 // ResourceKind represents stored resource kind
 type ResourceKind string
