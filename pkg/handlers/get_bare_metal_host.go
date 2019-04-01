@@ -29,7 +29,7 @@ func NewGetBareMetalHostHandler(handlers Handlers) *GetBareMetalHost {
 func (h *GetBareMetalHost) Handle(params bare_metal_hosts.GetBareMetalHostsParams) middleware.Responder {
 	h.log.Infof("handling get baremetal host request: %v", params)
 
-	bareMetalHostBuilderList := &model.BareMetalHostBuilderList{Items: []*model.BareMetalHostBuilder{}}
+	bareMetalHostBuilderList := &model.BareMetalHostBuilderList{Items: []*model.BareMetalHost{}}
 
 	err := h.Handlers.Store.ListV1(config.ResourceOwnerMahakam, model.KindBareMetalHost, bareMetalHostBuilderList)
 	if err != nil {

@@ -20,7 +20,7 @@ func TestBuild(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		b := &BareMetalHostBuilder{}
+		b := &BareMetalHost{}
 		b.Build(test.name, test.kind, test.owner, test.role)
 
 		assert.Equal(t, test.name, swag.StringValue(b.resource.Name))
@@ -42,7 +42,7 @@ func TestBuildMetadata(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		b := &BareMetalHostBuilder{}
+		b := &BareMetalHost{}
 		b.Build("fake-name", "", "", "")
 		b.BuildMetadata()
 
@@ -61,7 +61,7 @@ func TestBuildWithModel(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		b := &BareMetalHostBuilder{}
+		b := &BareMetalHost{}
 		m := &models.BareMetalHost{
 			BaseResource: models.BaseResource{
 				Name:  swag.String(test.name),
@@ -99,7 +99,7 @@ func TestValidate(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		b := &BareMetalHostBuilder{}
+		b := &BareMetalHost{}
 		b.Build(test.name, test.kind, test.owner, test.role)
 
 		err := b.Validate()
