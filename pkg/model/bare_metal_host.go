@@ -70,7 +70,7 @@ func (b *BareMetalHost) BuildWithModel(bmhost *models.BareMetalHost) *models.Bar
 
 // BuildWithMetadata generates BareMetalHost resource with metadata to persist
 func (b *BareMetalHost) BuildWithMetadata(name, kind, owner, role string) ResourceBuilder {
-	return b.Build(name, kind, owner, role).BuildMetadata()
+	return b.Build(name, kind, owner, role).AddMetadata()
 }
 
 // BuildKey generates key for a resource
@@ -79,8 +79,8 @@ func (b *BareMetalHost) BuildKey(optKeys ...string) string {
 	return fmt.Sprintf("%s/%s/%s/%s", b.resource.Kind, b.resource.Owner, swag.StringValue(b.resource.Name), keys)
 }
 
-// BuildMetadata returns a resource
-func (b *BareMetalHost) BuildMetadata() ResourceBuilder {
+// AddMetadata returns a resource
+func (b *BareMetalHost) AddMetadata() ResourceBuilder {
 	if b.resource.ID == "" {
 		b.resource.ID = strfmt.UUID(uuid.NewV4().String())
 	}

@@ -33,7 +33,7 @@ func (f *fakeResource) BuildKey(opts ...string) string {
 	return "fake-resource-key"
 }
 
-func (f *fakeResource) BuildMetadata() model.ResourceBuilder {
+func (f *fakeResource) AddMetadata() model.ResourceBuilder {
 	return f
 }
 

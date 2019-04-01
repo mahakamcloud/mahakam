@@ -13,7 +13,7 @@ type ResourceBuilder interface {
 	ToJSON() ([]byte, error)
 	FromJSON([]byte) error
 	BuildKey(optKeys ...string) string
-	BuildMetadata() ResourceBuilder
+	AddMetadata() ResourceBuilder
 	BuildWithMetadata(name, kind, owner, role string) ResourceBuilder
 	GetID() string
 	Validate() error

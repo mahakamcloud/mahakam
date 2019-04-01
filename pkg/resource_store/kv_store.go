@@ -28,7 +28,7 @@ func (kvr *kvResourceStore) AddV1(r model.ResourceBuilder) (id string, err error
 
 	// TODO(giri): check if key exists or duplicated
 	key := r.BuildKey()
-	r.BuildMetadata()
+	r.AddMetadata()
 
 	value, err := r.ToJSON()
 	if err != nil {

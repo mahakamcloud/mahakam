@@ -44,7 +44,7 @@ func TestBuildMetadata(t *testing.T) {
 	for _, test := range tests {
 		b := &BareMetalHost{}
 		b.Build("fake-name", "", "", "")
-		b.BuildMetadata()
+		b.AddMetadata()
 
 		assert.NotNil(t, test.id)
 	}
