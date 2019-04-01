@@ -25,25 +25,6 @@ type BareMetalHost struct {
 	resource *models.BareMetalHost
 }
 
-// Build BareMetalHost resource
-func (b *BareMetalHost) Build(name, kind, owner, role string) ResourceBuilder {
-	label := &models.Label{
-		Key:   RoleLabelKey,
-		Value: role,
-	}
-
-	b.resource = &models.BareMetalHost{
-		BaseResource: models.BaseResource{
-			Name:   swag.String(name),
-			Kind:   kind,
-			Owner:  owner,
-			Labels: []*models.Label{label},
-		},
-	}
-
-	return b
-}
-
 // BuildWithModel generates BareMetalHost resource from swagger generated model
 func (b *BareMetalHost) BuildWithModel(bmhost *models.BareMetalHost) *models.BareMetalHost {
 	b.resource = bmhost
@@ -66,11 +47,6 @@ func (b *BareMetalHost) BuildWithModel(bmhost *models.BareMetalHost) *models.Bar
 	}
 
 	return b.resource
-}
-
-// BuildWithMetadata generates BareMetalHost resource with metadata to persist
-func (b *BareMetalHost) BuildWithMetadata(name, kind, owner, role string) ResourceBuilder {
-	return b.Build(name, kind, owner, role).AddMetadata()
 }
 
 // BuildKey generates key for a resource
