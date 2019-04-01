@@ -704,6 +704,98 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "node": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseResource"
+        }
+      ],
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/nodeMetadata"
+        },
+        "networkConfigs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/nodeNetworkConfig"
+          }
+        },
+        "spec": {
+          "$ref": "#/definitions/nodeSpec"
+        },
+        "status": {
+          "$ref": "#/definitions/nodeStatus"
+        }
+      }
+    },
+    "nodeMetadata": {
+      "type": "object",
+      "properties": {
+        "sshKeys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "userdata": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {
+        "type": "string",
+        "format": "string"
+      }
+    },
+    "nodeNetworkConfig": {
+      "type": "object",
+      "properties": {
+        "fqdn": {
+          "type": "string"
+        },
+        "gatewayIP": {
+          "type": "string",
+          "format": "ipv4"
+        },
+        "ip": {
+          "type": "string",
+          "format": "ipv4"
+        },
+        "ipMask": {
+          "type": "string"
+        },
+        "mac": {
+          "type": "string",
+          "format": "mac"
+        },
+        "nameserverIP": {
+          "type": "string",
+          "format": "ipv4"
+        }
+      }
+    },
+    "nodeSpec": {
+      "type": "object",
+      "properties": {
+        "cpu": {
+          "type": "integer"
+        },
+        "memory": {
+          "type": "string"
+        }
+      }
+    },
+    "nodeStatus": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string"
+        }
+      }
     }
   }
 }`))
@@ -1391,6 +1483,98 @@ func init() {
           "type": "string"
         },
         "networkName": {
+          "type": "string"
+        }
+      }
+    },
+    "node": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseResource"
+        }
+      ],
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/nodeMetadata"
+        },
+        "networkConfigs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/nodeNetworkConfig"
+          }
+        },
+        "spec": {
+          "$ref": "#/definitions/nodeSpec"
+        },
+        "status": {
+          "$ref": "#/definitions/nodeStatus"
+        }
+      }
+    },
+    "nodeMetadata": {
+      "type": "object",
+      "properties": {
+        "sshKeys": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "userdata": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {
+        "type": "string",
+        "format": "string"
+      }
+    },
+    "nodeNetworkConfig": {
+      "type": "object",
+      "properties": {
+        "fqdn": {
+          "type": "string"
+        },
+        "gatewayIP": {
+          "type": "string",
+          "format": "ipv4"
+        },
+        "ip": {
+          "type": "string",
+          "format": "ipv4"
+        },
+        "ipMask": {
+          "type": "string"
+        },
+        "mac": {
+          "type": "string",
+          "format": "mac"
+        },
+        "nameserverIP": {
+          "type": "string",
+          "format": "ipv4"
+        }
+      }
+    },
+    "nodeSpec": {
+      "type": "object",
+      "properties": {
+        "cpu": {
+          "type": "integer"
+        },
+        "memory": {
+          "type": "string"
+        }
+      }
+    },
+    "nodeStatus": {
+      "type": "object",
+      "properties": {
+        "host": {
           "type": "string"
         }
       }
