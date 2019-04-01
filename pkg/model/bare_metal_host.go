@@ -68,13 +68,13 @@ func (b *BareMetalHost) AddMetadata() ResourceBuilder {
 	return b
 }
 
-// ToJSON returns a resource
-func (b *BareMetalHost) ToJSON() ([]byte, error) {
+// MarshalJSON returns a resource
+func (b *BareMetalHost) MarshalJSON() ([]byte, error) {
 	return json.Marshal(b.resource)
 }
 
-// FromJSON returns a resource
-func (b *BareMetalHost) FromJSON(in []byte) error {
+// UnmarshalJSON returns a resource
+func (b *BareMetalHost) UnmarshalJSON(in []byte) error {
 	return json.Unmarshal(in, &b.resource)
 }
 

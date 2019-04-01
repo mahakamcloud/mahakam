@@ -37,11 +37,11 @@ func (f *fakeResource) AddMetadata() model.ResourceBuilder {
 	return f
 }
 
-func (f *fakeResource) ToJSON() ([]byte, error) {
+func (f *fakeResource) MarshalJSON() ([]byte, error) {
 	return nil, nil
 }
 
-func (f *fakeResource) FromJSON(in []byte) error {
+func (f *fakeResource) UnmarshalJSON(in []byte) error {
 	return nil
 }
 

@@ -9,8 +9,8 @@ const (
 
 // ResourceBuilder interface
 type ResourceBuilder interface {
-	ToJSON() ([]byte, error)
-	FromJSON([]byte) error
+	MarshalJSON() ([]byte, error)
+	UnmarshalJSON([]byte) error
 	BuildKey(optKeys ...string) string
 	AddMetadata() ResourceBuilder
 	GetID() string

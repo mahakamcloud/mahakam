@@ -30,7 +30,7 @@ func (kvr *kvResourceStore) AddV1(r model.ResourceBuilder) (id string, err error
 	key := r.BuildKey()
 	r.AddMetadata()
 
-	value, err := r.ToJSON()
+	value, err := r.MarshalJSON()
 	if err != nil {
 		return "", fmt.Errorf("add kv resource serialization error: %s", err)
 	}
@@ -56,7 +56,7 @@ func (kvr *kvResourceStore) GetV1(r model.ResourceBuilder) error {
 		return fmt.Errorf("error getting response from kv store: %s", err)
 	}
 
-	err = r.FromJSON(res.Value)
+	err = r.UnmarshalJSON(res.Value)
 	if err != nil {
 		return fmt.Errorf("error unmarshalling resource: %s", err)
 	}
@@ -76,7 +76,7 @@ func (kvr *kvResourceStore) ListV1(owner string, kind model.ResourceKind, list m
 	for _, kv := range kvpairs {
 		r := list.ResourceBuilder()
 
-		err = r.FromJSON(kv.Value)
+		err = r.UnmarshalJSON(kv.Value)
 		if err != nil {
 			return fmt.Errorf("error unmarshalling resources: %s", err)
 		}
