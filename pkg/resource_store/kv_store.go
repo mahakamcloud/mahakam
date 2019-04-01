@@ -30,7 +30,7 @@ func (kvr *kvResourceStore) AddV1(r builder.ResourceBuilder) (id string, err err
 	key := r.BuildKey()
 	r.BuildMetadata()
 
-	value, err := r.Marshal()
+	value, err := r.ToJSON()
 	if err != nil {
 		return "", fmt.Errorf("add kv resource serialization error: %s", err)
 	}

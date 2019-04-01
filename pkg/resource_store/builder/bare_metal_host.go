@@ -92,8 +92,8 @@ func (b *BareMetalHostBuilder) BuildMetadata() ResourceBuilder {
 	return b
 }
 
-// BuildMetadata returns a resource
-func (b *BareMetalHostBuilder) Marshal() ([]byte, error) {
+// ToJSON returns a resource
+func (b *BareMetalHostBuilder) ToJSON() ([]byte, error) {
 	return json.Marshal(b.resource)
 }
 

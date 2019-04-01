@@ -37,7 +37,7 @@ func (f *fakeResource) BuildMetadata() builder.ResourceBuilder {
 	return f
 }
 
-func (f *fakeResource) Marshal() ([]byte, error) {
+func (f *fakeResource) ToJSON() ([]byte, error) {
 	return nil, nil
 }
 
