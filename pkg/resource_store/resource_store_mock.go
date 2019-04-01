@@ -41,6 +41,16 @@ func (_mr *_MockResourceStoreRecorder) AddV1(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "AddV1", arg0)
 }
 
+func (_m *MockResourceStore) ListV1(owner string, kind builder.ResourceKind, list builder.ResourceBuilderList) error {
+	ret := _m.ctrl.Call(_m, "ListV1", owner, kind, list)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockResourceStoreRecorder) ListV1(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListV1", arg0, arg1, arg2)
+}
+
 func (_m *MockResourceStore) Add(resource resource.Resource) (string, error) {
 	ret := _m.ctrl.Call(_m, "Add", resource)
 	ret0, _ := ret[0].(string)

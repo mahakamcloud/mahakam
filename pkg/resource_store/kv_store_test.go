@@ -41,6 +41,10 @@ func (f *fakeResource) ToJSON() ([]byte, error) {
 	return nil, nil
 }
 
+func (f *fakeResource) FromJSON(in []byte) error {
+	return nil
+}
+
 func (f *fakeResource) GetID() string {
 	return "fake-resource-id"
 }

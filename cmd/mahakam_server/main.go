@@ -117,6 +117,8 @@ func registerHandlers(app *handlers.Handlers, api *operations.MahakamAPI, opts *
 
 	api.BareMetalHostsRegisterBareMetalHostHandler = handlers.NewRegisterBareMetalHostHandler(*app)
 
+	api.BareMetalHostsGetBareMetalHostsHandler = handlers.NewGetBareMetalHostHandler(*app)
+
 	api.ServerShutdown = func() {}
 }
 

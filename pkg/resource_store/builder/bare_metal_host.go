@@ -97,6 +97,11 @@ func (b *BareMetalHostBuilder) ToJSON() ([]byte, error) {
 	return json.Marshal(b.resource)
 }
 
+// FromJSON returns a resource
+func (b *BareMetalHostBuilder) FromJSON(in []byte) error {
+	return json.Unmarshal(in, &b.resource)
+}
+
 // GetID return ID of BareMetalHostBuilder resource
 func (b *BareMetalHostBuilder) GetID() string {
 	return string(b.resource.ID)
@@ -121,4 +126,31 @@ func (b *BareMetalHostBuilder) Validate() error {
 	}
 
 	return nil
+}
+
+// BareMetalHostBuilder is wrapper of BareMetalHost model
+type BareMetalHostBuilderList struct {
+	Items []*BareMetalHostBuilder
+}
+
+func (b *BareMetalHostBuilderList) ResourceBuilder() ResourceBuilder {
+	return &BareMetalHostBuilder{}
+}
+
+// WithItems returns list of Cluster
+func (l *BareMetalHostBuilderList) WithItems(items []ResourceBuilder) {
+	for _, i := range items {
+		b := i.(*BareMetalHostBuilder)
+		l.Items = append(l.Items, b)
+	}
+}
+
+// GetBareMetalHosts returns list of Cluster
+func (l *BareMetalHostBuilderList) GetBareMetalHosts() []*models.BareMetalHost {
+	b := []*models.BareMetalHost{}
+	for _, v := range l.Items {
+		b = append(b, v.resource)
+	}
+
+	return b
 }

@@ -48,6 +48,46 @@ func (kvr *kvResourceStore) AddV1(r builder.ResourceBuilder) (id string, err err
 	return r.GetID(), nil
 }
 
+// Get retrieves single resource with values from kv store,
+// must include owner, name, and kind in the passed resource struct
+func (kvr *kvResourceStore) GetV1(r builder.ResourceBuilder) error {
+	res, err := kvr.store.Get(r.BuildKey())
+	if err != nil {
+		return fmt.Errorf("error getting response from kv store: %s", err)
+	}
+
+	err = r.FromJSON(res.Value)
+	if err != nil {
+		return fmt.Errorf("error unmarshalling resource: %s", err)
+	}
+
+	return nil
+}
+
+// List returns list of resource from store
+func (kvr *kvResourceStore) ListV1(owner string, kind builder.ResourceKind, list builder.ResourceBuilderList) error {
+	var resources []builder.ResourceBuilder
+
+	kvpairs, err := kvr.store.List(string(kind) + "/" + owner + "/")
+	if err != nil && err != store.ErrKeyNotFound {
+		return fmt.Errorf("error getting list of kvpairs from path: %s", err)
+	}
+
+	for _, kv := range kvpairs {
+		r := list.ResourceBuilder()
+
+		err = r.FromJSON(kv.Value)
+		if err != nil {
+			return fmt.Errorf("error unmarshalling resources: %s", err)
+		}
+
+		resources = append(resources, r)
+	}
+
+	list.WithItems(resources)
+	return nil
+}
+
 // Add adds new resource to kv store
 func (kvr *kvResourceStore) Add(r resource.Resource) (id string, err error) {
 	if err := r.PreCheck(); err != nil {
