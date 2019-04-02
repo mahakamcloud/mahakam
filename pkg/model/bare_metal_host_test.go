@@ -19,7 +19,7 @@ func TestBuildWithModel(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		b := &BareMetalHost{}
+		b := &BareMetalHostWrapper{}
 		m := &models.BareMetalHost{
 			BaseResource: models.BaseResource{
 				Name:  swag.String(test.name),
