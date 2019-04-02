@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/docker/libkv/store"
-	"github.com/mahakamcloud/mahakam/pkg/repository"
 	"github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
 )
 
@@ -18,46 +17,6 @@ func NewKVResourceStore(s store.Store) ResourceStore {
 	return &kvResourceStore{
 		store: s,
 	}
-}
-
-// Get retrieves single resource with values from kv store,
-// must include owner, name, and kind in the passed resource struct
-func (kvr *kvResourceStore) GetV1(r repository.ResourceBuilder) error {
-	res, err := kvr.store.Get(r.BuildKey())
-	if err != nil {
-		return fmt.Errorf("error getting response from kv store: %s", err)
-	}
-
-	err = r.UnmarshalJSON(res.Value)
-	if err != nil {
-		return fmt.Errorf("error unmarshalling resource: %s", err)
-	}
-
-	return nil
-}
-
-// List returns list of resource from store
-func (kvr *kvResourceStore) ListV1(owner string, kind repository.ResourceKind, list repository.ResourceBuilderList) error {
-	var resources []repository.ResourceBuilder
-
-	kvpairs, err := kvr.store.List(string(kind) + "/" + owner + "/")
-	if err != nil && err != store.ErrKeyNotFound {
-		return fmt.Errorf("error getting list of kvpairs from path: %s", err)
-	}
-
-	for _, kv := range kvpairs {
-		r := list.ResourceBuilder()
-
-		err = r.UnmarshalJSON(kv.Value)
-		if err != nil {
-			return fmt.Errorf("error unmarshalling resources: %s", err)
-		}
-
-		resources = append(resources, r)
-	}
-
-	list.WithItems(resources)
-	return nil
 }
 
 // Add adds new resource to kv store
