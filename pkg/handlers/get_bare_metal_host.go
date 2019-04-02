@@ -7,8 +7,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/bare_metal_hosts"
-	"github.com/mahakamcloud/mahakam/pkg/config"
-	"github.com/mahakamcloud/mahakam/pkg/repository"
+	"github.com/mahakamcloud/mahakam/pkg/service"
 	"github.com/sirupsen/logrus"
 )
 
@@ -29,16 +28,22 @@ func NewGetBareMetalHostHandler(handlers Handlers) *GetBareMetalHost {
 func (h *GetBareMetalHost) Handle(params bare_metal_hosts.GetBareMetalHostsParams) middleware.Responder {
 	h.log.Infof("handling get baremetal host request: %v", params)
 
-	bareMetalHostBuilderList := &repository.BareMetalHostBuilderList{Items: []*repository.BareMetalHostRepository{}}
-
-	err := h.Handlers.Store.ListV1(config.ResourceOwnerMahakam, repository.KindBareMetalHost, bareMetalHostBuilderList)
+	service, err := service.NewBareMetalHostService()
 	if err != nil {
-		return bare_metal_hosts.NewGetBareMetalHostsDefault(http.StatusInternalServerError).WithPayload(&models.Error{
-			Code:    http.StatusInternalServerError,
-			Message: fmt.Sprintf("error getting bare-metal-hosts %s: ", err),
-		})
+		h.handleError(err)
 	}
 
-	b := bareMetalHostBuilderList.GetBareMetalHosts()
-	return bare_metal_hosts.NewGetBareMetalHostsOK().WithPayload(b)
+	hosts, err := service.GetAll()
+	if err != nil {
+		h.handleError(err)
+	}
+	return bare_metal_hosts.NewGetBareMetalHostsOK().WithPayload(hosts)
+}
+
+func (h *GetBareMetalHost) handleError(err error) middleware.Responder {
+	h.log.Errorf("error getting bare-metal-host: %s", err)
+	return bare_metal_hosts.NewGetBareMetalHostsDefault(http.StatusInternalServerError).WithPayload(&models.Error{
+		Code:    http.StatusInternalServerError,
+		Message: fmt.Sprintf("error getting bare-metal-hosts %s: ", err),
+	})
 }

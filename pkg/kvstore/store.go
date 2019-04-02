@@ -28,3 +28,16 @@ func (k *KVStore) Put(key string, value []byte) error {
 
 	return nil
 }
+
+func (k *KVStore) List(key string) ([][]byte, error) {
+	kvpairs, err := k.store.List(key)
+	if err != nil {
+		return nil, err
+	}
+
+	values := make([][]byte, 0)
+	for _, kv := range kvpairs {
+		values = append(values, kv.Value)
+	}
+	return values, nil
+}
