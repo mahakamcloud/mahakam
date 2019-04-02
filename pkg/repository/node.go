@@ -3,15 +3,20 @@ package repository
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
+	"github.com/mahakamcloud/mahakam/pkg/config"
 	"github.com/mahakamcloud/mahakam/pkg/kvstore"
+	uuid "github.com/satori/go.uuid"
 )
 
 const (
 	// RoleNodeLabelValue represents role value of bare metal node
-	RoleNodeLabelValue = "node"
+	RoleNodeLabelValue              = "node"
+	KindNode           ResourceKind = "node"
 )
 
 type NodeRepository struct {
@@ -55,4 +60,31 @@ func (r *NodeRepository) List() ([]*models.Node, error) {
 		nodes = append(nodes, bm)
 	}
 	return nodes, nil
+}
+
+func (r *NodeRepository) addMandatoryFields(n *models.Node) {
+	if n.Kind == "" {
+		n.Kind = string(KindNode)
+	}
+
+	if n.Owner == "" {
+		n.Owner = config.ResourceOwnerMahakam
+	}
+
+	if len(n.Labels) == 0 {
+		n.Labels = []*models.Label{
+			&models.Label{
+				Key:   RoleLabelKey,
+				Value: RoleNodeLabelValue,
+			},
+		}
+	}
+
+	if n.ID == "" {
+		n.ID = strfmt.UUID(uuid.NewV4().String())
+	}
+
+	now := time.Now()
+	n.CreatedAt = strfmt.DateTime(now)
+	n.ModifiedAt = strfmt.DateTime(now)
 }
