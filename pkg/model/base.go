@@ -13,7 +13,7 @@ type ResourceBuilder interface {
 	UnmarshalJSON([]byte) error
 	BuildKey(optKeys ...string) string
 	AddMetadata() ResourceBuilder
-	GetID() string
+	ID() string
 	Validate() error
 }
 

@@ -45,7 +45,7 @@ func (kvr *kvResourceStore) AddV1(r model.ResourceBuilder) (id string, err error
 
 	// TODO(giri): Implement optimistic lock with revision.
 
-	return r.GetID(), nil
+	return r.ID(), nil
 }
 
 // Get retrieves single resource with values from kv store,

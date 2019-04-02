@@ -45,7 +45,7 @@ func (f *fakeResource) UnmarshalJSON(in []byte) error {
 	return nil
 }
 
-func (f *fakeResource) GetID() string {
+func (f *fakeResource) ID() string {
 	return "fake-resource-id"
 }
 

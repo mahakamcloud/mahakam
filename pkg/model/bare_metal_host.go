@@ -78,8 +78,8 @@ func (b *BareMetalHost) UnmarshalJSON(in []byte) error {
 	return json.Unmarshal(in, &b.resource)
 }
 
-// GetID return ID of BareMetalHostBuilder resource
-func (b *BareMetalHost) GetID() string {
+// ID return ID of BareMetalHostBuilder resource
+func (b *BareMetalHost) ID() string {
 	return string(b.resource.ID)
 }
 
