@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/docker/libkv/store"
-	"github.com/mahakamcloud/mahakam/pkg/model"
+	"github.com/mahakamcloud/mahakam/pkg/repository"
 	"github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
 )
 
@@ -22,7 +22,7 @@ func NewKVResourceStore(s store.Store) ResourceStore {
 
 // Get retrieves single resource with values from kv store,
 // must include owner, name, and kind in the passed resource struct
-func (kvr *kvResourceStore) GetV1(r model.ResourceBuilder) error {
+func (kvr *kvResourceStore) GetV1(r repository.ResourceBuilder) error {
 	res, err := kvr.store.Get(r.BuildKey())
 	if err != nil {
 		return fmt.Errorf("error getting response from kv store: %s", err)
@@ -37,8 +37,8 @@ func (kvr *kvResourceStore) GetV1(r model.ResourceBuilder) error {
 }
 
 // List returns list of resource from store
-func (kvr *kvResourceStore) ListV1(owner string, kind model.ResourceKind, list model.ResourceBuilderList) error {
-	var resources []model.ResourceBuilder
+func (kvr *kvResourceStore) ListV1(owner string, kind repository.ResourceKind, list repository.ResourceBuilderList) error {
+	var resources []repository.ResourceBuilder
 
 	kvpairs, err := kvr.store.List(string(kind) + "/" + owner + "/")
 	if err != nil && err != store.ErrKeyNotFound {

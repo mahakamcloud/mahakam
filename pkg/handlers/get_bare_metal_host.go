@@ -8,7 +8,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/bare_metal_hosts"
 	"github.com/mahakamcloud/mahakam/pkg/config"
-	"github.com/mahakamcloud/mahakam/pkg/model"
+	"github.com/mahakamcloud/mahakam/pkg/repository"
 	"github.com/sirupsen/logrus"
 )
 
@@ -29,9 +29,9 @@ func NewGetBareMetalHostHandler(handlers Handlers) *GetBareMetalHost {
 func (h *GetBareMetalHost) Handle(params bare_metal_hosts.GetBareMetalHostsParams) middleware.Responder {
 	h.log.Infof("handling get baremetal host request: %v", params)
 
-	bareMetalHostBuilderList := &model.BareMetalHostBuilderList{Items: []*model.BareMetalHostWrapper{}}
+	bareMetalHostBuilderList := &repository.BareMetalHostBuilderList{Items: []*repository.BareMetalHostWrapper{}}
 
-	err := h.Handlers.Store.ListV1(config.ResourceOwnerMahakam, model.KindBareMetalHost, bareMetalHostBuilderList)
+	err := h.Handlers.Store.ListV1(config.ResourceOwnerMahakam, repository.KindBareMetalHost, bareMetalHostBuilderList)
 	if err != nil {
 		return bare_metal_hosts.NewGetBareMetalHostsDefault(http.StatusInternalServerError).WithPayload(&models.Error{
 			Code:    http.StatusInternalServerError,

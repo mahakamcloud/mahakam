@@ -1,4 +1,4 @@
-package model
+package repository
 
 // ResourceKind represents stored resource kind
 type ResourceKind string

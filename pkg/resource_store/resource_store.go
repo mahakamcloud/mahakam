@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/mahakamcloud/mahakam/pkg/config"
-	"github.com/mahakamcloud/mahakam/pkg/model"
+	"github.com/mahakamcloud/mahakam/pkg/repository"
 	"github.com/mahakamcloud/mahakam/pkg/resource_store/resource"
 )
 
@@ -26,7 +26,7 @@ func buildKey(rk resource.ResourceKind, owner string, id ...string) string {
 
 // ResourceStore is docker libkv wrapper
 type ResourceStore interface {
-	ListV1(owner string, kind model.ResourceKind, list model.ResourceBuilderList) error
+	ListV1(owner string, kind repository.ResourceKind, list repository.ResourceBuilderList) error
 
 	// TODO(vjdhama): deprecate after moving to builder pattern with
 	// swagger generated model completely

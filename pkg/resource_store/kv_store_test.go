@@ -1,20 +1,20 @@
 package resourcestore
 
 import (
-	"github.com/mahakamcloud/mahakam/pkg/model"
+	"github.com/mahakamcloud/mahakam/pkg/repository"
 )
 
 type fakeResource struct{}
 
-func NewFakeResource() model.ResourceBuilder {
+func NewFakeResource() repository.ResourceBuilder {
 	return &fakeResource{}
 }
 
-func (f *fakeResource) Build(name, owner, kind, role string) model.ResourceBuilder {
+func (f *fakeResource) Build(name, owner, kind, role string) repository.ResourceBuilder {
 	return f
 }
 
-func (f *fakeResource) BuildWithMetadata(name, owner, kind, role string) model.ResourceBuilder {
+func (f *fakeResource) BuildWithMetadata(name, owner, kind, role string) repository.ResourceBuilder {
 	return f
 }
 
@@ -26,7 +26,7 @@ func (f *fakeResource) BuildKey(opts ...string) string {
 	return "fake-resource-key"
 }
 
-func (f *fakeResource) AddMetadata() model.ResourceBuilder {
+func (f *fakeResource) AddMetadata() repository.ResourceBuilder {
 	return f
 }
 
