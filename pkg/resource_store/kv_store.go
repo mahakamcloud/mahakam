@@ -20,30 +20,6 @@ func NewKVResourceStore(s store.Store) ResourceStore {
 	}
 }
 
-// Add adds new resource to kv store
-func (kvr *kvResourceStore) AddV1(r model.ResourceBuilder) (id string, err error) {
-	// TODO(giri): check if key exists or duplicated
-	key := r.BuildKey()
-	r.AddMetadata()
-
-	value, err := r.MarshalJSON()
-	if err != nil {
-		return "", fmt.Errorf("add kv resource serialization error: %s", err)
-	}
-
-	opts := &store.WriteOptions{
-		IsDir: false,
-	}
-	_, _, err = kvr.store.AtomicPut(key, value, nil, opts)
-	if err != nil {
-		return "", fmt.Errorf("add kv resource atomic put error: %s", err)
-	}
-
-	// TODO(giri): Implement optimistic lock with revision.
-
-	return r.ID(), nil
-}
-
 // Get retrieves single resource with values from kv store,
 // must include owner, name, and kind in the passed resource struct
 func (kvr *kvResourceStore) GetV1(r model.ResourceBuilder) error {

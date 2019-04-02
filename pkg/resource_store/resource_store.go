@@ -26,7 +26,6 @@ func buildKey(rk resource.ResourceKind, owner string, id ...string) string {
 
 // ResourceStore is docker libkv wrapper
 type ResourceStore interface {
-	AddV1(builder model.ResourceBuilder) (id string, err error)
 	ListV1(owner string, kind model.ResourceKind, list model.ResourceBuilderList) error
 
 	// TODO(vjdhama): deprecate after moving to builder pattern with
