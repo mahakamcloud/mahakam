@@ -22,10 +22,6 @@ func NewKVResourceStore(s store.Store) ResourceStore {
 
 // Add adds new resource to kv store
 func (kvr *kvResourceStore) AddV1(r model.ResourceBuilder) (id string, err error) {
-	if err := r.Validate(); err != nil {
-		return "", fmt.Errorf("kv resource precheck failed: %s", err)
-	}
-
 	// TODO(giri): check if key exists or duplicated
 	key := r.BuildKey()
 	r.AddMetadata()

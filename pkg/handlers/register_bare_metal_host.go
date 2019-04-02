@@ -29,10 +29,9 @@ func NewRegisterBareMetalHostHandler(handlers Handlers) *RegisterBareMetalHost {
 func (h *RegisterBareMetalHost) Handle(params bmhost.RegisterBareMetalHostParams) middleware.Responder {
 	h.log.Infof("handling register bare metal host request: %v", params)
 
-	bm := &model.BareMetalHostWrapper{}
-	res := bm.BuildWithModel(params.Body)
+	bm := model.NewBareMetalHostWrapper(params.Body)
 
-	_, err := h.Handlers.Store.AddV1(bm)
+	err := bm.Save()
 	if err != nil {
 		h.log.Errorf("error registering bare metal host: %s", err)
 		return bmhost.NewRegisterBareMetalHostDefault(http.StatusInternalServerError).WithPayload(&models.Error{
@@ -40,5 +39,5 @@ func (h *RegisterBareMetalHost) Handle(params bmhost.RegisterBareMetalHostParams
 		})
 	}
 
-	return bmhost.NewRegisterBareMetalHostCreated().WithPayload(res)
+	return bmhost.NewRegisterBareMetalHostCreated()
 }

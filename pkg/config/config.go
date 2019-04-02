@@ -22,9 +22,10 @@ type Config struct {
 	HostsConfig         []Host               `yaml:"hosts"`
 }
 
+var config *Config
+
 // LoadConfig loads a configuration file
 func LoadConfig(configFilePath string) (*Config, error) {
-	var config *Config
 	if configFilePath == "" {
 		return config, fmt.Errorf("must provide non-empty configuration file path")
 	}
@@ -43,6 +44,10 @@ func LoadConfig(configFilePath string) (*Config, error) {
 	}
 
 	return config, nil
+}
+
+func GetConfig() *Config {
+	return config
 }
 
 // Validate validates mahakam configuration
