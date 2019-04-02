@@ -29,7 +29,8 @@ type BaseResource struct {
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// kind
-	Kind string `json:"kind,omitempty"`
+	// Required: true
+	Kind *string `json:"kind"`
 
 	// labels
 	Labels []*Label `json:"labels"`
@@ -43,7 +44,8 @@ type BaseResource struct {
 	Name *string `json:"name"`
 
 	// owner
-	Owner string `json:"owner,omitempty"`
+	// Required: true
+	Owner *string `json:"owner"`
 
 	// revision
 	Revision uint64 `json:"revision,omitempty"`
@@ -61,6 +63,10 @@ func (m *BaseResource) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateKind(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateLabels(formats); err != nil {
 		res = append(res, err)
 	}
@@ -70,6 +76,10 @@ func (m *BaseResource) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateName(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOwner(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -99,6 +109,15 @@ func (m *BaseResource) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *BaseResource) validateKind(formats strfmt.Registry) error {
+
+	if err := validate.Required("kind", "body", m.Kind); err != nil {
 		return err
 	}
 
@@ -146,6 +165,15 @@ func (m *BaseResource) validateModifiedAt(formats strfmt.Registry) error {
 func (m *BaseResource) validateName(formats strfmt.Registry) error {
 
 	if err := validate.Required("name", "body", m.Name); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *BaseResource) validateOwner(formats strfmt.Registry) error {
+
+	if err := validate.Required("owner", "body", m.Owner); err != nil {
 		return err
 	}
 

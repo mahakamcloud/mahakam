@@ -23,8 +23,8 @@ func TestBuildWithModel(t *testing.T) {
 		m := &models.BareMetalHost{
 			BaseResource: models.BaseResource{
 				Name:  swag.String(test.name),
-				Kind:  test.kind,
-				Owner: test.owner,
+				Kind:  &test.kind,
+				Owner: &test.owner,
 			},
 		}
 

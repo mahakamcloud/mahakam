@@ -321,6 +321,8 @@ definitions:
     type: object
     required:
       - name
+      - owner
+      - kind
     properties:
       id:
         type: string
