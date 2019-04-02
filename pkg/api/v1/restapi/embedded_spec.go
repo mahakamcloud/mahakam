@@ -521,9 +521,7 @@ func init() {
     "baseResource": {
       "type": "object",
       "required": [
-        "name",
-        "owner",
-        "kind"
+        "name"
       ],
       "properties": {
         "createdAt": {
@@ -1305,9 +1303,7 @@ func init() {
     "baseResource": {
       "type": "object",
       "required": [
-        "name",
-        "owner",
-        "kind"
+        "name"
       ],
       "properties": {
         "createdAt": {

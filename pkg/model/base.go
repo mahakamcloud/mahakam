@@ -14,6 +14,7 @@ type ResourceBuilder interface {
 	BuildKey(optKeys ...string) string
 	AddMetadata() ResourceBuilder
 	ID() string
+	Validate() error
 }
 
 // ResourceBuilderList

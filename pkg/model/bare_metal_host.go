@@ -29,12 +29,12 @@ type BareMetalHost struct {
 func (b *BareMetalHost) BuildWithModel(bmhost *models.BareMetalHost) *models.BareMetalHost {
 	b.resource = bmhost
 
-	if *b.resource.Kind == "" {
-		*b.resource.Kind = string(KindBareMetalHost)
+	if b.resource.Kind == "" {
+		b.resource.Kind = string(KindBareMetalHost)
 	}
 
-	if *b.resource.Owner == "" {
-		*b.resource.Owner = config.ResourceOwnerMahakam
+	if b.resource.Owner == "" {
+		b.resource.Owner = config.ResourceOwnerMahakam
 	}
 
 	if len(b.resource.Labels) == 0 {
@@ -52,7 +52,7 @@ func (b *BareMetalHost) BuildWithModel(bmhost *models.BareMetalHost) *models.Bar
 // BuildKey generates key for a resource
 func (b *BareMetalHost) BuildKey(optKeys ...string) string {
 	keys := strings.Join(optKeys, "/")
-	return fmt.Sprintf("%s/%s/%s/%s", swag.StringValue(b.resource.Kind), swag.StringValue(b.resource.Owner), swag.StringValue(b.resource.Name), keys)
+	return fmt.Sprintf("%s/%s/%s/%s", b.resource.Kind, b.resource.Owner, swag.StringValue(b.resource.Name), keys)
 }
 
 // AddMetadata returns a resource
@@ -81,6 +81,27 @@ func (b *BareMetalHost) UnmarshalJSON(in []byte) error {
 // ID return ID of BareMetalHostBuilder resource
 func (b *BareMetalHost) ID() string {
 	return string(b.resource.ID)
+}
+
+// Validate BareMetalHost resource
+func (b *BareMetalHost) Validate() error {
+	if b.resource.Owner == "" {
+		return fmt.Errorf("resource owner not found")
+	}
+	if swag.StringValue(b.resource.Name) == "" {
+		return fmt.Errorf("resource name not found")
+	}
+	if b.resource.Kind == "" {
+		return fmt.Errorf("resource kind not found")
+	}
+
+	for _, l := range b.resource.Labels {
+		if l.Key == RoleLabelKey && l.Value == "" {
+			return fmt.Errorf("resource labels are empty")
+		}
+	}
+
+	return nil
 }
 
 // BareMetalHostBuilder is wrapper of BareMetalHost model
