@@ -29,7 +29,7 @@ func NewRegisterBareMetalHostHandler(handlers Handlers) *RegisterBareMetalHost {
 func (h *RegisterBareMetalHost) Handle(params bmhost.RegisterBareMetalHostParams) middleware.Responder {
 	h.log.Infof("handling register bare metal host request: %v", params)
 
-	bm := repository.NewBareMetalHostWrapper(params.Body)
+	bm := repository.NewBareMetalHostRepository(params.Body)
 
 	err := bm.Save()
 	if err != nil {
