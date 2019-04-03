@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	libkvstore "github.com/docker/libkv/store"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
@@ -43,10 +44,13 @@ func (r *GreNetworkRepository) Put(grenet *models.GreNetwork) error {
 
 func (r *GreNetworkRepository) List() ([]*models.GreNetwork, error) {
 	// TODO : Remove hard coded values
-	key := fmt.Sprintf("%s/%s", "gre-networks", "mahakam")
+	key := fmt.Sprintf("%s/%s", "gre-network", "mahakam")
 
 	vals, err := r.store.List(key)
 	if err != nil {
+		if err == libkvstore.ErrKeyNotFound {
+			return []*models.GreNetwork{}, nil
+		}
 		return nil, err
 	}
 
