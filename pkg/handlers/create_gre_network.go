@@ -1,8 +1,13 @@
 package handlers
 
 import (
+	"fmt"
+	"net/http"
+
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	grenet "github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/gre_networks"
+	"github.com/mahakamcloud/mahakam/pkg/service"
 	"github.com/sirupsen/logrus"
 )
 
@@ -12,7 +17,7 @@ type CreateGreNetwork struct {
 	log logrus.FieldLogger
 }
 
-// NewRegisterBareMetalHostHandler registers new bare metal host
+// NewCreateGreNetworkHandler registers new bare metal host
 func NewCreateGreNetwork(handlers Handlers) *CreateGreNetwork {
 	return &CreateGreNetwork{
 		Handlers: handlers,
@@ -20,6 +25,25 @@ func NewCreateGreNetwork(handlers Handlers) *CreateGreNetwork {
 	}
 }
 
-func (g *CreateGreNetwork) Handle(params grenet.GetGreNetworksParams) middleware.Responder {
-	return nil
+func (g *CreateGreNetwork) Handle(params grenet.CreateGreNetworkParams) middleware.Responder {
+	g.log.Infof("handling creation of Gre network request: %v", params)
+
+	s, err := service.NewGreNetworkService()
+	if err != nil {
+		return g.handleError(err)
+	}
+
+	err = s.CreateGreNetwork(params.Body)
+	if err != nil {
+		return g.handleError(err)
+	}
+
+	return grenet.NewCreateGreNetworkCreated()
+}
+
+func (g *CreateGreNetwork) handleError(err error) middleware.Responder {
+	g.log.Errorf("error creating gre network: %s", err)
+	return grenet.NewCreateGreNetworkDefault(http.StatusInternalServerError).WithPayload(&models.Error{
+		Message: fmt.Sprintf("failed creating the gre network"),
+	})
 }
