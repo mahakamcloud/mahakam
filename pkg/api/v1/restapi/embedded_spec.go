@@ -369,6 +369,60 @@ func init() {
         }
       }
     },
+    "/kube-clusters": {
+      "get": {
+        "tags": [
+          "clusters"
+        ],
+        "operationId": "getKubeCluster",
+        "responses": {
+          "200": {
+            "description": "list all kube clusters",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/kubeCluster"
+              }
+            }
+          },
+          "default": {
+            "description": "generic error response",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "clusters"
+        ],
+        "operationId": "createKubeCluster",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/kubeCluster"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created Kube cluster",
+            "schema": {
+              "$ref": "#/definitions/kubeCluster"
+            }
+          },
+          "default": {
+            "description": "generic error response",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/networks": {
       "get": {
         "tags": [
@@ -731,6 +785,32 @@ func init() {
           "items": {
             "type": "string"
           }
+        }
+      }
+    },
+    "kubeCluster": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseResource"
+        }
+      ],
+      "properties": {
+        "nodeSize": {
+          "type": "string",
+          "default": "xs",
+          "enum": [
+            "xs",
+            "s",
+            "m",
+            "l",
+            "xl"
+          ]
+        },
+        "numNodes": {
+          "type": "integer",
+          "maximum": 10,
+          "minimum": 1
         }
       }
     },
@@ -1219,6 +1299,60 @@ func init() {
         }
       }
     },
+    "/kube-clusters": {
+      "get": {
+        "tags": [
+          "clusters"
+        ],
+        "operationId": "getKubeCluster",
+        "responses": {
+          "200": {
+            "description": "list all kube clusters",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/kubeCluster"
+              }
+            }
+          },
+          "default": {
+            "description": "generic error response",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "clusters"
+        ],
+        "operationId": "createKubeCluster",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/kubeCluster"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created Kube cluster",
+            "schema": {
+              "$ref": "#/definitions/kubeCluster"
+            }
+          },
+          "default": {
+            "description": "generic error response",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/networks": {
       "get": {
         "tags": [
@@ -1581,6 +1715,32 @@ func init() {
           "items": {
             "type": "string"
           }
+        }
+      }
+    },
+    "kubeCluster": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseResource"
+        }
+      ],
+      "properties": {
+        "nodeSize": {
+          "type": "string",
+          "default": "xs",
+          "enum": [
+            "xs",
+            "s",
+            "m",
+            "l",
+            "xl"
+          ]
+        },
+        "numNodes": {
+          "type": "integer",
+          "maximum": 10,
+          "minimum": 1
         }
       }
     },

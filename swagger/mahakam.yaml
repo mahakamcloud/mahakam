@@ -187,6 +187,41 @@ paths:
           description: error
           schema:
             $ref: "#/definitions/error"
+  /kube-clusters:
+    get:
+      tags:
+        - clusters
+      operationId: getKubeCluster
+      responses:
+        200:
+          description: list all kube clusters
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/kubeCluster"
+        default:
+          description: generic error response
+          schema:
+            $ref: "#/definitions/error"
+    post:
+      tags:
+        - clusters
+      operationId: createKubeCluster
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: "#/definitions/kubeCluster"
+      responses:
+        201:
+          description: created Kube cluster
+          schema:
+            $ref: "#/definitions/kubeCluster"
+        default:
+          description: generic error response
+          schema:
+            $ref: "#/definitions/error"
+
   /gre-networks:
     get:
       tags:
@@ -380,6 +415,19 @@ definitions:
         type: array
         items:
           $ref:  "#/definitions/label"
+  kubeCluster:
+    type: object
+    allOf:
+      - $ref: "#/definitions/baseResource"
+    properties:
+      nodeSize:
+        type: string
+        enum: [xs, s, m, l, xl]
+        default: xs
+      numNodes:
+        type: integer
+        minimum: 1
+        maximum: 10
   cluster:
     type: object
     required:

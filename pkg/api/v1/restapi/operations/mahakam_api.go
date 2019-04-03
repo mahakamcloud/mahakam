@@ -58,6 +58,9 @@ func NewMahakamAPI(spec *loads.Document) *MahakamAPI {
 		NetworksCreateIPPoolHandler: networks.CreateIPPoolHandlerFunc(func(params networks.CreateIPPoolParams) middleware.Responder {
 			return middleware.NotImplemented("operation NetworksCreateIPPool has not yet been implemented")
 		}),
+		ClustersCreateKubeClusterHandler: clusters.CreateKubeClusterHandlerFunc(func(params clusters.CreateKubeClusterParams) middleware.Responder {
+			return middleware.NotImplemented("operation ClustersCreateKubeCluster has not yet been implemented")
+		}),
 		NetworksCreateNetworkHandler: networks.CreateNetworkHandlerFunc(func(params networks.CreateNetworkParams) middleware.Responder {
 			return middleware.NotImplemented("operation NetworksCreateNetwork has not yet been implemented")
 		}),
@@ -75,6 +78,9 @@ func NewMahakamAPI(spec *loads.Document) *MahakamAPI {
 		}),
 		GetGreNetworksHandler: GetGreNetworksHandlerFunc(func(params GetGreNetworksParams) middleware.Responder {
 			return middleware.NotImplemented("operation GetGreNetworks has not yet been implemented")
+		}),
+		ClustersGetKubeClusterHandler: clusters.GetKubeClusterHandlerFunc(func(params clusters.GetKubeClusterParams) middleware.Responder {
+			return middleware.NotImplemented("operation ClustersGetKubeCluster has not yet been implemented")
 		}),
 		NetworksGetNetworksHandler: networks.GetNetworksHandlerFunc(func(params networks.GetNetworksParams) middleware.Responder {
 			return middleware.NotImplemented("operation NetworksGetNetworks has not yet been implemented")
@@ -131,6 +137,8 @@ type MahakamAPI struct {
 	NetworksCreateGreNetworkHandler networks.CreateGreNetworkHandler
 	// NetworksCreateIPPoolHandler sets the operation handler for the create Ip pool operation
 	NetworksCreateIPPoolHandler networks.CreateIPPoolHandler
+	// ClustersCreateKubeClusterHandler sets the operation handler for the create kube cluster operation
+	ClustersCreateKubeClusterHandler clusters.CreateKubeClusterHandler
 	// NetworksCreateNetworkHandler sets the operation handler for the create network operation
 	NetworksCreateNetworkHandler networks.CreateNetworkHandler
 	// ClustersDescribeClustersHandler sets the operation handler for the describe clusters operation
@@ -143,6 +151,8 @@ type MahakamAPI struct {
 	ClustersGetClustersHandler clusters.GetClustersHandler
 	// GetGreNetworksHandler sets the operation handler for the get gre networks operation
 	GetGreNetworksHandler GetGreNetworksHandler
+	// ClustersGetKubeClusterHandler sets the operation handler for the get kube cluster operation
+	ClustersGetKubeClusterHandler clusters.GetKubeClusterHandler
 	// NetworksGetNetworksHandler sets the operation handler for the get networks operation
 	NetworksGetNetworksHandler networks.GetNetworksHandler
 	// BareMetalHostsRegisterBareMetalHostHandler sets the operation handler for the register bare metal host operation
@@ -238,6 +248,10 @@ func (o *MahakamAPI) Validate() error {
 		unregistered = append(unregistered, "networks.CreateIPPoolHandler")
 	}
 
+	if o.ClustersCreateKubeClusterHandler == nil {
+		unregistered = append(unregistered, "clusters.CreateKubeClusterHandler")
+	}
+
 	if o.NetworksCreateNetworkHandler == nil {
 		unregistered = append(unregistered, "networks.CreateNetworkHandler")
 	}
@@ -260,6 +274,10 @@ func (o *MahakamAPI) Validate() error {
 
 	if o.GetGreNetworksHandler == nil {
 		unregistered = append(unregistered, "GetGreNetworksHandler")
+	}
+
+	if o.ClustersGetKubeClusterHandler == nil {
+		unregistered = append(unregistered, "clusters.GetKubeClusterHandler")
 	}
 
 	if o.NetworksGetNetworksHandler == nil {
@@ -407,6 +425,11 @@ func (o *MahakamAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/kube-clusters"] = clusters.NewCreateKubeCluster(o.context, o.ClustersCreateKubeClusterHandler)
+
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/networks"] = networks.NewCreateNetwork(o.context, o.NetworksCreateNetworkHandler)
 
 	if o.handlers["GET"] == nil {
@@ -433,6 +456,11 @@ func (o *MahakamAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/gre-networks"] = NewGetGreNetworks(o.context, o.GetGreNetworksHandler)
+
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/kube-clusters"] = clusters.NewGetKubeCluster(o.context, o.ClustersGetKubeClusterHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
