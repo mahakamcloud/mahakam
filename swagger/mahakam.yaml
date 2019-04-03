@@ -225,8 +225,7 @@ paths:
   /gre-networks:
     get:
       tags:
-        - networks
-        - GRE
+        - greNetworks
       operationId: getGreNetworks
       responses:
         200:
@@ -241,7 +240,7 @@ paths:
             $ref: "#/definitions/error"
     post:
       tags:
-        - networks
+        - greNetworks
       operationId: createGreNetwork
       parameters:
         - name: body

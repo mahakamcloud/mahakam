@@ -22,6 +22,7 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/apps"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/bare_metal_hosts"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/clusters"
+	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/gre_networks"
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/restapi/operations/networks"
 )
 
@@ -52,8 +53,8 @@ func NewMahakamAPI(spec *loads.Document) *MahakamAPI {
 		ClustersCreateClusterHandler: clusters.CreateClusterHandlerFunc(func(params clusters.CreateClusterParams) middleware.Responder {
 			return middleware.NotImplemented("operation ClustersCreateCluster has not yet been implemented")
 		}),
-		NetworksCreateGreNetworkHandler: networks.CreateGreNetworkHandlerFunc(func(params networks.CreateGreNetworkParams) middleware.Responder {
-			return middleware.NotImplemented("operation NetworksCreateGreNetwork has not yet been implemented")
+		GreNetworksCreateGreNetworkHandler: gre_networks.CreateGreNetworkHandlerFunc(func(params gre_networks.CreateGreNetworkParams) middleware.Responder {
+			return middleware.NotImplemented("operation GreNetworksCreateGreNetwork has not yet been implemented")
 		}),
 		NetworksCreateIPPoolHandler: networks.CreateIPPoolHandlerFunc(func(params networks.CreateIPPoolParams) middleware.Responder {
 			return middleware.NotImplemented("operation NetworksCreateIPPool has not yet been implemented")
@@ -76,8 +77,8 @@ func NewMahakamAPI(spec *loads.Document) *MahakamAPI {
 		ClustersGetClustersHandler: clusters.GetClustersHandlerFunc(func(params clusters.GetClustersParams) middleware.Responder {
 			return middleware.NotImplemented("operation ClustersGetClusters has not yet been implemented")
 		}),
-		GetGreNetworksHandler: GetGreNetworksHandlerFunc(func(params GetGreNetworksParams) middleware.Responder {
-			return middleware.NotImplemented("operation GetGreNetworks has not yet been implemented")
+		GreNetworksGetGreNetworksHandler: gre_networks.GetGreNetworksHandlerFunc(func(params gre_networks.GetGreNetworksParams) middleware.Responder {
+			return middleware.NotImplemented("operation GreNetworksGetGreNetworks has not yet been implemented")
 		}),
 		ClustersGetKubeClusterHandler: clusters.GetKubeClusterHandlerFunc(func(params clusters.GetKubeClusterParams) middleware.Responder {
 			return middleware.NotImplemented("operation ClustersGetKubeCluster has not yet been implemented")
@@ -133,8 +134,8 @@ type MahakamAPI struct {
 	AppsCreateAppHandler apps.CreateAppHandler
 	// ClustersCreateClusterHandler sets the operation handler for the create cluster operation
 	ClustersCreateClusterHandler clusters.CreateClusterHandler
-	// NetworksCreateGreNetworkHandler sets the operation handler for the create gre network operation
-	NetworksCreateGreNetworkHandler networks.CreateGreNetworkHandler
+	// GreNetworksCreateGreNetworkHandler sets the operation handler for the create gre network operation
+	GreNetworksCreateGreNetworkHandler gre_networks.CreateGreNetworkHandler
 	// NetworksCreateIPPoolHandler sets the operation handler for the create Ip pool operation
 	NetworksCreateIPPoolHandler networks.CreateIPPoolHandler
 	// ClustersCreateKubeClusterHandler sets the operation handler for the create kube cluster operation
@@ -149,10 +150,10 @@ type MahakamAPI struct {
 	BareMetalHostsGetBareMetalHostsHandler bare_metal_hosts.GetBareMetalHostsHandler
 	// ClustersGetClustersHandler sets the operation handler for the get clusters operation
 	ClustersGetClustersHandler clusters.GetClustersHandler
-	// GetGreNetworksHandler sets the operation handler for the get gre networks operation
-	GetGreNetworksHandler GetGreNetworksHandler
 	// ClustersGetKubeClusterHandler sets the operation handler for the get kube cluster operation
 	ClustersGetKubeClusterHandler clusters.GetKubeClusterHandler
+	// GreNetworksGetGreNetworksHandler sets the operation handler for the get gre networks operation
+	GreNetworksGetGreNetworksHandler gre_networks.GetGreNetworksHandler
 	// NetworksGetNetworksHandler sets the operation handler for the get networks operation
 	NetworksGetNetworksHandler networks.GetNetworksHandler
 	// BareMetalHostsRegisterBareMetalHostHandler sets the operation handler for the register bare metal host operation
@@ -240,8 +241,8 @@ func (o *MahakamAPI) Validate() error {
 		unregistered = append(unregistered, "clusters.CreateClusterHandler")
 	}
 
-	if o.NetworksCreateGreNetworkHandler == nil {
-		unregistered = append(unregistered, "networks.CreateGreNetworkHandler")
+	if o.GreNetworksCreateGreNetworkHandler == nil {
+		unregistered = append(unregistered, "gre_networks.CreateGreNetworkHandler")
 	}
 
 	if o.NetworksCreateIPPoolHandler == nil {
@@ -272,8 +273,8 @@ func (o *MahakamAPI) Validate() error {
 		unregistered = append(unregistered, "clusters.GetClustersHandler")
 	}
 
-	if o.GetGreNetworksHandler == nil {
-		unregistered = append(unregistered, "GetGreNetworksHandler")
+	if o.GreNetworksGetGreNetworksHandler == nil {
+		unregistered = append(unregistered, "gre_networks.GetGreNetworksHandler")
 	}
 
 	if o.ClustersGetKubeClusterHandler == nil {
@@ -415,7 +416,7 @@ func (o *MahakamAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/gre-networks"] = networks.NewCreateGreNetwork(o.context, o.NetworksCreateGreNetworkHandler)
+	o.handlers["POST"]["/gre-networks"] = gre_networks.NewCreateGreNetwork(o.context, o.GreNetworksCreateGreNetworkHandler)
 
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -455,7 +456,7 @@ func (o *MahakamAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/gre-networks"] = NewGetGreNetworks(o.context, o.GetGreNetworksHandler)
+	o.handlers["GET"]["/gre-networks"] = gre_networks.NewGetGreNetworks(o.context, o.GreNetworksGetGreNetworksHandler)
 
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)

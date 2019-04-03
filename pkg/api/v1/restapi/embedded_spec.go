@@ -317,8 +317,7 @@ func init() {
     "/gre-networks": {
       "get": {
         "tags": [
-          "networks",
-          "GRE"
+          "greNetworks"
         ],
         "operationId": "getGreNetworks",
         "responses": {
@@ -341,7 +340,7 @@ func init() {
       },
       "post": {
         "tags": [
-          "networks"
+          "greNetworks"
         ],
         "operationId": "createGreNetwork",
         "parameters": [
@@ -1247,8 +1246,7 @@ func init() {
     "/gre-networks": {
       "get": {
         "tags": [
-          "networks",
-          "GRE"
+          "greNetworks"
         ],
         "operationId": "getGreNetworks",
         "responses": {
@@ -1271,7 +1269,7 @@ func init() {
       },
       "post": {
         "tags": [
-          "networks"
+          "greNetworks"
         ],
         "operationId": "createGreNetwork",
         "parameters": [
