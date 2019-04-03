@@ -314,6 +314,61 @@ func init() {
         }
       }
     },
+    "/gre-networks": {
+      "get": {
+        "tags": [
+          "networks",
+          "GRE"
+        ],
+        "operationId": "getGreNetworks",
+        "responses": {
+          "200": {
+            "description": "list created GRE networks",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/GreNetwork"
+              }
+            }
+          },
+          "default": {
+            "description": "generic error response",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "networks"
+        ],
+        "operationId": "createGreNetwork",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/GreNetwork"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created GRE network",
+            "schema": {
+              "$ref": "#/definitions/network"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/networks": {
       "get": {
         "tags": [
@@ -449,6 +504,22 @@ func init() {
     }
   },
   "definitions": {
+    "GreNetwork": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseResource"
+        }
+      ],
+      "properties": {
+        "GREKey": {
+          "type": "integer"
+        },
+        "networkCIDR": {
+          "type": "string"
+        }
+      }
+    },
     "allocatedIpPool": {
       "type": "object",
       "properties": {
@@ -707,9 +778,6 @@ func init() {
     },
     "node": {
       "type": "object",
-      "required": [
-        "name"
-      ],
       "allOf": [
         {
           "$ref": "#/definitions/baseResource"
@@ -1096,6 +1164,61 @@ func init() {
         }
       }
     },
+    "/gre-networks": {
+      "get": {
+        "tags": [
+          "networks",
+          "GRE"
+        ],
+        "operationId": "getGreNetworks",
+        "responses": {
+          "200": {
+            "description": "list created GRE networks",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/GreNetwork"
+              }
+            }
+          },
+          "default": {
+            "description": "generic error response",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "networks"
+        ],
+        "operationId": "createGreNetwork",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/GreNetwork"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created GRE network",
+            "schema": {
+              "$ref": "#/definitions/network"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/networks": {
       "get": {
         "tags": [
@@ -1231,6 +1354,22 @@ func init() {
     }
   },
   "definitions": {
+    "GreNetwork": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseResource"
+        }
+      ],
+      "properties": {
+        "GREKey": {
+          "type": "integer"
+        },
+        "networkCIDR": {
+          "type": "string"
+        }
+      }
+    },
     "allocatedIpPool": {
       "type": "object",
       "properties": {
@@ -1489,9 +1628,6 @@ func init() {
     },
     "node": {
       "type": "object",
-      "required": [
-        "name"
-      ],
       "allOf": [
         {
           "$ref": "#/definitions/baseResource"
