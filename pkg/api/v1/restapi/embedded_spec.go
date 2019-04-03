@@ -512,11 +512,11 @@ func init() {
         }
       ],
       "properties": {
+        "CIDR": {
+          "type": "string"
+        },
         "GREKey": {
           "type": "integer"
-        },
-        "networkCIDR": {
-          "type": "string"
         }
       }
     },
@@ -1362,11 +1362,11 @@ func init() {
         }
       ],
       "properties": {
+        "CIDR": {
+          "type": "string"
+        },
         "GREKey": {
           "type": "integer"
-        },
-        "networkCIDR": {
-          "type": "string"
         }
       }
     },

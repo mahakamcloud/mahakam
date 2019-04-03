@@ -465,7 +465,7 @@ definitions:
     allOf:
       - $ref: "#/definitions/baseResource"
     properties:
-      networkCIDR:
+      CIDR:
         type: string
       GREKey:
         type: integer

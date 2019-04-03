@@ -17,11 +17,11 @@ import (
 type GreNetwork struct {
 	BaseResource
 
+	// c ID r
+	CIDR string `json:"CIDR,omitempty"`
+
 	// g r e key
 	GREKey int64 `json:"GREKey,omitempty"`
-
-	// network c ID r
-	NetworkCIDR string `json:"networkCIDR,omitempty"`
 }
 
 // UnmarshalJSON unmarshals this object from a JSON structure
@@ -35,16 +35,16 @@ func (m *GreNetwork) UnmarshalJSON(raw []byte) error {
 
 	// now for regular properties
 	var propsGreNetwork struct {
-		GREKey int64 `json:"GREKey,omitempty"`
+		CIDR string `json:"CIDR,omitempty"`
 
-		NetworkCIDR string `json:"networkCIDR,omitempty"`
+		GREKey int64 `json:"GREKey,omitempty"`
 	}
 	if err := swag.ReadJSON(raw, &propsGreNetwork); err != nil {
 		return err
 	}
-	m.GREKey = propsGreNetwork.GREKey
+	m.CIDR = propsGreNetwork.CIDR
 
-	m.NetworkCIDR = propsGreNetwork.NetworkCIDR
+	m.GREKey = propsGreNetwork.GREKey
 
 	return nil
 }
@@ -61,13 +61,13 @@ func (m GreNetwork) MarshalJSON() ([]byte, error) {
 
 	// now for regular properties
 	var propsGreNetwork struct {
+		CIDR string `json:"CIDR,omitempty"`
+
 		GREKey int64 `json:"GREKey,omitempty"`
-
-		NetworkCIDR string `json:"networkCIDR,omitempty"`
 	}
-	propsGreNetwork.GREKey = m.GREKey
+	propsGreNetwork.CIDR = m.CIDR
 
-	propsGreNetwork.NetworkCIDR = m.NetworkCIDR
+	propsGreNetwork.GREKey = m.GREKey
 
 	jsonDataPropsGreNetwork, errGreNetwork := swag.WriteJSON(propsGreNetwork)
 	if errGreNetwork != nil {
