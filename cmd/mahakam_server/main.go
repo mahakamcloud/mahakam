@@ -119,6 +119,8 @@ func registerHandlers(app *handlers.Handlers, api *operations.MahakamAPI, opts *
 
 	api.BareMetalHostsGetBareMetalHostsHandler = handlers.NewGetBareMetalHostHandler(*app)
 
+	api.GreNetworksGetGreNetworksHandler = handlers.NewCreateGreNetwork(*app)
+
 	api.ServerShutdown = func() {}
 }
 
