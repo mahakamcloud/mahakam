@@ -317,7 +317,7 @@ func init() {
     "/gre-networks": {
       "get": {
         "tags": [
-          "greNetworks"
+          "gre-networks"
         ],
         "operationId": "getGreNetworks",
         "responses": {
@@ -326,7 +326,7 @@ func init() {
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/GreNetwork"
+                "$ref": "#/definitions/greNetwork"
               }
             }
           },
@@ -340,7 +340,7 @@ func init() {
       },
       "post": {
         "tags": [
-          "greNetworks"
+          "gre-networks"
         ],
         "operationId": "createGreNetwork",
         "parameters": [
@@ -348,7 +348,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/GreNetwork"
+              "$ref": "#/definitions/greNetwork"
             }
           }
         ],
@@ -356,7 +356,7 @@ func init() {
           "201": {
             "description": "created GRE network",
             "schema": {
-              "$ref": "#/definitions/network"
+              "$ref": "#/definitions/greNetwork"
             }
           },
           "default": {
@@ -557,22 +557,6 @@ func init() {
     }
   },
   "definitions": {
-    "GreNetwork": {
-      "type": "object",
-      "allOf": [
-        {
-          "$ref": "#/definitions/baseResource"
-        }
-      ],
-      "properties": {
-        "CIDR": {
-          "type": "string"
-        },
-        "GREKey": {
-          "type": "integer"
-        }
-      }
-    },
     "allocatedIpPool": {
       "type": "object",
       "properties": {
@@ -746,6 +730,22 @@ func init() {
         },
         "message": {
           "type": "string"
+        }
+      }
+    },
+    "greNetwork": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseResource"
+        }
+      ],
+      "properties": {
+        "CIDR": {
+          "type": "string"
+        },
+        "GREKey": {
+          "type": "integer"
         }
       }
     },
@@ -1246,7 +1246,7 @@ func init() {
     "/gre-networks": {
       "get": {
         "tags": [
-          "greNetworks"
+          "gre-networks"
         ],
         "operationId": "getGreNetworks",
         "responses": {
@@ -1255,7 +1255,7 @@ func init() {
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/GreNetwork"
+                "$ref": "#/definitions/greNetwork"
               }
             }
           },
@@ -1269,7 +1269,7 @@ func init() {
       },
       "post": {
         "tags": [
-          "greNetworks"
+          "gre-networks"
         ],
         "operationId": "createGreNetwork",
         "parameters": [
@@ -1277,7 +1277,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/GreNetwork"
+              "$ref": "#/definitions/greNetwork"
             }
           }
         ],
@@ -1285,7 +1285,7 @@ func init() {
           "201": {
             "description": "created GRE network",
             "schema": {
-              "$ref": "#/definitions/network"
+              "$ref": "#/definitions/greNetwork"
             }
           },
           "default": {
@@ -1486,22 +1486,6 @@ func init() {
     }
   },
   "definitions": {
-    "GreNetwork": {
-      "type": "object",
-      "allOf": [
-        {
-          "$ref": "#/definitions/baseResource"
-        }
-      ],
-      "properties": {
-        "CIDR": {
-          "type": "string"
-        },
-        "GREKey": {
-          "type": "integer"
-        }
-      }
-    },
     "allocatedIpPool": {
       "type": "object",
       "properties": {
@@ -1675,6 +1659,22 @@ func init() {
         },
         "message": {
           "type": "string"
+        }
+      }
+    },
+    "greNetwork": {
+      "type": "object",
+      "allOf": [
+        {
+          "$ref": "#/definitions/baseResource"
+        }
+      ],
+      "properties": {
+        "CIDR": {
+          "type": "string"
+        },
+        "GREKey": {
+          "type": "integer"
         }
       }
     },

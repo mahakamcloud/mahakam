@@ -25,7 +25,7 @@ type CreateGreNetworkCreated struct {
 	/*
 	  In: Body
 	*/
-	Payload *models.Network `json:"body,omitempty"`
+	Payload *models.GreNetwork `json:"body,omitempty"`
 }
 
 // NewCreateGreNetworkCreated creates CreateGreNetworkCreated with default headers values
@@ -35,13 +35,13 @@ func NewCreateGreNetworkCreated() *CreateGreNetworkCreated {
 }
 
 // WithPayload adds the payload to the create gre network created response
-func (o *CreateGreNetworkCreated) WithPayload(payload *models.Network) *CreateGreNetworkCreated {
+func (o *CreateGreNetworkCreated) WithPayload(payload *models.GreNetwork) *CreateGreNetworkCreated {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the create gre network created response
-func (o *CreateGreNetworkCreated) SetPayload(payload *models.Network) {
+func (o *CreateGreNetworkCreated) SetPayload(payload *models.GreNetwork) {
 	o.Payload = payload
 }
 

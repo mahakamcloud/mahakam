@@ -29,7 +29,7 @@ func NewGetGreNetworks(ctx *middleware.Context, handler GetGreNetworksHandler) *
 	return &GetGreNetworks{Context: ctx, Handler: handler}
 }
 
-/*GetGreNetworks swagger:route GET /gre-networks greNetworks getGreNetworks
+/*GetGreNetworks swagger:route GET /gre-networks gre-networks getGreNetworks
 
 GetGreNetworks get gre networks API
 

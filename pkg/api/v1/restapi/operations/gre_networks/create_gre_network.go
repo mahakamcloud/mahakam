@@ -29,7 +29,7 @@ func NewCreateGreNetwork(ctx *middleware.Context, handler CreateGreNetworkHandle
 	return &CreateGreNetwork{Context: ctx, Handler: handler}
 }
 
-/*CreateGreNetwork swagger:route POST /gre-networks greNetworks createGreNetwork
+/*CreateGreNetwork swagger:route POST /gre-networks gre-networks createGreNetwork
 
 CreateGreNetwork create gre network API
 

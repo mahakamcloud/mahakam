@@ -13,7 +13,7 @@ import (
 )
 
 // GreNetwork gre network
-// swagger:model GreNetwork
+// swagger:model greNetwork
 type GreNetwork struct {
 	BaseResource
 

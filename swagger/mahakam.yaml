@@ -225,7 +225,7 @@ paths:
   /gre-networks:
     get:
       tags:
-        - greNetworks
+        - gre-networks
       operationId: getGreNetworks
       responses:
         200:
@@ -233,25 +233,25 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/definitions/GreNetwork"
+              $ref: "#/definitions/greNetwork"
         default:
           description: generic error response
           schema:
             $ref: "#/definitions/error"
     post:
       tags:
-        - greNetworks
+        - gre-networks
       operationId: createGreNetwork
       parameters:
         - name: body
           in: body
           schema:
-            $ref: "#/definitions/GreNetwork"
+            $ref: "#/definitions/greNetwork"
       responses:
         201:
           description: created GRE network
           schema:
-            $ref: "#/definitions/network"
+            $ref: "#/definitions/greNetwork"
         default:
           description: error
           schema:
@@ -507,7 +507,7 @@ definitions:
         type: string
       value:
         type: string
-  GreNetwork:
+  greNetwork:
     type: object
     allOf:
       - $ref: "#/definitions/baseResource"

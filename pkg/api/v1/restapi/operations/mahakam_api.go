@@ -150,10 +150,10 @@ type MahakamAPI struct {
 	BareMetalHostsGetBareMetalHostsHandler bare_metal_hosts.GetBareMetalHostsHandler
 	// ClustersGetClustersHandler sets the operation handler for the get clusters operation
 	ClustersGetClustersHandler clusters.GetClustersHandler
-	// ClustersGetKubeClusterHandler sets the operation handler for the get kube cluster operation
-	ClustersGetKubeClusterHandler clusters.GetKubeClusterHandler
 	// GreNetworksGetGreNetworksHandler sets the operation handler for the get gre networks operation
 	GreNetworksGetGreNetworksHandler gre_networks.GetGreNetworksHandler
+	// ClustersGetKubeClusterHandler sets the operation handler for the get kube cluster operation
+	ClustersGetKubeClusterHandler clusters.GetKubeClusterHandler
 	// NetworksGetNetworksHandler sets the operation handler for the get networks operation
 	NetworksGetNetworksHandler networks.GetNetworksHandler
 	// BareMetalHostsRegisterBareMetalHostHandler sets the operation handler for the register bare metal host operation
