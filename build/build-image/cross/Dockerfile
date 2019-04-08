@@ -32,3 +32,5 @@ ENV GOPATH /go
 RUN mkdir -p $GOPATH/{bin,main,pkg,src} && chmod -R 777 $GOPATH
 ENV PATH $GOPATH/bin:$PATH
 WORKDIR $GOPATH
+
+RUN curl https://raw.githubusercontent.com/golang/dep/v0.5.1/install.sh | sh
