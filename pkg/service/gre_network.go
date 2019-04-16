@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
+	"github.com/mahakamcloud/mahakam/pkg/netdclient"
 	"github.com/mahakamcloud/mahakam/pkg/repository"
 )
 
@@ -29,6 +30,21 @@ func (s *GreNetworkService) CreateGreNetwork(g *models.GreNetwork) error {
 	g.GREKey = greKey
 	// TODO(vjdhama) : Use network allocator
 	g.CIDR = DefaultCIDRRange
+
+	bmHostService, err := NewBareMetalHostService()
+	if err != nil {
+		return err
+	}
+
+	bmhosts, err := bmHostService.GetAll()
+	if err != nil {
+		return err
+	}
+
+	netdc := netdclient.Client{}
+
+	// TODO(vjdhama) : Save responses on KV store
+	netdc.CreateNetwork(bmhosts, g)
 
 	return s.repo.Put(g)
 }
