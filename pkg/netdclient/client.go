@@ -9,6 +9,7 @@ import (
 
 	"github.com/mahakamcloud/mahakam/pkg/api/v1/models"
 	"github.com/mahakamcloud/netd/netd/host"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -63,19 +64,20 @@ type CreateNetworkResponse struct {
 type Client struct{}
 
 // CreateNetwork creates network on provided BareMetalHosts
-func (s *Client) CreateNetwork(hosts []*models.BareMetalHost, network *models.GreNetwork) [][]byte {
-	var netdResponses [][]byte
+func (s *Client) CreateNetwork(hosts []*models.BareMetalHost, network *models.GreNetwork) map[string][]byte {
+	var netdResponses map[string][]byte
 
 	// TODO(vjdhama) : make concurrent calls to netd hosts
 	for _, h := range hosts {
 		netdPayload, err := constructPayload(remove(hosts, h), network)
-		if err == nil {
-			netdResponses = append(netdResponses, netdPayload)
+		if err != nil {
+			log.Errorf("Error Mashalling request %v", err)
+			continue
 		}
 
 		net, err := s.createNetwork(netdPayload, string(*h.IP), NetdPort)
 		if err == nil {
-			netdResponses = append(netdResponses, net)
+			netdResponses[*h.Name] = net
 		}
 	}
 
