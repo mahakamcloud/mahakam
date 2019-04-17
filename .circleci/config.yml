@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: /go/src/github.com/mahakamcloud/mahakam
     docker:
-      - image: mahakamcloud/builder:20190219
+      - image: mahakamcloud/builder:20190417
     steps:
       - checkout
 
