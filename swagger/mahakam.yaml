@@ -414,19 +414,6 @@ definitions:
         type: array
         items:
           $ref:  "#/definitions/label"
-  kubeCluster:
-    type: object
-    allOf:
-      - $ref: "#/definitions/baseResource"
-    properties:
-      nodeSize:
-        type: string
-        enum: [xs, s, m, l, xl]
-        default: xs
-      numNodes:
-        type: integer
-        minimum: 1
-        maximum: 10
   cluster:
     type: object
     required:
@@ -500,6 +487,19 @@ definitions:
               type: string
             value:
               type: string
+  kubeCluster:
+    type: object
+    allOf:
+      - $ref: "#/definitions/baseResource"
+    properties:
+      nodeSize:
+        type: string
+        enum: [xs, s, m, l, xl]
+        default: xs
+      numNodes:
+        type: integer
+        minimum: 1
+        maximum: 10
   label:
     type: object
     properties:
@@ -516,6 +516,8 @@ definitions:
         type: string
       GREKey:
         type: integer
+      Status:
+        $ref: "#/definitions/networkStatus"
   network:
     type: object
     required:
@@ -537,6 +539,10 @@ definitions:
         type: string
       dhcp:
         type: string
+  networkStatus:
+    type: object
+    additionalProperties:
+      type: string
   nodeSpec:
     type: object
     properties:

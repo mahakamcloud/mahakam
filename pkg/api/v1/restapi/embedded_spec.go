@@ -746,6 +746,9 @@ func init() {
         },
         "GREKey": {
           "type": "integer"
+        },
+        "Status": {
+          "$ref": "#/definitions/networkStatus"
         }
       }
     },
@@ -853,6 +856,12 @@ func init() {
         "networkName": {
           "type": "string"
         }
+      }
+    },
+    "networkStatus": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
       }
     },
     "node": {
@@ -1675,6 +1684,9 @@ func init() {
         },
         "GREKey": {
           "type": "integer"
+        },
+        "Status": {
+          "$ref": "#/definitions/networkStatus"
         }
       }
     },
@@ -1782,6 +1794,12 @@ func init() {
         "networkName": {
           "type": "string"
         }
+      }
+    },
+    "networkStatus": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
       }
     },
     "node": {

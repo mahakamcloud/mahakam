@@ -22,6 +22,9 @@ type GreNetwork struct {
 
 	// g r e key
 	GREKey int64 `json:"GREKey,omitempty"`
+
+	// status
+	Status NetworkStatus `json:"Status,omitempty"`
 }
 
 // UnmarshalJSON unmarshals this object from a JSON structure
@@ -38,6 +41,8 @@ func (m *GreNetwork) UnmarshalJSON(raw []byte) error {
 		CIDR string `json:"CIDR,omitempty"`
 
 		GREKey int64 `json:"GREKey,omitempty"`
+
+		Status NetworkStatus `json:"Status,omitempty"`
 	}
 	if err := swag.ReadJSON(raw, &propsGreNetwork); err != nil {
 		return err
@@ -45,6 +50,8 @@ func (m *GreNetwork) UnmarshalJSON(raw []byte) error {
 	m.CIDR = propsGreNetwork.CIDR
 
 	m.GREKey = propsGreNetwork.GREKey
+
+	m.Status = propsGreNetwork.Status
 
 	return nil
 }
@@ -64,10 +71,14 @@ func (m GreNetwork) MarshalJSON() ([]byte, error) {
 		CIDR string `json:"CIDR,omitempty"`
 
 		GREKey int64 `json:"GREKey,omitempty"`
+
+		Status NetworkStatus `json:"Status,omitempty"`
 	}
 	propsGreNetwork.CIDR = m.CIDR
 
 	propsGreNetwork.GREKey = m.GREKey
+
+	propsGreNetwork.Status = m.Status
 
 	jsonDataPropsGreNetwork, errGreNetwork := swag.WriteJSON(propsGreNetwork)
 	if errGreNetwork != nil {
@@ -86,9 +97,29 @@ func (m *GreNetwork) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *GreNetwork) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Status) { // not required
+		return nil
+	}
+
+	if err := m.Status.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("Status")
+		}
+		return err
+	}
+
 	return nil
 }
 
