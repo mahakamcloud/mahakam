@@ -6,6 +6,7 @@ set -e -o pipefail
 cd $(git rev-parse --show-toplevel)
 echo "Running tests in $(pwd)..."
 
+dep ensure -v
 # List of packages to test
 # Currently no packaged tests are available in fixtures or examples
 packages=$(go list ./... | grep -v -E 'vendor|fixtures|examples|pkg/api/v1')
