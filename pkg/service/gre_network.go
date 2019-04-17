@@ -8,12 +8,15 @@ import (
 	"github.com/mahakamcloud/mahakam/pkg/repository"
 )
 
+// DefaultCIDRRange defines the default network CIDR for new networks
 const DefaultCIDRRange = "10.40.0.0/16"
 
+// GreNetworkService is service for GreNetworkRepository
 type GreNetworkService struct {
 	repo *repository.GreNetworkRepository
 }
 
+// NewGreNetworkService creates a new GreNetworkService
 func NewGreNetworkService() (*GreNetworkService, error) {
 	r, err := repository.NewGreNetworkRepository()
 	if err != nil {
@@ -22,6 +25,7 @@ func NewGreNetworkService() (*GreNetworkService, error) {
 	return &GreNetworkService{r}, nil
 }
 
+// CreateGreNetwork interacts with netd to create networks
 func (s *GreNetworkService) CreateGreNetwork(g *models.GreNetwork) error {
 	greKey, err := s.generateGreKey()
 	if err != nil {
@@ -49,6 +53,7 @@ func (s *GreNetworkService) CreateGreNetwork(g *models.GreNetwork) error {
 	return s.repo.Put(g)
 }
 
+// GetAll lists all GreNetworks
 func (s *GreNetworkService) GetAll() ([]*models.GreNetwork, error) {
 	return s.repo.List()
 }

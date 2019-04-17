@@ -66,7 +66,7 @@ type Client struct{}
 func (s *Client) CreateNetwork(hosts []*models.BareMetalHost, network *models.GreNetwork) [][]byte {
 	var netdResponses [][]byte
 
-	// TODO(vjdhama) : make concurrent calls to netd
+	// TODO(vjdhama) : make concurrent calls to netd hosts
 	for _, h := range hosts {
 		netdPayload, err := constructPayload(remove(hosts, h), network)
 		if err == nil {
