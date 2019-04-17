@@ -21,7 +21,8 @@ RUN set -e -x \
             
 RUN curl -L -o /tmp/docker-$DOCKER_VERSION.tgz https://download.docker.com/linux/static/stable/x86_64/docker-$DOCKER_VERSION.tgz \
   && tar -xz -C /tmp -f /tmp/docker-$DOCKER_VERSION.tgz \
-  && mv /tmp/docker/* /usr/bin
+  && mv /tmp/docker/* /usr/bin \
+  && curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 
 VOLUME /usr/share/coverage
 VOLUME /usr/share/testresults
