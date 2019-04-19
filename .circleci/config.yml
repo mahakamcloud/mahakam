@@ -16,13 +16,13 @@ jobs:
           name: Submit coverage results
           command: bash <(curl -s https://codecov.io/bash)
 
-      - setup_remote_docker:
-          docker_layer_caching: true
-          version: 18.06.0-ce
-
       - run:
           name: Build mahakam server binary
           command: ./hack/build-bin.sh mahakam-server cmd/mahakam_server linux
+
+      - setup_remote_docker:
+          docker_layer_caching: true
+          version: 18.06.0-ce
 
       - run:
           name: Build docker images
